@@ -57,7 +57,7 @@ public class AppSelectionDialog extends Dialog {
     private BorderLayoutData dataCenter;
     private Status countLabel;
     private Status lastAppLabel;
-    private Command cmdAdd;
+    private final Command cmdAdd;
 
     /**
      * 
@@ -104,7 +104,7 @@ public class AppSelectionDialog extends Dialog {
     }
 
     private void initAppListPanel() {
-        appsListPanel = new BaseCatalogMainPanel();
+        appsListPanel = new BaseCatalogMainPanel(service);
         appsListPanel.setSize(400, 400);
         appsListPanel.addGridSelectionChangeListener(buildGridChangeListener());
     }
