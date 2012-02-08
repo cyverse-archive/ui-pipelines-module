@@ -2,9 +2,12 @@ package org.iplantc.core.client.pipelines.views.dialogs;
 
 import java.util.ArrayList;
 
+import org.iplantc.core.client.pipelines.Constants;
 import org.iplantc.core.jsonutil.JsonUtil;
 import org.iplantc.core.uiapplications.client.events.AnalysisCategorySelectedEvent;
 import org.iplantc.core.uiapplications.client.events.AnalysisCategorySelectedEventHandler;
+import org.iplantc.core.uiapplications.client.events.AnalysisSelectEvent;
+import org.iplantc.core.uiapplications.client.events.AnalysisSelectEventHandler;
 import org.iplantc.core.uiapplications.client.models.Analysis;
 import org.iplantc.core.uiapplications.client.models.AnalysisGroup;
 import org.iplantc.core.uiapplications.client.services.AppTemplateServiceFacade;
@@ -104,7 +107,7 @@ public class AppSelectionDialog extends Dialog {
     }
 
     private void initAppListPanel() {
-        appsListPanel = new BaseCatalogMainPanel(service);
+        appsListPanel = new BaseCatalogMainPanel(Constants.CLIENT.tagAppSelectDialog(), service);
         appsListPanel.setSize(400, 400);
         appsListPanel.addGridSelectionChangeListener(buildGridChangeListener());
     }
@@ -241,6 +244,7 @@ public class AppSelectionDialog extends Dialog {
     private void initHandlers() {
         EventBus eventbus = EventBus.getInstance();
         handlers = new ArrayList<HandlerRegistration>();
+
         handlers.add(eventbus.addHandler(AnalysisCategorySelectedEvent.TYPE,
                 new AnalysisCategorySelectedEventHandlerImpl()));
         getButtonById(ADD).addSelectionListener(new SelectionListener<ButtonEvent>() {
@@ -252,6 +256,16 @@ public class AppSelectionDialog extends Dialog {
                 }
             }
         });
+
+        handlers.add(eventbus.addHandler(AnalysisSelectEvent.TYPE, new AnalysisSelectEventHandler() {
+            @Override
+            public void onSelection(AnalysisSelectEvent event) {
+                if (Constants.CLIENT.tagAppSelectDialog().equals(event.getSourceTag())) {
+                    categoryPanel.selectCategory(event.getCategoryId());
+                    appsListPanel.selectTool(event.getAppId());
+                }
+            }
+        }));
     }
 
     /**

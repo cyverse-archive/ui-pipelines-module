@@ -9,4 +9,11 @@ public interface PipelinesConstants extends Messages {
      * @return String url
      */
     String forumsUrl();
+
+    /**
+     * A Tag used to identify the App Selection Dialog.
+     * 
+     * @return A Tag identifying the App Selection Dialog.
+     */
+    String tagAppSelectDialog();
 }
