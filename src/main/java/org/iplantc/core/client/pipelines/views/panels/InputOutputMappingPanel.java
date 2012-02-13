@@ -1,11 +1,13 @@
 package org.iplantc.core.client.pipelines.views.panels;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import org.iplantc.core.client.pipelines.I18N;
 import org.iplantc.core.client.pipelines.events.PipelineStepValidationEvent;
 import org.iplantc.core.client.pipelines.models.PipelineAppModel;
+import org.iplantc.core.client.pipelines.models.PipelineMapping;
 import org.iplantc.core.jsonutil.JsonUtil;
 import org.iplantc.core.metadata.client.JSONMetaDataObject;
 import org.iplantc.core.metadata.client.property.DataObject;
@@ -40,6 +42,8 @@ import com.google.gwt.json.client.JSONValue;
  */
 public class InputOutputMappingPanel extends PipelineStep {
 
+
+
     private List<PipelineAppModel> apps;
     private Grid<PipelineAppModel> grid;
 
@@ -64,86 +68,34 @@ public class InputOutputMappingPanel extends PipelineStep {
 
         ColumnConfig inputLabel = new ColumnConfig(DataObject.INPUT_TYPE, I18N.DISPLAY.inputLabel(), 200);
         inputLabel.setSortable(false);
-        inputLabel.setRenderer(new GridCellRenderer<PipelineAppModel>() {
-            @Override
-            public Object render(PipelineAppModel model, String property, ColumnData config,
-                    int rowIndex, int colIndex, ListStore<PipelineAppModel> store,
-                    Grid<PipelineAppModel> grid) {
-                VerticalPanel ret = new VerticalPanel();
-                ret.setSize("100%", "100%"); //$NON-NLS-1$ //$NON-NLS-2$
-                ret.setSpacing(10);
-
-                for (PropertyData propertyModel : model.getInputs()) {
-                    ret.add(new Label((String)propertyModel.get(PropertyData.LABEL)));
-                }
-
-                return ret;
-            }
-        });
+        inputLabel.setRenderer(new InputLabelGridCellRenderer());
 
         ColumnConfig inputSelect = new ColumnConfig(DataObject.OUTPUT_TYPE, I18N.DISPLAY.selectInputs(),
                 200);
         inputSelect.setSortable(false);
-        inputSelect.setRenderer(new GridCellRenderer<PipelineAppModel>() {
-            @Override
-            public Object render(PipelineAppModel model, String property, ColumnData config,
-                    int rowIndex, int colIndex, ListStore<PipelineAppModel> store,
-                    Grid<PipelineAppModel> grid) {
-                VerticalPanel ret = new VerticalPanel();
-                ret.setSize("100%", "100%"); //$NON-NLS-1$ //$NON-NLS-2$
-
-                if (rowIndex == 0) {
-                    ret.setSpacing(10);
-                } else {
-                    ret.setSpacing(4);
-                }
-
-                PipelineAppModel prevModel = store.getAt(rowIndex - 1);
-
-                for (PropertyData propertyModel : model.getInputs()) {
-                    if (rowIndex == 0) {
-                        ret.add(new Label(I18N.DISPLAY.userProvided()));
-                    } else {
-                        ret.add(buildOutputsComboBox(prevModel, model, propertyModel.getProperty()
-                                .getDataObject().getId()));
-                    }
-                }
-
-                return ret;
-            }
-        });
+        inputSelect.setRenderer(new InputSelectGridCellRenderer());
 
         ColumnConfig outputs = new ColumnConfig(DataObject.OUTPUT_FILENAME, I18N.DISPLAY.outputs(), 200);
         outputs.setSortable(false);
-        outputs.setRenderer(new GridCellRenderer<PipelineAppModel>() {
-            @Override
-            public Object render(PipelineAppModel model, String property, ColumnData config,
-                    int rowIndex, int colIndex, ListStore<PipelineAppModel> store,
-                    Grid<PipelineAppModel> grid) {
-                VerticalPanel ret = new VerticalPanel();
-                ret.setSize("100%", "100%"); //$NON-NLS-1$ //$NON-NLS-2$
-                ret.setSpacing(10);
-
-                for (PropertyData propertyModel : model.getOutputs()) {
-                    ret.add(new Label((String)propertyModel.get(PropertyData.LABEL)));
-                }
-
-                return ret;
-            }
-        });
+        outputs.setRenderer(new OutputsCellRenderer());
 
         return new ColumnModel(Arrays.asList(name, inputLabel, inputSelect, outputs));
     }
 
-    private ComboBox<PropertyData> buildOutputsComboBox(final PipelineAppModel sourceStep,
+    private ComboBox<PropertyData> buildOutputsComboBox(final List<PipelineAppModel> sourceSteps,
             final PipelineAppModel targetStep, final String targetInputId) {
         ListStore<PropertyData> comboStore = new ListStore<PropertyData>();
+        final List<PipelineMapping> mappings = new ArrayList<PipelineMapping>();
 
         PropertyData blankOption = new PropertyData(null);
         blankOption.set(PropertyData.LABEL, I18N.DISPLAY.userProvided());
 
         comboStore.add(blankOption);
-        comboStore.add(sourceStep.getOutputs());
+        for (PipelineAppModel model : sourceSteps) {
+            List<PropertyData> pd = model.getOutputs();
+            comboStore.add(pd);
+            mappings.add(new PipelineMapping(model, pd));
+        }
 
         ComboBox<PropertyData> combo = new ComboBox<PropertyData>();
         combo.setStore(comboStore);
@@ -155,32 +107,20 @@ public class InputOutputMappingPanel extends PipelineStep {
         // default to the "blank" selection
         combo.setSelection(Arrays.asList(blankOption));
 
-        FastMap<String> mapping = targetStep.getInputOutputMapping().get(sourceStep.getStepName());
-        if (mapping != null && !mapping.isEmpty()) {
-            for (PropertyData output : sourceStep.getOutputs()) {
-                if (output.getProperty().getDataObject().getId().equals(mapping.get(targetInputId))) {
-                    combo.setSelection(Arrays.asList(output));
+        for (PipelineAppModel model : sourceSteps) {
+            FastMap<String> mapping = targetStep.getInputOutputMapping().get(model.getStepName());
+            if (mapping != null && !mapping.isEmpty()) {
+                for (PropertyData output : model.getOutputs()) {
+                    if (output.getProperty().getDataObject().getId().equals(mapping.get(targetInputId))) {
+                        combo.setSelection(Arrays.asList(output));
+                        break;
+                    }
                 }
-            }
 
+            }
         }
 
-        combo.addSelectionChangedListener(new SelectionChangedListener<PropertyData>() {
-            @Override
-            public void selectionChanged(SelectionChangedEvent<PropertyData> se) {
-                // set the input-output mapping based on the selected Output value
-                String outputId = null;
-                PropertyData selectedOutput = se.getSelectedItem();
-
-                if (selectedOutput != null && selectedOutput.getProperty() != null) {
-                    outputId = selectedOutput.getProperty().getDataObject().getId();
-                }
-
-                targetStep.setInputOutputMapping(sourceStep.getStepName(), outputId, targetInputId);
-
-                EventBus.getInstance().fireEvent(new PipelineStepValidationEvent(isValid()));
-            }
-        });
+        combo.addSelectionChangedListener(new MappingComboSelectionChangeListener(mappings, targetStep, targetInputId));
 
         return combo;
     }
@@ -269,5 +209,111 @@ public class InputOutputMappingPanel extends PipelineStep {
         grid.getView().refresh(false);
     }
     
+    private final class OutputsCellRenderer implements GridCellRenderer<PipelineAppModel> {
+        @Override
+        public Object render(PipelineAppModel model, String property, ColumnData config,
+                int rowIndex, int colIndex, ListStore<PipelineAppModel> store,
+                Grid<PipelineAppModel> grid) {
+            VerticalPanel ret = new VerticalPanel();
+            ret.setSize("100%", "100%"); //$NON-NLS-1$ //$NON-NLS-2$
+            ret.setSpacing(10);
+
+            for (PropertyData propertyModel : model.getOutputs()) {
+                ret.add(new Label((String)propertyModel.get(PropertyData.LABEL)));
+            }
+
+            return ret;
+        }
+    }
+
+    private final class InputSelectGridCellRenderer implements GridCellRenderer<PipelineAppModel> {
+        @Override
+        public Object render(PipelineAppModel model, String property, ColumnData config,
+                int rowIndex, int colIndex, ListStore<PipelineAppModel> store,
+                Grid<PipelineAppModel> grid) {
+            VerticalPanel ret = new VerticalPanel();
+            ret.setSize("100%", "100%"); //$NON-NLS-1$ //$NON-NLS-2$
+
+            if (rowIndex == 0) {
+                ret.setSpacing(10);
+            } else {
+                ret.setSpacing(4);
+            }
+            
+            List<PipelineAppModel> prevModels = new ArrayList<PipelineAppModel>();
+            int index = 0;
+            for (PipelineAppModel prevModel : store.getModels()) {
+                if (index < rowIndex) {
+                    prevModels.add(prevModel);
+                    index++;
+                }
+            }
+
+            for (PropertyData propertyModel : model.getInputs()) {
+                if (rowIndex == 0) {
+                    ret.add(new Label(I18N.DISPLAY.userProvided()));
+                } else {
+                    ret.add(buildOutputsComboBox(prevModels, model, propertyModel.getProperty()
+                            .getDataObject().getId()));
+                }
+            }
+
+            return ret;
+        }
+    }
+
+    private final class InputLabelGridCellRenderer implements GridCellRenderer<PipelineAppModel> {
+        @Override
+        public Object render(PipelineAppModel model, String property, ColumnData config,
+                int rowIndex, int colIndex, ListStore<PipelineAppModel> store,
+                Grid<PipelineAppModel> grid) {
+            VerticalPanel ret = new VerticalPanel();
+            ret.setSize("100%", "100%"); //$NON-NLS-1$ //$NON-NLS-2$
+            ret.setSpacing(10);
+
+            for (PropertyData propertyModel : model.getInputs()) {
+                ret.add(new Label((String)propertyModel.get(PropertyData.LABEL)));
+            }
+
+            return ret;
+        }
+    }
+
+    private final class MappingComboSelectionChangeListener extends
+            SelectionChangedListener<PropertyData> {
+        private final List<PipelineMapping> mappings;
+        private final PipelineAppModel targetStep;
+        private final String targetInputId;
+
+        private MappingComboSelectionChangeListener(List<PipelineMapping> mappings,
+                PipelineAppModel targetStep, String targetInputId) {
+            this.mappings = mappings;
+            this.targetStep = targetStep;
+            this.targetInputId = targetInputId;
+        }
+
+        @Override
+        public void selectionChanged(SelectionChangedEvent<PropertyData> se) {
+            // set the input-output mapping based on the selected Output value
+            String outputId = null;
+            PropertyData selectedOutput = se.getSelectedItem();
+
+            if (selectedOutput != null && selectedOutput.getProperty() != null) {
+                outputId = selectedOutput.getProperty().getDataObject().getId();
+            }
+
+            for (PipelineMapping mapping : mappings) {
+                for (PropertyData data : mapping.getPropertyDataList()) {
+                    if (selectedOutput.equals(data)) {
+                        targetStep.setInputOutputMapping(mapping.getAppModel().getStepName(), outputId,
+                                targetInputId);
+                        break;
+                    }
+                }
+            }
+
+            EventBus.getInstance().fireEvent(new PipelineStepValidationEvent(isValid()));
+        }
+    }
     
 }
