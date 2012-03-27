@@ -15,7 +15,8 @@ import org.iplantc.core.uiapplications.client.views.panels.AbstractCatalogCatego
 import org.iplantc.core.uiapplications.client.views.panels.BaseCatalogMainPanel;
 import org.iplantc.core.uicommons.client.ErrorHandler;
 import org.iplantc.core.uicommons.client.events.EventBus;
-import org.iplantc.de.client.I18N;
+import org.iplantc.de.client.DeCommonI18N;
+import org.iplantc.core.client.pipelines.I18N;
 
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.event.BaseEvent;
@@ -79,13 +80,13 @@ public class AppSelectionDialog extends Dialog {
     private void init() {
         addBeforeShowListener();
 
-        setHeading(org.iplantc.core.client.pipelines.I18N.DISPLAY.selectWindowTitle());
+        setHeading(I18N.DISPLAY.selectWindowTitle());
         setSize(800, 400);
         setModal(true);
 
         setButtons(ADD + CLOSE);
         // make the yes button into an add button
-        getButtonById(ADD).setText(I18N.DISPLAY.add());
+        getButtonById(ADD).setText(DeCommonI18N.DISPLAY.add());
 
         initHandlers();
 
@@ -275,11 +276,11 @@ public class AppSelectionDialog extends Dialog {
      * @param lastAppName name of the app that was added last, or null
      */
     public void updateStatusBar(int appCount, String lastAppName) {
-        countLabel.setText(appCount == 1 ? org.iplantc.core.client.pipelines.I18N.DISPLAY
-                .appCountSingular() : org.iplantc.core.client.pipelines.I18N.DISPLAY
+        countLabel.setText(appCount == 1 ? I18N.DISPLAY
+                .appCountSingular() : I18N.DISPLAY
                 .appCountPlural(appCount));
-        lastAppLabel.setText(org.iplantc.core.client.pipelines.I18N.DISPLAY
-                .lastApp(lastAppName == null ? org.iplantc.core.client.pipelines.I18N.DISPLAY
+        lastAppLabel.setText(I18N.DISPLAY
+                .lastApp(lastAppName == null ? I18N.DISPLAY
                         .lastAppNotDefined() : lastAppName));
     }
 
@@ -304,7 +305,7 @@ public class AppSelectionDialog extends Dialog {
     }
 
     private void updateAnalysesListing(final AnalysisGroup group) {
-        appsListPanel.mask(I18N.DISPLAY.loadingMask());
+        appsListPanel.mask(DeCommonI18N.DISPLAY.loadingMask());
         service.getAnalysis(group.getId(), new AsyncCallback<String>() {
             @Override
             public void onSuccess(String result) {
