@@ -1,8 +1,13 @@
 package org.iplantc.core.client.pipelines.views.panels;
 
 import org.iplantc.core.client.pipelines.I18N;
+import org.iplantc.core.client.pipelines.events.PipelineStepValidationEvent;
 import org.iplantc.core.jsonutil.JsonUtil;
+import org.iplantc.core.uicommons.client.events.EventBus;
 
+import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.FieldEvent;
+import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.FormPanel.LabelAlign;
 import com.extjs.gxt.ui.client.widget.form.TextArea;
@@ -13,6 +18,8 @@ import com.google.gwt.json.client.JSONString;
 import com.google.gwt.json.client.JSONValue;
 
 /**
+ * 
+ * A panel that provides a form to collect basic information about a workflow
  * 
  * @author sriram
  * 
@@ -53,6 +60,7 @@ public class PipelineInfoPanel extends PipelineStep {
         txtPipelineName.setAutoValidate(true);
         txtPipelineName.setFieldLabel(I18N.DISPLAY.pipelineName());
         txtPipelineName.setAllowBlank(false);
+        addNameValidationListeners();
     }
 
     private void initPipelineDescField() {
@@ -61,11 +69,33 @@ public class PipelineInfoPanel extends PipelineStep {
         txtPipelineDesc.setFieldLabel(I18N.DISPLAY.pipelineDescription());
         txtPipelineDesc.setHeight(100);
         txtPipelineDesc.setAllowBlank(false);
+        addDescValidationListeners();
+    }
+
+    private void addNameValidationListeners() {
+        txtPipelineName.addListener(Events.Valid, new FieldValidationEvent());
+        txtPipelineName.addListener(Events.Invalid, new FieldValidationEvent());
+    }
+
+    private void addDescValidationListeners() {
+        txtPipelineDesc.addListener(Events.Valid, new FieldValidationEvent());
+        txtPipelineDesc.addListener(Events.Invalid, new FieldValidationEvent());
     }
 
     @Override
     public boolean isValid() {
-        return panel.isValid();
+        // remove validation listeners before testing for valid form to prevent infinite loop
+        txtPipelineName.removeAllListeners();
+        txtPipelineDesc.removeAllListeners();
+        boolean valid = panel.isValid();
+        addNameValidationListeners();
+        addDescValidationListeners();
+        return valid;
+    }
+
+    private void fireValidationEvent() {
+        PipelineStepValidationEvent event = new PipelineStepValidationEvent(isValid());
+        EventBus.getInstance().fireEvent(event);
     }
 
     @Override
@@ -81,6 +111,15 @@ public class PipelineInfoPanel extends PipelineStep {
                         JsonUtil.formatString(txtPipelineDesc.getValue() != null ? txtPipelineDesc
                                 .getValue() : ""))); //$NON-NLS-1$
         return obj;
+    }
+
+    private class FieldValidationEvent implements Listener<FieldEvent> {
+
+        @Override
+        public void handleEvent(FieldEvent be) {
+            fireValidationEvent();
+        }
+
     }
 
 }

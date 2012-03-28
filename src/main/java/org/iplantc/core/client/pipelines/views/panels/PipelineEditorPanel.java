@@ -104,7 +104,6 @@ public class PipelineEditorPanel extends ContentPanel {
 
     private void initListeners() {
         EventBus.getInstance().addHandler(PipelineChangeEvent.TYPE, new PipelineChangeEventHandler() {
-
             @Override
             public void onChange(PipelineChangeEvent event) {
                 pnlMapping.reconfigure(event.getAppModels());
@@ -113,12 +112,9 @@ public class PipelineEditorPanel extends ContentPanel {
 
         EventBus.getInstance().addHandler(PipelineStepValidationEvent.TYPE,
                 new PipelineStepValidationEventHandler() {
-
                     @Override
                     public void onValidate(PipelineStepValidationEvent event) {
-                        if (event.isValid()) {
                             validateSteps();
-                        }
                     }
                 });
     }
