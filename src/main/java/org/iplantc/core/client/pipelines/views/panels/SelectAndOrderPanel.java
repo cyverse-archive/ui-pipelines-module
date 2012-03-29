@@ -11,6 +11,7 @@ import org.iplantc.core.client.pipelines.images.Resources;
 import org.iplantc.core.client.pipelines.models.PipelineAppModel;
 import org.iplantc.core.client.pipelines.views.dialogs.AppSelectionDialog;
 import org.iplantc.core.jsonutil.JsonUtil;
+import org.iplantc.core.metadata.client.JSONMetaDataObject;
 import org.iplantc.core.uiapplications.client.models.Analysis;
 import org.iplantc.core.uiapplications.client.services.AppTemplateUserServiceFacade;
 import org.iplantc.core.uiapplications.client.views.panels.AbstractCatalogCategoryPanel;
@@ -42,6 +43,7 @@ import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
+import com.google.gwt.json.client.JSONString;
 import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -144,6 +146,10 @@ public class SelectAndOrderPanel extends PipelineStep {
             @Override
             public void onSuccess(String result) {
                 JSONObject obj = JSONParser.parseStrict(result).isObject();
+                obj.put(PipelineAppModel.TEMPLATE_ID, obj.get(JSONMetaDataObject.ID));
+                obj.put(JSONMetaDataObject.DESCRIPTION, obj.get(JSONMetaDataObject.NAME));
+                obj.put(JSONMetaDataObject.NAME, new JSONString(""));
+
                 PipelineAppModel appModel = new PipelineAppModel(obj, app);
                 grid.getStore().add(appModel);
                 if (dialog != null) {
@@ -160,8 +166,8 @@ public class SelectAndOrderPanel extends PipelineStep {
         });
     }
 
-    private void addAppModel(final Analysis app, JSONObject appObj) {
-        PipelineAppModel appModel = new PipelineAppModel(appObj, app);
+    private void addAppModel(final Analysis app, JSONObject stepObj) {
+        PipelineAppModel appModel = new PipelineAppModel(stepObj, app);
         grid.getStore().add(appModel);
     }
 
@@ -419,10 +425,10 @@ public class SelectAndOrderPanel extends PipelineStep {
         if (obj != null) {
             JSONArray arr = obj.get("steps").isArray();
             for (int i = 0;i < arr.size(); i ++) {
-                JSONObject temp = arr.get(i).isObject();
-                JSONObject appObj = JsonUtil.getObject(temp, "Analysis");
-                Analysis a = new Analysis(appObj);
-                addAppModel(a, appObj);
+                JSONObject stepObj = arr.get(i).isObject();
+                JSONObject appObj = JsonUtil.getObject(stepObj, "Analysis");
+                Analysis app = new Analysis(appObj);
+                addAppModel(app, stepObj);
             }
             Scheduler.get().scheduleDeferred(new ScheduledCommand() {
                 

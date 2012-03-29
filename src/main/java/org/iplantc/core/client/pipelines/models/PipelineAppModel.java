@@ -30,7 +30,6 @@ public class PipelineAppModel extends BaseModelData {
     public static final String APP = "app"; //$NON-NLS-1$
 
     // JSON keys used in toJson objects
-    public static final String STEP_NAME = "step_name"; //$NON-NLS-1$
     public static final String TEMPLATE_ID = "template_id"; //$NON-NLS-1$
     public static final String CONFIG = "config"; //$NON-NLS-1$
     public static final String SOURCE_STEP = "source_step"; //$NON-NLS-1$
@@ -63,8 +62,9 @@ public class PipelineAppModel extends BaseModelData {
         mapInputsOutputs = new FastMap<FastMap<String>>();
 
         setApp(app);
-        setId(JsonUtil.getString(json, JSONMetaDataObject.ID));
+        setId(JsonUtil.getString(json, TEMPLATE_ID));
         setName(JsonUtil.getString(json, JSONMetaDataObject.NAME));
+        setDescription(JsonUtil.getString(json, JSONMetaDataObject.DESCRIPTION));
         setInputs(getPropertyDataList(json, INPUTS));
         setOutputs(getPropertyDataList(json, OUTPUTS));
     }
@@ -124,7 +124,7 @@ public class PipelineAppModel extends BaseModelData {
      * @return The name of this App in the Workflow.
      */
     public String getId() {
-        return get(JSONMetaDataObject.ID) != null ? get(JSONMetaDataObject.ID).toString() : ""; //$NON-NLS-1$
+        return get(TEMPLATE_ID) != null ? get(TEMPLATE_ID).toString() : ""; //$NON-NLS-1$
     }
 
     /**
@@ -133,7 +133,7 @@ public class PipelineAppModel extends BaseModelData {
      * @param id
      */
     public void setId(String id) {
-        set(JSONMetaDataObject.ID, id);
+        set(TEMPLATE_ID, id);
     }
 
     /**
@@ -160,7 +160,7 @@ public class PipelineAppModel extends BaseModelData {
      * @param step
      */
     public void setStepName(int step) {
-        set(STEP_NAME, "step_" + step + "_" + getId()); //$NON-NLS-1$ //$NON-NLS-2$
+        set(JSONMetaDataObject.NAME, "step_" + step + "_" + getId()); //$NON-NLS-1$ //$NON-NLS-2$
     }
 
     /**
@@ -169,7 +169,16 @@ public class PipelineAppModel extends BaseModelData {
      * @return
      */
     public String getStepName() {
-        return get(STEP_NAME) != null ? get(STEP_NAME).toString() : ""; //$NON-NLS-1$
+        return getName();
+    }
+
+    public String getDescription() {
+        return get(JSONMetaDataObject.DESCRIPTION) != null ? get(JSONMetaDataObject.DESCRIPTION)
+                .toString() : ""; //$NON-NLS-1$
+    }
+
+    public void setDescription(String description) {
+        set(JSONMetaDataObject.DESCRIPTION, description);
     }
 
     /**
@@ -280,11 +289,10 @@ public class PipelineAppModel extends BaseModelData {
         ret.put(JSONMetaDataObject.ID, new JSONString(ID_KEY));
         ret.put(JSONMetaDataObject.NAME, new JSONString(getStepName()));
         ret.put(TEMPLATE_ID, new JSONString(getId()));
-        ret.put(JSONMetaDataObject.DESCRIPTION, new JSONString(getName()));
-        JSONObject appObj = app.toJson();
-        appObj.put(INPUTS, buildPropertyDataArrayFromList(getInputs()));
-        appObj.put(OUTPUTS, buildPropertyDataArrayFromList(getOutputs()));
-        ret.put(ANALYSIS, appObj);
+        ret.put(JSONMetaDataObject.DESCRIPTION, new JSONString(getDescription()));
+        ret.put(INPUTS, buildPropertyDataArrayFromList(getInputs()));
+        ret.put(OUTPUTS, buildPropertyDataArrayFromList(getOutputs()));
+        ret.put(ANALYSIS, app.toJson());
         ret.put(CONFIG, new JSONObject());
 
         return ret;

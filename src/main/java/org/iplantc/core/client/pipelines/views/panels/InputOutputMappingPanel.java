@@ -61,7 +61,7 @@ public class InputOutputMappingPanel extends PipelineStep {
     }
 
     private ColumnModel buildColumnModel() {
-        ColumnConfig name = new ColumnConfig(JSONMetaDataObject.NAME, I18N.DISPLAY.name(), 125);
+        ColumnConfig name = new ColumnConfig(JSONMetaDataObject.DESCRIPTION, I18N.DISPLAY.name(), 125);
         name.setSortable(false);
 
         ColumnConfig inputLabel = new ColumnConfig(DataObject.INPUT_TYPE, I18N.DISPLAY.inputLabel(), 200);
@@ -317,7 +317,6 @@ public class InputOutputMappingPanel extends PipelineStep {
     @Override
     protected void setData(JSONObject obj) {
        JSONArray mappings = JsonUtil.getArray(obj, "mappings");
-
         if (mappings != null) {
             for (int i = 0; i < mappings.size(); i++) {
                 JSONObject temp = mappings.get(i).isObject();
@@ -334,7 +333,7 @@ public class InputOutputMappingPanel extends PipelineStep {
                 }
 
             }
-            grid.getView().layout();
+            grid.getView().refresh(false);
         }
     }
     
