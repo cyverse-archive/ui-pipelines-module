@@ -25,6 +25,8 @@ import com.google.gwt.json.client.JSONString;
  */
 @SuppressWarnings("serial")
 public class PipelineAppModel extends BaseModelData {
+    private static final String ANALYSIS = "Analysis";
+
     public static final String APP = "app"; //$NON-NLS-1$
 
     // JSON keys used in toJson objects
@@ -212,10 +214,10 @@ public class PipelineAppModel extends BaseModelData {
      * the mapping for the given targetInputId.
      * 
      * @param sourceStepName
-     * @param sourceOutputId
-     * @param targetInputId
+     * @param sourceOutputIdValue
+     * @param targetInputIdKey
      */
-    public void setInputOutputMapping(String sourceStepName, String sourceOutputId, String targetInputId) {
+    public void setInputOutputMapping(String sourceStepName, String sourceOutputIdValue, String targetInputIdKey) {
         // TODO validate targetInputId belongs to one of this App's Inputs?
 
         // Find the input->output mappings for sourceStepName.
@@ -223,7 +225,7 @@ public class PipelineAppModel extends BaseModelData {
 
         if (ioMapping == null) {
             // There are no input->output mappings for this sourceStepName yet.
-            if (sourceOutputId == null || sourceOutputId.isEmpty()) {
+            if (sourceOutputIdValue == null || sourceOutputIdValue.isEmpty()) {
                 // nothing to do in order to clear this mapping.
                 return;
             }
@@ -233,12 +235,12 @@ public class PipelineAppModel extends BaseModelData {
             mapInputsOutputs.put(sourceStepName, ioMapping);
         }
 
-        if (sourceOutputId == null || sourceOutputId.isEmpty()) {
+        if (sourceOutputIdValue == null || sourceOutputIdValue.isEmpty()) {
             // clear the mapping for this Input ID.
-            ioMapping.remove(targetInputId);
+            ioMapping.remove(targetInputIdKey);
         } else {
             // Map sourceOutputId to this App's given targetInputId.
-            ioMapping.put(targetInputId, sourceOutputId);
+            ioMapping.put(targetInputIdKey, sourceOutputIdValue);
         }
     }
 
@@ -279,9 +281,22 @@ public class PipelineAppModel extends BaseModelData {
         ret.put(JSONMetaDataObject.NAME, new JSONString(getStepName()));
         ret.put(TEMPLATE_ID, new JSONString(getId()));
         ret.put(JSONMetaDataObject.DESCRIPTION, new JSONString(getName()));
+        JSONObject appObj = app.toJson();
+        appObj.put(INPUTS, buildPropertyDataArrayFromList(getInputs()));
+        appObj.put(OUTPUTS, buildPropertyDataArrayFromList(getOutputs()));
+        ret.put(ANALYSIS, appObj);
         ret.put(CONFIG, new JSONObject());
 
         return ret;
+    }
+
+    private JSONArray buildPropertyDataArrayFromList(List<PropertyData> propertyDataList) {
+        JSONArray arr = new JSONArray();
+        int index = 0;
+        for (PropertyData data : propertyDataList) {
+            arr.set(index++, data.getProperty().toJson());
+        }
+        return arr;
     }
 
     /**

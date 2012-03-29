@@ -42,8 +42,6 @@ import com.google.gwt.json.client.JSONValue;
  */
 public class InputOutputMappingPanel extends PipelineStep {
 
-
-
     private List<PipelineAppModel> apps;
     private Grid<PipelineAppModel> grid;
 
@@ -313,6 +311,30 @@ public class InputOutputMappingPanel extends PipelineStep {
             }
 
             EventBus.getInstance().fireEvent(new PipelineStepValidationEvent(isValid()));
+        }
+    }
+
+    @Override
+    protected void setData(JSONObject obj) {
+       JSONArray mappings = JsonUtil.getArray(obj, "mappings");
+
+        if (mappings != null) {
+            for (int i = 0; i < mappings.size(); i++) {
+                JSONObject temp = mappings.get(i).isObject();
+                String target_step = JsonUtil.getString(temp, "target_step");
+                String source_step = JsonUtil.getString(temp, "source_step");
+                for (PipelineAppModel model : grid.getStore().getModels()) {
+                    if(model.getStepName().equals(target_step)) {
+                        JSONObject map = JsonUtil.getObject(temp, "map");
+                        for (String key : map.keySet()) {
+                            String value = JsonUtil.getString(map, key);
+                            model.setInputOutputMapping(source_step, value, key);
+                        }
+                    }
+                }
+
+            }
+            grid.getView().layout();
         }
     }
     

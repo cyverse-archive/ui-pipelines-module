@@ -1,9 +1,7 @@
 package org.iplantc.core.client.pipelines.views.panels;
 
 import org.iplantc.core.client.pipelines.I18N;
-import org.iplantc.core.client.pipelines.events.PipelineStepValidationEvent;
 import org.iplantc.core.jsonutil.JsonUtil;
-import org.iplantc.core.uicommons.client.events.EventBus;
 
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.FieldEvent;
@@ -93,11 +91,6 @@ public class PipelineInfoPanel extends PipelineStep {
         return valid;
     }
 
-    private void fireValidationEvent() {
-        PipelineStepValidationEvent event = new PipelineStepValidationEvent(isValid());
-        EventBus.getInstance().fireEvent(event);
-    }
-
     @Override
     public JSONValue toJson() {
         JSONObject obj = new JSONObject();
@@ -117,9 +110,18 @@ public class PipelineInfoPanel extends PipelineStep {
 
         @Override
         public void handleEvent(FieldEvent be) {
-            fireValidationEvent();
+            firePipelineStepValidationEvent(isValid());
         }
 
+    }
+
+    @Override
+    protected void setData(JSONObject obj) {
+        if (obj != null) {
+            txtPipelineName.setValue(JsonUtil.getString(obj, "analysis_name"));
+            txtPipelineDesc.setValue(JsonUtil.getString(obj, "description"));
+
+        }
     }
 
 }

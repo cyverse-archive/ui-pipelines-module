@@ -7,10 +7,10 @@ import java.util.List;
 
 import org.iplantc.core.client.pipelines.I18N;
 import org.iplantc.core.client.pipelines.events.PipelineChangeEvent;
-import org.iplantc.core.client.pipelines.events.PipelineStepValidationEvent;
 import org.iplantc.core.client.pipelines.images.Resources;
 import org.iplantc.core.client.pipelines.models.PipelineAppModel;
 import org.iplantc.core.client.pipelines.views.dialogs.AppSelectionDialog;
+import org.iplantc.core.jsonutil.JsonUtil;
 import org.iplantc.core.uiapplications.client.models.Analysis;
 import org.iplantc.core.uiapplications.client.services.AppTemplateUserServiceFacade;
 import org.iplantc.core.uiapplications.client.views.panels.AbstractCatalogCategoryPanel;
@@ -36,6 +36,8 @@ import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
+import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.core.client.Scheduler.ScheduledCommand;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
@@ -138,14 +140,15 @@ public class SelectAndOrderPanel extends PipelineStep {
     }
 
     private void addAppModel(final Analysis app, final AppSelectionDialog dialog) {
-
         service.getDataObjectsForAnalysis(app.getId(), new AsyncCallback<String>() {
             @Override
             public void onSuccess(String result) {
                 JSONObject obj = JSONParser.parseStrict(result).isObject();
                 PipelineAppModel appModel = new PipelineAppModel(obj, app);
                 grid.getStore().add(appModel);
-                dialog.updateStatusBar(getAppCount(), getLastAppName());
+                if (dialog != null) {
+                    dialog.updateStatusBar(getAppCount(), getLastAppName());
+                }
                 firePipelineChangeEvent();
             }
 
@@ -155,6 +158,11 @@ public class SelectAndOrderPanel extends PipelineStep {
             }
 
         });
+    }
+
+    private void addAppModel(final Analysis app, JSONObject appObj) {
+        PipelineAppModel appModel = new PipelineAppModel(appObj, app);
+        grid.getStore().add(appModel);
     }
 
     private int getAppCount() {
@@ -173,7 +181,7 @@ public class SelectAndOrderPanel extends PipelineStep {
         store.addListener(Store.Add, new Listener<StoreEvent>() {
             @Override
             public void handleEvent(StoreEvent be) {
-                fireValidationEvent();
+                firePipelineStepValidationEvent(store.getCount() > 1);
             }
 
         });
@@ -182,15 +190,9 @@ public class SelectAndOrderPanel extends PipelineStep {
 
             @Override
             public void handleEvent(StoreEvent be) {
-                fireValidationEvent();
+                firePipelineStepValidationEvent(store.getCount() > 1);
             }
         });
-    }
-
-    private void fireValidationEvent() {
-        final ListStore<PipelineAppModel> store = grid.getStore();
-        PipelineStepValidationEvent event = new PipelineStepValidationEvent(store.getCount() > 1);
-        EventBus.getInstance().fireEvent(event);
     }
 
     private class RemoveButtonSelectionListener extends SelectionListener<ButtonEvent> {
@@ -408,6 +410,28 @@ public class SelectAndOrderPanel extends PipelineStep {
                 return html + "<span qtip='" + app.getName() + "'>" + app.getName() + "</span>"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
             }
 
+        }
+
+    }
+
+    @Override
+    protected void setData(JSONObject obj) {
+        if (obj != null) {
+            JSONArray arr = obj.get("steps").isArray();
+            for (int i = 0;i < arr.size(); i ++) {
+                JSONObject temp = arr.get(i).isObject();
+                JSONObject appObj = JsonUtil.getObject(temp, "Analysis");
+                Analysis a = new Analysis(appObj);
+                addAppModel(a, appObj);
+            }
+            Scheduler.get().scheduleDeferred(new ScheduledCommand() {
+                
+                @Override
+                public void execute() {
+                    firePipelineChangeEvent();
+                    
+                }
+            });
         }
 
     }

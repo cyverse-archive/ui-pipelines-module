@@ -10,6 +10,7 @@ import org.iplantc.core.client.pipelines.events.PipelineStepValidationEvent;
 import org.iplantc.core.client.pipelines.events.PipelineStepValidationEventHandler;
 import org.iplantc.core.client.pipelines.images.Resources;
 import org.iplantc.core.client.pipelines.models.PipelineAppModel;
+import org.iplantc.core.jsonutil.JsonUtil;
 import org.iplantc.core.uiapplications.client.events.AnalysisGroupCountUpdateEvent;
 import org.iplantc.core.uiapplications.client.services.AppTemplateUserServiceFacade;
 import org.iplantc.core.uiapplications.client.views.panels.AbstractCatalogCategoryPanel;
@@ -35,6 +36,8 @@ import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
+import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.core.client.Scheduler.ScheduledCommand;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONString;
@@ -298,6 +301,11 @@ public class PipelineEditorPanel extends ContentPanel {
         }
     }
 
+    /**
+     * get json representation of the form data
+     * 
+     * @return JSONObject containing form data
+     */
     public JSONObject toJson() {
         JSONObject jsonObj = new JSONObject();
         JSONObject obj = pnlInfo.toJson().isObject();
@@ -337,8 +345,30 @@ public class PipelineEditorPanel extends ContentPanel {
         return obj;
     }
 
+    /**
+     * 
+     * Remove event handlers and free-up resources
+     * 
+     */
     public void cleanup() {
         EventBus.getInstance().removeHandlers(PipelineChangeEvent.TYPE);
         EventBus.getInstance().removeHandlers(PipelineStepValidationEvent.TYPE);
+    }
+
+    public void configure(JSONObject obj) {
+        if (obj != null) {
+            JSONArray temp = JsonUtil.getArray(obj, "analyses");
+            final JSONObject pipeline_config = temp.get(0).isObject();
+            if (pipeline_config != null) {
+                pnlInfo.setData(pipeline_config);
+                pnlSelect.setData(pipeline_config);
+                Scheduler.get().scheduleDeferred(new ScheduledCommand() {
+                    @Override
+                    public void execute() {
+                            pnlMapping.setData(pipeline_config);
+                    }
+                });
+        }
+       }
     }
 }
