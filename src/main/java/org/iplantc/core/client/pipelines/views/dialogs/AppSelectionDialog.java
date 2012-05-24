@@ -3,20 +3,20 @@ package org.iplantc.core.client.pipelines.views.dialogs;
 import java.util.ArrayList;
 
 import org.iplantc.core.client.pipelines.Constants;
+import org.iplantc.core.client.pipelines.I18N;
 import org.iplantc.core.jsonutil.JsonUtil;
 import org.iplantc.core.uiapplications.client.events.AnalysisCategorySelectedEvent;
 import org.iplantc.core.uiapplications.client.events.AnalysisCategorySelectedEventHandler;
-import org.iplantc.core.uiapplications.client.events.AnalysisSelectEvent;
-import org.iplantc.core.uiapplications.client.events.AnalysisSelectEventHandler;
 import org.iplantc.core.uiapplications.client.models.Analysis;
 import org.iplantc.core.uiapplications.client.models.AnalysisGroup;
 import org.iplantc.core.uiapplications.client.services.AppTemplateServiceFacade;
 import org.iplantc.core.uiapplications.client.views.panels.AbstractCatalogCategoryPanel;
 import org.iplantc.core.uiapplications.client.views.panels.BaseCatalogMainPanel;
+import org.iplantc.core.uiapplications.client.events.AppSearchResultSelectedEvent;
+import org.iplantc.core.uiapplications.client.events.AppSearchResultSelectedEventHandler;
 import org.iplantc.core.uicommons.client.ErrorHandler;
 import org.iplantc.core.uicommons.client.events.EventBus;
 import org.iplantc.de.client.DeCommonI18N;
-import org.iplantc.core.client.pipelines.I18N;
 
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.event.BaseEvent;
@@ -258,9 +258,10 @@ public class AppSelectionDialog extends Dialog {
             }
         });
 
-        handlers.add(eventbus.addHandler(AnalysisSelectEvent.TYPE, new AnalysisSelectEventHandler() {
+        handlers.add(eventbus.addHandler(AppSearchResultSelectedEvent.TYPE,
+                new AppSearchResultSelectedEventHandler() {
             @Override
-            public void onSelection(AnalysisSelectEvent event) {
+                    public void onSelection(AppSearchResultSelectedEvent event) {
                 if (Constants.CLIENT.tagAppSelectDialog().equals(event.getSourceTag())) {
                     categoryPanel.selectCategory(event.getCategoryId());
                     appsListPanel.selectTool(event.getAppId());
