@@ -38,6 +38,7 @@ import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.core.client.Scheduler.ScheduledCommand;
+import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONString;
@@ -70,6 +71,8 @@ public class PipelineEditorPanel extends ContentPanel {
     private ToolBar toolbar;
     private ContentPanel noteContainer;
     private final Command publishCallback;
+
+    private ArrayList<HandlerRegistration> handlers;
 
     public PipelineEditorPanel(AbstractCatalogCategoryPanel categoryPanel,
             AppTemplateUserServiceFacade service, Command publishCallback) {
@@ -106,20 +109,23 @@ public class PipelineEditorPanel extends ContentPanel {
     }
 
     private void initListeners() {
-        EventBus.getInstance().addHandler(PipelineChangeEvent.TYPE, new PipelineChangeEventHandler() {
+        EventBus bus = EventBus.getInstance();
+        handlers = new ArrayList<HandlerRegistration>();
+
+        handlers.add(bus.addHandler(PipelineChangeEvent.TYPE, new PipelineChangeEventHandler() {
             @Override
             public void onChange(PipelineChangeEvent event) {
                 pnlMapping.reconfigure(event.getAppModels());
             }
-        });
+        }));
 
-        EventBus.getInstance().addHandler(PipelineStepValidationEvent.TYPE,
+        handlers.add(bus.addHandler(PipelineStepValidationEvent.TYPE,
                 new PipelineStepValidationEventHandler() {
                     @Override
                     public void onValidate(PipelineStepValidationEvent event) {
-                            validateSteps();
+                        validateSteps();
                     }
-                });
+                }));
     }
 
     private void buildPublishButton() {
@@ -314,7 +320,7 @@ public class PipelineEditorPanel extends ContentPanel {
             obj.put("steps", pnlSelect.toJson()); //$NON-NLS-1$
             obj.put("mappings", pnlMapping.toJson()); //$NON-NLS-1$
             obj.put("implementation", getImplementorDetails()); //$NON-NLS-1$
-            obj.put("full_username", new JSONString(UserInfo.getInstance().getFullUsername()));
+            obj.put("full_username", new JSONString(UserInfo.getInstance().getFullUsername())); //$NON-NLS-1$
             JSONArray arr = new JSONArray();
             arr.set(0, obj);
             jsonObj.put("analyses", arr); //$NON-NLS-1$
@@ -351,13 +357,16 @@ public class PipelineEditorPanel extends ContentPanel {
      * 
      */
     public void cleanup() {
-        EventBus.getInstance().removeHandlers(PipelineChangeEvent.TYPE);
-        EventBus.getInstance().removeHandlers(PipelineStepValidationEvent.TYPE);
+        for (HandlerRegistration handler : handlers) {
+            handler.removeHandler();
+        }
+
+        handlers.clear();
     }
 
     public void configure(JSONObject obj) {
         if (obj != null) {
-            JSONArray temp = JsonUtil.getArray(obj, "analyses");
+            JSONArray temp = JsonUtil.getArray(obj, "analyses"); //$NON-NLS-1$
             final JSONObject pipeline_config = temp.get(0).isObject();
             if (pipeline_config != null) {
                 pnlInfo.setData(pipeline_config);
