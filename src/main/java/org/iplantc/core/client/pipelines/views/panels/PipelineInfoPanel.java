@@ -67,6 +67,7 @@ public class PipelineInfoPanel extends PipelineStep {
         txtPipelineDesc.setFieldLabel(I18N.DISPLAY.pipelineDescription());
         txtPipelineDesc.setHeight(100);
         txtPipelineDesc.setAllowBlank(false);
+        txtPipelineDesc.setMaxLength(255);
         addDescValidationListeners();
     }
 
