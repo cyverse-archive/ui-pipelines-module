@@ -177,8 +177,8 @@ public class SelectAndOrderPanel extends PipelineStep {
 
     private String getLastAppName() {
         ListStore<PipelineAppModel> store = grid.getStore();
-        return store.getCount() == 0 ? I18N.DISPLAY.lastAppNotDefined() : store.getAt(
-                store.getCount() - 1).getName();
+        return getAppCount() == 0 ? I18N.DISPLAY.lastAppNotDefined() : store.getAt(getAppCount() - 1)
+                .getApp().getName();
     }
 
     @SuppressWarnings("rawtypes")
