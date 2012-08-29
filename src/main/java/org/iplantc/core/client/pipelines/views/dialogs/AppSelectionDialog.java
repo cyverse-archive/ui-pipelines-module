@@ -123,6 +123,9 @@ public class AppSelectionDialog extends Dialog {
         addListener(Events.Hide, new Listener<WindowEvent>() {
             @Override
             public void handleEvent(WindowEvent be) {
+                categoryPanel.cleanup();
+                appsListPanel.cleanup();
+
                 for (HandlerRegistration handler : handlers) {
                     handler.removeHandler();
                 }
