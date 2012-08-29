@@ -71,11 +71,13 @@ public class PipelineEditorPanel extends ContentPanel {
     private ToolBar toolbar;
     private ContentPanel noteContainer;
     private final Command publishCallback;
+    private final String tag;
 
     private ArrayList<HandlerRegistration> handlers;
 
-    public PipelineEditorPanel(AbstractCatalogCategoryPanel categoryPanel,
+    public PipelineEditorPanel(String tag, AbstractCatalogCategoryPanel categoryPanel,
             AppTemplateUserServiceFacade service, Command publishCallback) {
+        this.tag = tag;
         this.categoryPanel = categoryPanel;
         this.service = service;
         this.publishCallback = publishCallback;
@@ -91,7 +93,8 @@ public class PipelineEditorPanel extends ContentPanel {
 
         pnlInfo = new PipelineInfoPanel(I18N.DISPLAY.workflowInfo());
 
-        pnlSelect = new SelectAndOrderPanel(I18N.DISPLAY.selectAndOrderApps(), categoryPanel, service);
+        pnlSelect = new SelectAndOrderPanel(I18N.DISPLAY.selectAndOrderApps(), tag, categoryPanel,
+                service);
 
         pnlMapping = new InputOutputMappingPanel(I18N.DISPLAY.mapOutputsToInputs());
 

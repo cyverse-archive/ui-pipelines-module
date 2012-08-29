@@ -65,10 +65,13 @@ public class SelectAndOrderPanel extends PipelineStep {
     private final String ID_UP = "idbtnUp"; //$NON-NLS-1$
     private final String ID_DOWN = "idbtndown"; //$NON-NLS-1$
     private final FastMap<Button> buttons;
+    private final String tag;
 
-    public SelectAndOrderPanel(String title, AbstractCatalogCategoryPanel categoryPanel,
+    public SelectAndOrderPanel(String title, String tag, AbstractCatalogCategoryPanel categoryPanel,
             AppTemplateUserServiceFacade service) {
         super(title);
+
+        this.tag = tag;
         this.categoryPanel = categoryPanel;
         this.service = service;
         buttons = new FastMap<Button>();
@@ -130,7 +133,7 @@ public class SelectAndOrderPanel extends PipelineStep {
 
             };
 
-            dialog = new AppSelectionDialog(categoryPanel, service, addCmd);
+            dialog = new AppSelectionDialog(tag, categoryPanel, service, addCmd);
             dialog.updateStatusBar(getAppCount(), getLastAppName());
             dialog.show();
         }
