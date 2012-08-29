@@ -2,18 +2,17 @@ package org.iplantc.core.client.pipelines.views.dialogs;
 
 import java.util.ArrayList;
 
-import org.iplantc.core.client.pipelines.Constants;
 import org.iplantc.core.client.pipelines.I18N;
 import org.iplantc.core.jsonutil.JsonUtil;
 import org.iplantc.core.uiapplications.client.events.AnalysisCategorySelectedEvent;
 import org.iplantc.core.uiapplications.client.events.AnalysisCategorySelectedEventHandler;
+import org.iplantc.core.uiapplications.client.events.AppSearchResultSelectedEvent;
+import org.iplantc.core.uiapplications.client.events.AppSearchResultSelectedEventHandler;
 import org.iplantc.core.uiapplications.client.models.Analysis;
 import org.iplantc.core.uiapplications.client.models.AnalysisGroup;
 import org.iplantc.core.uiapplications.client.services.AppTemplateServiceFacade;
 import org.iplantc.core.uiapplications.client.views.panels.AbstractCatalogCategoryPanel;
 import org.iplantc.core.uiapplications.client.views.panels.BaseCatalogMainPanel;
-import org.iplantc.core.uiapplications.client.events.AppSearchResultSelectedEvent;
-import org.iplantc.core.uiapplications.client.events.AppSearchResultSelectedEventHandler;
 import org.iplantc.core.uicommons.client.ErrorHandler;
 import org.iplantc.core.uicommons.client.events.EventBus;
 import org.iplantc.de.client.DeCommonI18N;
@@ -62,6 +61,7 @@ public class AppSelectionDialog extends Dialog {
     private Status countLabel;
     private Status lastAppLabel;
     private final Command cmdAdd;
+    private final String tag;
 
     /**
      * 
@@ -69,11 +69,13 @@ public class AppSelectionDialog extends Dialog {
      * @param service
      * @param cmdAdd called when the add button is clicked
      */
-    public AppSelectionDialog(AbstractCatalogCategoryPanel categoryPanel,
+    public AppSelectionDialog(String tag, AbstractCatalogCategoryPanel categoryPanel,
             AppTemplateServiceFacade service, Command cmdAdd) {
+        this.tag = tag;
         this.categoryPanel = categoryPanel;
         this.service = service;
         this.cmdAdd = cmdAdd;
+
         init();
     }
 
@@ -108,7 +110,7 @@ public class AppSelectionDialog extends Dialog {
     }
 
     private void initAppListPanel() {
-        appsListPanel = new BaseCatalogMainPanel(Constants.CLIENT.tagAppSelectDialog(), service);
+        appsListPanel = new BaseCatalogMainPanel(tag, service);
         appsListPanel.setSize(400, 400);
         appsListPanel.addGridSelectionChangeListener(buildGridChangeListener());
     }
@@ -123,6 +125,9 @@ public class AppSelectionDialog extends Dialog {
         addListener(Events.Hide, new Listener<WindowEvent>() {
             @Override
             public void handleEvent(WindowEvent be) {
+                categoryPanel.cleanup();
+                appsListPanel.cleanup();
+
                 for (HandlerRegistration handler : handlers) {
                     handler.removeHandler();
                 }
@@ -260,14 +265,14 @@ public class AppSelectionDialog extends Dialog {
 
         handlers.add(eventbus.addHandler(AppSearchResultSelectedEvent.TYPE,
                 new AppSearchResultSelectedEventHandler() {
-            @Override
+                    @Override
                     public void onSelection(AppSearchResultSelectedEvent event) {
-                if (Constants.CLIENT.tagAppSelectDialog().equals(event.getSourceTag())) {
-                    categoryPanel.selectCategory(event.getCategoryId());
-                    appsListPanel.selectTool(event.getAppId());
-                }
-            }
-        }));
+                        if (event.getSourceTag().equals(tag)) {
+                            categoryPanel.selectCategory(event.getCategoryId());
+                            appsListPanel.selectTool(event.getAppId());
+                        }
+                    }
+                }));
     }
 
     /**
