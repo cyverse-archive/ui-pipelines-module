@@ -33,7 +33,6 @@ import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.json.client.JSONArray;
-import com.google.gwt.json.client.JSONNumber;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -311,16 +310,8 @@ public class PipelineBuilderPanel extends PipelineStep {
                             JSONObject obj = JsonUtil.getObject(result);
                             appJson.put("inputs", JsonUtil.getArray(obj, "inputs")); //$NON-NLS-1$ //$NON-NLS-2$
                             appJson.put("outputs", JsonUtil.getArray(obj, "outputs")); //$NON-NLS-1$ //$NON-NLS-2$
-                            appJson.put("mappings", new JSONArray()); //$NON-NLS-1$
 
-                            JSONObject pipelineJson = builder.getPipelineJson();
-                            JSONArray apps = JsonUtil.getArray(pipelineJson, "apps"); //$NON-NLS-1$
-
-                            int step = apps.size();
-                            appJson.put("step", new JSONNumber(step)); //$NON-NLS-1$
-                            apps.set(step, appJson);
-
-                            builder.loadPipeline(pipelineJson);
+                            builder.appendApp(appJson);
                         }
 
                         @Override
