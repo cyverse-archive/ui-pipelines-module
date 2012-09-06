@@ -97,12 +97,18 @@
             <artifactId>metadata</artifactId>
             <version>dev-SNAPSHOT</version>
         </dependency>
-        
+
         <dependency>
 			<groupId>org.iplantc.core</groupId>
 			<artifactId>applications</artifactId>
 			<version>dev-SNAPSHOT</version>
 		</dependency>
+
+        <dependency>
+            <groupId>org.iplantc.plugin</groupId>
+            <artifactId>pipeline-builder</artifactId>
+            <version>dev-SNAPSHOT</version>
+        </dependency>
 		</dependencies>
 	
 	<build>

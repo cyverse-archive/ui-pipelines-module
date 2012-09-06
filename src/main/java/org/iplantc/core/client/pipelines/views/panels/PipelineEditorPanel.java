@@ -4,12 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.iplantc.core.client.pipelines.I18N;
-import org.iplantc.core.client.pipelines.events.PipelineChangeEvent;
-import org.iplantc.core.client.pipelines.events.PipelineChangeEventHandler;
 import org.iplantc.core.client.pipelines.events.PipelineStepValidationEvent;
 import org.iplantc.core.client.pipelines.events.PipelineStepValidationEventHandler;
 import org.iplantc.core.client.pipelines.images.Resources;
-import org.iplantc.core.client.pipelines.models.PipelineAppModel;
 import org.iplantc.core.jsonutil.JsonUtil;
 import org.iplantc.core.uiapplications.client.events.AnalysisGroupCountUpdateEvent;
 import org.iplantc.core.uiapplications.client.services.AppTemplateUserServiceFacade;
@@ -36,8 +33,6 @@ import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
-import com.google.gwt.core.client.Scheduler;
-import com.google.gwt.core.client.Scheduler.ScheduledCommand;
 import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
@@ -60,12 +55,9 @@ public class PipelineEditorPanel extends ContentPanel {
 
     private CardPanel pnlMain;
     private PipelineStep pnlInfo;
-    private PipelineStep pnlSelect;
-    private InputOutputMappingPanel pnlMapping;
+    private PipelineBuilderPanel pnlMapping;
     private List<ActionsToggleButton> actions;
 
-    @SuppressWarnings("unused")
-    private List<PipelineAppModel> apps;
     private final AbstractCatalogCategoryPanel categoryPanel;
     private final AppTemplateUserServiceFacade service;
     private ToolBar toolbar;
@@ -86,20 +78,15 @@ public class PipelineEditorPanel extends ContentPanel {
     }
 
     private void init() {
-        apps = new ArrayList<PipelineAppModel>();
-
         pnlMain = new CardPanel();
         pnlMain.setScrollMode(Scroll.NONE);
 
         pnlInfo = new PipelineInfoPanel(I18N.DISPLAY.workflowInfo());
 
-        pnlSelect = new SelectAndOrderPanel(I18N.DISPLAY.selectAndOrderApps(), tag, categoryPanel,
+        pnlMapping = new PipelineBuilderPanel(I18N.DISPLAY.selectAndOrderApps(), tag, categoryPanel,
                 service);
 
-        pnlMapping = new InputOutputMappingPanel(I18N.DISPLAY.mapOutputsToInputs());
-
         pnlMain.add(pnlInfo);
-        pnlMain.add(pnlSelect);
         pnlMain.add(pnlMapping);
 
         initListeners();
@@ -114,13 +101,6 @@ public class PipelineEditorPanel extends ContentPanel {
     private void initListeners() {
         EventBus bus = EventBus.getInstance();
         handlers = new ArrayList<HandlerRegistration>();
-
-        handlers.add(bus.addHandler(PipelineChangeEvent.TYPE, new PipelineChangeEventHandler() {
-            @Override
-            public void onChange(PipelineChangeEvent event) {
-                pnlMapping.reconfigure(event.getAppModels());
-            }
-        }));
 
         handlers.add(bus.addHandler(PipelineStepValidationEvent.TYPE,
                 new PipelineStepValidationEventHandler() {
@@ -261,7 +241,7 @@ public class PipelineEditorPanel extends ContentPanel {
 
     private void setPublishButtonState() {
         Button b = (Button)toolbar.getItemByItemId(ID_BTN_PUBLISH);
-        b.setEnabled(pnlInfo.isValid() && pnlSelect.isValid() && pnlMapping.isValid());
+        b.setEnabled(pnlInfo.isValid() && pnlMapping.isValid());
     }
 
     private void toggleButtons(PipelineStep contents, ToggleButton btnActive, String qtip) {
@@ -294,10 +274,8 @@ public class PipelineEditorPanel extends ContentPanel {
         private void compose() {
             actions.add(new ActionsToggleButton(I18N.DISPLAY.workflowInfo(), pnlInfo, I18N.DISPLAY
                     .infoPnlTip()));
-            actions.add(new ActionsToggleButton(I18N.DISPLAY.selectAndOrderApps(), pnlSelect,
+            actions.add(new ActionsToggleButton(I18N.DISPLAY.selectAndOrderApps(), pnlMapping,
                     I18N.DISPLAY.selectOrderPnlTip()));
-            actions.add(new ActionsToggleButton(I18N.DISPLAY.mapOutputsToInputs(), pnlMapping,
-                    I18N.DISPLAY.inputsOutputsPnlTip()));
 
             for (ToggleButton btn : actions) {
                 add(btn);
@@ -320,7 +298,8 @@ public class PipelineEditorPanel extends ContentPanel {
         JSONObject obj = pnlInfo.toJson().isObject();
 
         if (obj != null) {
-            obj.put("steps", pnlSelect.toJson()); //$NON-NLS-1$
+            // TODO update mapping JSON
+            //            obj.put("steps", pnlSelect.toJson()); //$NON-NLS-1$
             obj.put("mappings", pnlMapping.toJson()); //$NON-NLS-1$
             obj.put("implementation", getImplementorDetails()); //$NON-NLS-1$
             obj.put("full_username", new JSONString(UserInfo.getInstance().getFullUsername())); //$NON-NLS-1$
@@ -360,6 +339,8 @@ public class PipelineEditorPanel extends ContentPanel {
      * 
      */
     public void cleanup() {
+        pnlMapping.cleanup();
+
         for (HandlerRegistration handler : handlers) {
             handler.removeHandler();
         }
@@ -370,16 +351,10 @@ public class PipelineEditorPanel extends ContentPanel {
     public void configure(JSONObject obj) {
         if (obj != null) {
             JSONArray temp = JsonUtil.getArray(obj, "analyses"); //$NON-NLS-1$
-            final JSONObject pipeline_config = temp.get(0).isObject();
+            final JSONObject pipeline_config = JsonUtil.getObjectAt(temp, 0);
             if (pipeline_config != null) {
                 pnlInfo.setData(pipeline_config);
-                pnlSelect.setData(pipeline_config);
-                Scheduler.get().scheduleDeferred(new ScheduledCommand() {
-                    @Override
-                    public void execute() {
-                            pnlMapping.setData(pipeline_config);
-                    }
-                });
+                pnlMapping.setData(pipeline_config);
         }
        }
     }
