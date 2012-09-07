@@ -6,6 +6,7 @@ import java.util.List;
 import org.iplant.pipeline.client.builder.PipelineCreator;
 import org.iplantc.core.client.pipelines.I18N;
 import org.iplantc.core.jsonutil.JsonUtil;
+import org.iplantc.core.metadata.client.JSONMetaDataObject;
 import org.iplantc.core.uiapplications.client.events.AnalysisCategorySelectedEvent;
 import org.iplantc.core.uiapplications.client.events.AnalysisCategorySelectedEventHandler;
 import org.iplantc.core.uiapplications.client.events.AppSearchResultSelectedEvent;
@@ -34,6 +35,7 @@ import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
+import com.google.gwt.json.client.JSONString;
 import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
@@ -45,6 +47,20 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
  * 
  */
 public class PipelineBuilderPanel extends PipelineStep {
+    // JSON keys used in toJson objects
+    public static final String STEPS = "steps"; //$NON-NLS-1$
+    public static final String MAPPINGS = "mappings"; //$NON-NLS-1$
+    public static final String PIPELINE_CREATOR_STEPS = "apps"; //$NON-NLS-1$
+    public static final String TEMPLATE_ID = "template_id"; //$NON-NLS-1$
+    public static final String CONFIG = "config"; //$NON-NLS-1$
+    public static final String SOURCE_STEP = "source_step"; //$NON-NLS-1$
+    public static final String TARGET_STEP = "target_step"; //$NON-NLS-1$
+    public static final String MAP = "map"; //$NON-NLS-1$
+
+    // JSON keys and values used internally
+    private static final String ID_KEY = "auto-gen"; //$NON-NLS-1$
+    private static final String INPUTS = "inputs"; //$NON-NLS-1$
+    private static final String OUTPUTS = "outputs"; //$NON-NLS-1$
 
     private final String tag;
     private final AppTemplateUserServiceFacade service;
@@ -179,25 +195,25 @@ public class PipelineBuilderPanel extends PipelineStep {
 
     @Override
     public boolean isValid() {
-        JSONArray apps = JsonUtil.getArray(builder.getPipelineJson(), "apps"); //$NON-NLS-1$
+        JSONArray steps = JsonUtil.getArray(builder.getPipelineJson(), PIPELINE_CREATOR_STEPS);
 
         // A pipline needs at least 2 apps and each app after the first one should have at least one
         // output-to-input mapping
-        if (apps == null || apps.size() < 2) {
+        if (steps == null || steps.size() < 2) {
             return false;
         }
 
-        for (int i = 1; i < apps.size(); i++) {
-            JSONObject targetModel = JsonUtil.getObjectAt(apps, i);
+        for (int i = 1; i < steps.size(); i++) {
+            JSONObject targetStep = JsonUtil.getObjectAt(steps, i);
 
-            JSONArray ioMappingArray = JsonUtil.getArray(targetModel, "mappings"); //$NON-NLS-1$
+            JSONArray ioMappingArray = JsonUtil.getArray(targetStep, MAPPINGS);
             if (ioMappingArray == null || ioMappingArray.size() < 1) {
                 return false;
             }
 
             for (int j = 0; j < ioMappingArray.size(); j++) {
                 JSONObject mapping = JsonUtil.getObjectAt(ioMappingArray, j);
-                JSONObject map = JsonUtil.getObject(mapping, "map"); //$NON-NLS-1$
+                JSONObject map = JsonUtil.getObject(mapping, MAP);
 
                 if (map == null || map.keySet().isEmpty()) {
                     return false;
@@ -210,28 +226,145 @@ public class PipelineBuilderPanel extends PipelineStep {
 
     @Override
     public JSONValue toJson() {
-        JSONArray ret = new JSONArray();
-        JSONArray apps = JsonUtil.getArray(builder.getPipelineJson(), "apps"); //$NON-NLS-1$
+        return builder.getPipelineJson();
+    }
 
-        int retIndex = 0;
-        for (int i = 1; i < apps.size(); i++) {
-            JSONObject targetModel = JsonUtil.getObjectAt(apps, i);
-            JSONArray mapping = JsonUtil.getArray(targetModel, "mappings"); //$NON-NLS-1$
+    /**
+     * Get the JSON of this pipeline required for publishing.
+     * 
+     * @return JSONObject required for publishing.
+     */
+    public JSONObject getPublishJson() {
+        JSONArray steps = JsonUtil.getArray(builder.getPipelineJson(), PIPELINE_CREATOR_STEPS);
 
-            // TODO correct format of mappings (generate step_name, etc.)
-            for (int j = 0; j < mapping.size(); j++) {
-                ret.set(retIndex, mapping.get(j));
-                retIndex++;
+        if (steps == null) {
+            return null;
+        }
+
+        JSONObject publishJson = new JSONObject();
+        JSONArray publishSteps = new JSONArray();
+        JSONArray publishMappings = new JSONArray();
+
+        for (int i = 0,mappingsIndex = 0; i < steps.size(); i++) {
+            JSONObject step = JsonUtil.getObjectAt(steps, i);
+
+            // Convert the PipelineCreator step to a metadactyl step.
+            JSONObject publishStep = getStepJson(step);
+
+            if (publishStep != null) {
+                publishSteps.set(i, publishStep);
+
+                // The first step should not have any input mappings.
+                if (i > 0) {
+                    JSONArray stepMappingArray = JsonUtil.getArray(step, MAPPINGS);
+
+                    if (stepMappingArray != null) {
+                        // Convert the PipelineCreator input->output mappings to metadactyl mappings.
+                        String targetStepName = getStepName(publishStep);
+
+                        for (int j = 0; j < stepMappingArray.size(); j++) {
+                            JSONObject stepMapping = JsonUtil.getObjectAt(stepMappingArray, j);
+
+                            JSONObject publishMapping = getMappingJson(targetStepName, stepMapping);
+
+                            if (publishMapping != null) {
+                                publishMappings.set(mappingsIndex, publishMapping);
+                                mappingsIndex++;
+                            }
+                        }
+                    }
+                }
             }
         }
+
+        publishJson.put(STEPS, publishSteps);
+        publishJson.put(MAPPINGS, publishMappings);
+
+        return publishJson;
+    }
+
+    /**
+     * Gets a JSON object representing this Pipeline step as a Workflow step.
+     * 
+     * @return A Workflow step JSON object.
+     */
+    private JSONObject getStepJson(JSONObject pipelineStep) {
+        JSONObject ret = new JSONObject();
+
+        String appId = JsonUtil.getString(pipelineStep, JSONMetaDataObject.ID);
+        Number step = JsonUtil.getNumber(pipelineStep, "step"); //$NON-NLS-1$
+
+        if (step == null) {
+            return null;
+        }
+
+        ret.put(JSONMetaDataObject.ID, new JSONString(ID_KEY));
+        ret.put(TEMPLATE_ID, new JSONString(appId));
+        ret.put(JSONMetaDataObject.NAME, new JSONString(buildStepName(step.intValue(), appId)));
+        ret.put(JSONMetaDataObject.DESCRIPTION, pipelineStep.get(JSONMetaDataObject.NAME));
+        ret.put(CONFIG, new JSONObject());
 
         return ret;
     }
 
+    private String buildStepName(int step, String appId) {
+        // PipelineCreator steps start at 0.
+        return "step_" + (step + 1) + "_" + appId; //$NON-NLS-1$ //$NON-NLS-2$
+    }
+
+    private String getStepName(JSONObject step) {
+        return JsonUtil.getString(step, JSONMetaDataObject.NAME);
+    }
+
+    /**
+     * Formats the Output->Input mappings for the given source step mapping to the target step name, as a
+     * JSON object of a mapping array for the Import Workflow service.
+     * 
+     * @return A JSON object of Output->Input mappings.
+     */
+    private JSONObject getMappingJson(String targetStepName, JSONObject sourceStepMapping) {
+        Number mappedStep = JsonUtil.getNumber(sourceStepMapping, "step"); //$NON-NLS-1$
+
+        if (mappedStep != null) {
+            String sourceStepName = buildStepName(mappedStep.intValue(),
+                    JsonUtil.getString(sourceStepMapping, JSONMetaDataObject.ID));
+
+            JSONObject stepMap = JsonUtil.getObject(sourceStepMapping, MAP);
+            if (stepMap != null) {
+                // Build the JSON output->input map object.
+                JSONObject map = new JSONObject();
+
+                for (String inputId : stepMap.keySet()) {
+                    String outputId = JsonUtil.getString(stepMap, inputId);
+
+                    if (!outputId.isEmpty()) {
+                        map.put(outputId, new JSONString(inputId));
+                    }
+                }
+
+                // Ensure at least one output->input is set for sourceStepName in the JSON map object.
+                if (!map.keySet().isEmpty()) {
+                    // Return the mappings from sourceStepName to targetStepName.
+                    JSONObject mapping = new JSONObject();
+
+                    mapping.put(SOURCE_STEP, new JSONString(sourceStepName));
+                    mapping.put(TARGET_STEP, new JSONString(targetStepName));
+                    mapping.put(MAP, map);
+
+                    return mapping;
+                }
+            }
+        }
+
+        // No mappings were found in the given sourceStepMapping.
+        return null;
+    }
+
     @Override
     protected void setData(JSONObject obj) {
-        // TODO parse saved state
-        // builder.loadPipeline(obj);
+        if (obj != null) {
+            builder.loadPipeline(obj);
+        }
     }
 
     private void validateDNDEventApps(DNDEvent e) {
@@ -308,8 +441,12 @@ public class PipelineBuilderPanel extends PipelineStep {
                         @Override
                         public void onSuccess(String result) {
                             JSONObject obj = JsonUtil.getObject(result);
-                            appJson.put("inputs", JsonUtil.getArray(obj, "inputs")); //$NON-NLS-1$ //$NON-NLS-2$
-                            appJson.put("outputs", JsonUtil.getArray(obj, "outputs")); //$NON-NLS-1$ //$NON-NLS-2$
+
+                            // Set the ID to the returned template ID, so that it's the correct ID for
+                            // getStepJson.
+                            appJson.put(JSONMetaDataObject.ID, obj.get(JSONMetaDataObject.ID));
+                            appJson.put(INPUTS, JsonUtil.getArray(obj, INPUTS));
+                            appJson.put(OUTPUTS, JsonUtil.getArray(obj, OUTPUTS));
 
                             builder.appendApp(appJson);
                         }

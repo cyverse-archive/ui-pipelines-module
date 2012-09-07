@@ -165,7 +165,14 @@ public class PipelineEditorPanel extends ContentPanel {
         @Override
         public void componentSelected(ButtonEvent ce) {
             ((Button)ce.getSource()).disable();
-            service.publishWorkflow(toJson().toString(), new AsyncCallback<String>() {
+
+            JSONObject publishJson = getPublishJson();
+            if (publishJson == null) {
+                ErrorHandler.post(I18N.ERROR.workflowPublishError());
+                return;
+            }
+
+            service.publishWorkflow(publishJson.toString(), new AsyncCallback<String>() {
 
                 @Override
                 public void onSuccess(String result) {
@@ -289,29 +296,34 @@ public class PipelineEditorPanel extends ContentPanel {
     }
 
     /**
-     * get json representation of the form data
+     * Get the JSON of this pipeline required for publishing.
      * 
-     * @return JSONObject containing form data
+     * @return JSONObject required for publishing.
      */
-    public JSONObject toJson() {
-        JSONObject jsonObj = new JSONObject();
-        JSONObject obj = pnlInfo.toJson().isObject();
+    public JSONObject getPublishJson() {
+        JSONObject ret = new JSONObject();
 
-        if (obj != null) {
-            // TODO update mapping JSON
-            //            obj.put("steps", pnlSelect.toJson()); //$NON-NLS-1$
-            obj.put("mappings", pnlMapping.toJson()); //$NON-NLS-1$
-            obj.put("implementation", getImplementorDetails()); //$NON-NLS-1$
-            obj.put("full_username", new JSONString(UserInfo.getInstance().getFullUsername())); //$NON-NLS-1$
-            JSONArray arr = new JSONArray();
-            arr.set(0, obj);
-            jsonObj.put("analyses", arr); //$NON-NLS-1$
-            return jsonObj;
-        } else {
-            ErrorHandler.post(I18N.ERROR.workflowPublishError());
+        JSONObject publishJson = pnlInfo.toJson().isObject();
+
+        JSONObject stepsMappingsJson = pnlMapping.getPublishJson();
+        JSONArray steps = JsonUtil.getArray(stepsMappingsJson, PipelineBuilderPanel.STEPS);
+        JSONArray mappings = JsonUtil.getArray(stepsMappingsJson, PipelineBuilderPanel.MAPPINGS);
+
+        if (publishJson == null || steps == null || mappings == null) {
+            // something went wrong, abort
             return null;
         }
 
+        publishJson.put(PipelineBuilderPanel.STEPS, steps);
+        publishJson.put(PipelineBuilderPanel.MAPPINGS, mappings);
+        publishJson.put("implementation", getImplementorDetails()); //$NON-NLS-1$
+        publishJson.put("full_username", new JSONString(UserInfo.getInstance().getFullUsername())); //$NON-NLS-1$
+
+        JSONArray analyses = new JSONArray();
+        analyses.set(0, publishJson);
+        ret.put("analyses", analyses); //$NON-NLS-1$
+
+        return ret;
     }
 
     private void buildNotePanel() {
@@ -348,14 +360,27 @@ public class PipelineEditorPanel extends ContentPanel {
         handlers.clear();
     }
 
+    /**
+     * get json representation of the form data
+     * 
+     * @return JSONObject containing form data
+     */
+    public JSONObject toJson() {
+        JSONObject ret = new JSONObject();
+
+        ret.put("info", pnlInfo.toJson()); //$NON-NLS-1$
+        ret.put("pipeline", pnlMapping.toJson()); //$NON-NLS-1$
+
+        return ret;
+    }
+
+    /**
+     * Restore state from the given json representation of the form data.
+     * 
+     * @param obj json representation of the form data
+     */
     public void configure(JSONObject obj) {
-        if (obj != null) {
-            JSONArray temp = JsonUtil.getArray(obj, "analyses"); //$NON-NLS-1$
-            final JSONObject pipeline_config = JsonUtil.getObjectAt(temp, 0);
-            if (pipeline_config != null) {
-                pnlInfo.setData(pipeline_config);
-                pnlMapping.setData(pipeline_config);
-        }
-       }
+        pnlInfo.setData(JsonUtil.getObject(obj, "info")); //$NON-NLS-1$
+        pnlMapping.setData(JsonUtil.getObject(obj, "pipeline")); //$NON-NLS-1$
     }
 }
