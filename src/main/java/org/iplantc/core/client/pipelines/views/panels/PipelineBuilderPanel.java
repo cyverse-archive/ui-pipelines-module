@@ -26,6 +26,7 @@ import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.dnd.DND.Operation;
 import com.extjs.gxt.ui.client.dnd.DropTarget;
 import com.extjs.gxt.ui.client.dnd.GridDragSource;
+import com.extjs.gxt.ui.client.dnd.StatusProxy;
 import com.extjs.gxt.ui.client.event.DNDEvent;
 import com.extjs.gxt.ui.client.event.DNDListener;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
@@ -368,22 +369,18 @@ public class PipelineBuilderPanel extends PipelineStep {
     }
 
     private void validateDNDEventApps(DNDEvent e) {
-        if (e.isCancelled()) {
-            return;
-        }
-
+        StatusProxy eventStatus = e.getStatus();
         List<Analysis> selected = e.getData();
+
         if (selected == null || selected.isEmpty()) {
-            // e.setCancelled(true);
-            e.getStatus().setStatus(false);
+            eventStatus.setStatus(false);
             return;
         }
 
         for (final Analysis app : selected) {
             if (!app.getPipelineEligibility().isValid()) {
-                // e.setCancelled(true);
-                e.getStatus().setStatus(false);
-                e.getStatus().update(app.getPipelineEligibility().getReason());
+                eventStatus.setStatus(false);
+                eventStatus.update(app.getPipelineEligibility().getReason());
                 return;
             }
         }
