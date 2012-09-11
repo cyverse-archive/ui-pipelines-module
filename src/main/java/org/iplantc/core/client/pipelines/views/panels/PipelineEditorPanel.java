@@ -1,11 +1,6 @@
 package org.iplantc.core.client.pipelines.views.panels;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.iplantc.core.client.pipelines.I18N;
-import org.iplantc.core.client.pipelines.events.PipelineStepValidationEvent;
-import org.iplantc.core.client.pipelines.events.PipelineStepValidationEventHandler;
 import org.iplantc.core.client.pipelines.images.Resources;
 import org.iplantc.core.jsonutil.JsonUtil;
 import org.iplantc.core.uiapplications.client.events.AnalysisGroupCountUpdateEvent;
@@ -16,24 +11,18 @@ import org.iplantc.core.uicommons.client.events.EventBus;
 import org.iplantc.core.uicommons.client.models.UserInfo;
 
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
-import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.event.BorderLayoutEvent;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.widget.CardPanel;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
-import com.extjs.gxt.ui.client.widget.Html;
-import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
-import com.extjs.gxt.ui.client.widget.button.ToggleButton;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
-import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONString;
@@ -50,22 +39,17 @@ import com.google.gwt.user.client.ui.AbstractImagePrototype;
 public class PipelineEditorPanel extends ContentPanel {
 
     private static final String ID_BTN_PUBLISH = "idBtnPublish"; //$NON-NLS-1$
-    protected BorderLayoutData dataWest;
     protected BorderLayoutData dataCenter;
+    protected BorderLayoutData dataEast;
 
-    private CardPanel pnlMain;
     private PipelineStep pnlInfo;
     private PipelineBuilderPanel pnlMapping;
-    private List<ActionsToggleButton> actions;
 
     private final AbstractCatalogCategoryPanel categoryPanel;
     private final AppTemplateUserServiceFacade service;
     private ToolBar toolbar;
-    private ContentPanel noteContainer;
     private final Command publishCallback;
     private final String tag;
-
-    private ArrayList<HandlerRegistration> handlers;
 
     public PipelineEditorPanel(String tag, AbstractCatalogCategoryPanel categoryPanel,
             AppTemplateUserServiceFacade service, Command publishCallback) {
@@ -78,43 +62,23 @@ public class PipelineEditorPanel extends ContentPanel {
     }
 
     private void init() {
-        pnlMain = new CardPanel();
-        pnlMain.setScrollMode(Scroll.NONE);
 
         pnlInfo = new PipelineInfoPanel(I18N.DISPLAY.workflowInfo());
 
         pnlMapping = new PipelineBuilderPanel(I18N.DISPLAY.selectAndOrderApps(), tag, categoryPanel,
                 service);
 
-        pnlMain.add(pnlInfo);
-        pnlMain.add(pnlMapping);
-
-        initListeners();
         initLayout();
         setHeaderVisible(false);
+
         toolbar = new ToolBar();
         buildPublishButton();
         setBottomComponent(toolbar);
-
-    }
-
-    private void initListeners() {
-        EventBus bus = EventBus.getInstance();
-        handlers = new ArrayList<HandlerRegistration>();
-
-        handlers.add(bus.addHandler(PipelineStepValidationEvent.TYPE,
-                new PipelineStepValidationEventHandler() {
-                    @Override
-                    public void onValidate(PipelineStepValidationEvent event) {
-                        validateSteps();
-                    }
-                }));
     }
 
     private void buildPublishButton() {
         Button btnPublish = new Button(I18N.DISPLAY.publishToWorkspace());
         btnPublish.setId(ID_BTN_PUBLISH);
-        btnPublish.disable();
         btnPublish.setIcon(AbstractImagePrototype.create(Resources.ICONS.publish()));
         btnPublish.addSelectionListener(new PublishButtonSelectionListener());
 
@@ -135,8 +99,8 @@ public class PipelineEditorPanel extends ContentPanel {
 
         setLayout(layout);
 
-        dataWest = initLayoutRegion(LayoutRegion.WEST, 175, false);
         dataCenter = initLayoutRegion(LayoutRegion.CENTER, 0, false);
+        dataEast = initLayoutRegion(LayoutRegion.EAST, 175, false);
     }
 
     private BorderLayoutData initLayoutRegion(LayoutRegion region, float size, boolean collapsible) {
@@ -153,18 +117,22 @@ public class PipelineEditorPanel extends ContentPanel {
     }
 
     private void compose() {
-        buildNotePanel();
-        LayoutContainer btns = new ActionsPanel();
-
-        add(btns, dataWest);
-        add(pnlMain, dataCenter);
+        add(pnlMapping, dataCenter);
+        add(pnlInfo, dataEast);
     }
 
     private final class PublishButtonSelectionListener extends SelectionListener<ButtonEvent> {
 
         @Override
         public void componentSelected(ButtonEvent ce) {
-            ((Button)ce.getSource()).disable();
+            if (!isValid()) {
+                ErrorHandler.post(I18N.ERROR.workflowValidationError());
+                return;
+            }
+
+            final Button btnPublish = (Button)ce.getSource();
+
+            btnPublish.disable();
 
             JSONObject publishJson = getPublishJson();
             if (publishJson == null) {
@@ -184,115 +152,21 @@ public class PipelineEditorPanel extends ContentPanel {
                         publishCallback.execute();
                     }
 
+                    btnPublish.enable();
                 }
 
                 @Override
                 public void onFailure(Throwable caught) {
                     ErrorHandler.post(I18N.ERROR.workflowPublishError(), caught);
-
+                    btnPublish.enable();
                 }
             });
 
         }
     }
 
-    private class ActionsToggleButton extends ToggleButton {
-        private final PipelineStep step;
-        private final String qtip;
-
-        public ActionsToggleButton(String label, final PipelineStep step, final String qtip) {
-            super(label, new SelectionListener<ButtonEvent>() {
-                @Override
-                public void componentSelected(ButtonEvent ce) {
-                    validateSteps();
-                    toggleButtons(step, (ToggleButton)ce.getButton(), qtip);
-                }
-            });
-
-            setSize(150, 30);
-            this.step = step;
-            this.qtip = qtip;
-            setStyleAttribute("outline", "none"); //$NON-NLS-1$ //$NON-NLS-2$
-        }
-
-        public PipelineStep getStep() {
-            return step;
-        }
-
-        @Override
-        protected void toggle(boolean state, boolean silent) {
-            super.toggle(state, silent);
-            // blur so no dotted line is shown around the button in Firefox
-            if (buttonEl != null) {
-                buttonEl.blur();
-            }
-        }
-
-    }
-
-    private void validateSteps() {
-        for (int i = 0; i < actions.size(); i++) {
-            ActionsToggleButton btn = actions.get(i);
-            if (btn.getStep().isValid()) {
-                btn.setIcon(AbstractImagePrototype
-                        .create(org.iplantc.core.client.pipelines.images.Resources.ICONS.stepComplete()));
-            } else {
-                btn.setIcon(AbstractImagePrototype
-                        .create(org.iplantc.core.client.pipelines.images.Resources.ICONS.stepError()));
-            }
-        }
-
-        setPublishButtonState();
-
-    }
-
-    private void setPublishButtonState() {
-        Button b = (Button)toolbar.getItemByItemId(ID_BTN_PUBLISH);
-        b.setEnabled(pnlInfo.isValid() && pnlMapping.isValid());
-    }
-
-    private void toggleButtons(PipelineStep contents, ToggleButton btnActive, String qtip) {
-        for (ToggleButton btn : actions) {
-            btn.toggle(false);
-        }
-        btnActive.toggle(true);
-
-        pnlMain.setActiveItem(contents);
-
-        noteContainer.removeAll();
-        noteContainer.addText(qtip);
-        noteContainer.layout();
-    }
-
-    private class ActionsPanel extends LayoutContainer {
-
-        public ActionsPanel() {
-            init();
-            compose();
-            setStyleAttribute("padding", "5px"); //$NON-NLS-1$ //$NON-NLS-2$
-            // over ride top padding to match center panel header
-            setStyleAttribute("padding-top", "20px"); //$NON-NLS-1$ //$NON-NLS-2$
-        }
-
-        private void init() {
-            actions = new ArrayList<ActionsToggleButton>();
-        }
-
-        private void compose() {
-            actions.add(new ActionsToggleButton(I18N.DISPLAY.workflowInfo(), pnlInfo, I18N.DISPLAY
-                    .infoPnlTip()));
-            actions.add(new ActionsToggleButton(I18N.DISPLAY.selectAndOrderApps(), pnlMapping,
-                    I18N.DISPLAY.selectOrderPnlTip()));
-
-            for (ToggleButton btn : actions) {
-                add(btn);
-                add(new Html("<br/>")); //$NON-NLS-1$
-            }
-
-            add(noteContainer);
-
-            toggleButtons(actions.get(0).step, actions.get(0), actions.get(0).qtip);
-        }
+    private boolean isValid() {
+        return pnlInfo.isValid() && pnlMapping.isValid();
     }
 
     /**
@@ -326,14 +200,6 @@ public class PipelineEditorPanel extends ContentPanel {
         return ret;
     }
 
-    private void buildNotePanel() {
-        noteContainer = new ContentPanel();
-        noteContainer.setHeading(I18N.DISPLAY.quickTipsHeading());
-        noteContainer.setSize(153, 190);
-        noteContainer.setStyleAttribute("padding", "5px"); //$NON-NLS-1$ //$NON-NLS-2$
-        noteContainer.setCollapsible(true);
-    }
-
     private JSONObject getImplementorDetails() {
         UserInfo user = UserInfo.getInstance();
         JSONObject obj = new JSONObject();
@@ -352,12 +218,6 @@ public class PipelineEditorPanel extends ContentPanel {
      */
     public void cleanup() {
         pnlMapping.cleanup();
-
-        for (HandlerRegistration handler : handlers) {
-            handler.removeHandler();
-        }
-
-        handlers.clear();
     }
 
     /**
