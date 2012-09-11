@@ -29,7 +29,7 @@ import com.extjs.gxt.ui.client.dnd.GridDragSource;
 import com.extjs.gxt.ui.client.dnd.StatusProxy;
 import com.extjs.gxt.ui.client.event.DNDEvent;
 import com.extjs.gxt.ui.client.event.DNDListener;
-import com.extjs.gxt.ui.client.widget.LayoutContainer;
+import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
@@ -67,7 +67,7 @@ public class PipelineBuilderPanel extends PipelineStep {
     private final AppTemplateUserServiceFacade service;
     private final AbstractCatalogCategoryPanel categoryPanel;
     private BaseCatalogMainPanel appsListPanel;
-    private LayoutContainer builderPanel;
+    private ContentPanel builderPanel;
     private PipelineCreator builder;
     private ArrayList<HandlerRegistration> handlers;
 
@@ -93,8 +93,9 @@ public class PipelineBuilderPanel extends PipelineStep {
         builder = new PipelineCreator();
         builder.setStyleName("pipeline-builder"); //$NON-NLS-1$
 
-        builderPanel = new LayoutContainer(new FitLayout());
+        builderPanel = new ContentPanel(new FitLayout());
         builderPanel.setScrollMode(Scroll.AUTO);
+        builderPanel.setHeading(I18N.DISPLAY.dragDropAppsToCreator());
         builderPanel.add(builder);
 
         DropTarget target = new DropTarget(builderPanel);
@@ -146,7 +147,7 @@ public class PipelineBuilderPanel extends PipelineStep {
     private void compose() {
         BorderLayoutData dataWest = initLayoutRegion(LayoutRegion.WEST, 220, true);
         BorderLayoutData dataCenter = initLayoutRegion(LayoutRegion.CENTER, 0, false);
-        BorderLayoutData dataEast = initLayoutRegion(LayoutRegion.EAST, 265, false);
+        BorderLayoutData dataEast = initLayoutRegion(LayoutRegion.EAST, 300, false);
 
         add(categoryPanel, dataWest);
         add(appsListPanel, dataCenter);
