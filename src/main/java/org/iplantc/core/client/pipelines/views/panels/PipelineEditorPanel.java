@@ -2,7 +2,6 @@ package org.iplantc.core.client.pipelines.views.panels;
 
 import org.iplantc.core.client.pipelines.I18N;
 import org.iplantc.core.client.pipelines.images.Resources;
-import org.iplantc.core.jsonutil.JsonUtil;
 import org.iplantc.core.uiapplications.client.events.AnalysisGroupCountUpdateEvent;
 import org.iplantc.core.uiapplications.client.services.AppTemplateUserServiceFacade;
 import org.iplantc.core.uiapplications.client.views.panels.AbstractCatalogCategoryPanel;
@@ -42,7 +41,6 @@ public class PipelineEditorPanel extends ContentPanel {
     protected BorderLayoutData dataCenter;
     protected BorderLayoutData dataEast;
 
-    private PipelineStep pnlInfo;
     private PipelineBuilderPanel pnlMapping;
 
     private final AbstractCatalogCategoryPanel categoryPanel;
@@ -62,9 +60,6 @@ public class PipelineEditorPanel extends ContentPanel {
     }
 
     private void init() {
-
-        pnlInfo = new PipelineInfoPanel(I18N.DISPLAY.workflowInfo());
-
         pnlMapping = new PipelineBuilderPanel(I18N.DISPLAY.selectAndOrderApps(), tag, categoryPanel,
                 service);
 
@@ -118,14 +113,13 @@ public class PipelineEditorPanel extends ContentPanel {
 
     private void compose() {
         add(pnlMapping, dataCenter);
-        add(pnlInfo, dataEast);
     }
 
     private final class PublishButtonSelectionListener extends SelectionListener<ButtonEvent> {
 
         @Override
         public void componentSelected(ButtonEvent ce) {
-            if (!isValid()) {
+            if (!pnlMapping.isValid()) {
                 ErrorHandler.post(I18N.ERROR.workflowValidationError());
                 return;
             }
@@ -165,10 +159,6 @@ public class PipelineEditorPanel extends ContentPanel {
         }
     }
 
-    private boolean isValid() {
-        return pnlInfo.isValid() && pnlMapping.isValid();
-    }
-
     /**
      * Get the JSON of this pipeline required for publishing.
      * 
@@ -177,19 +167,13 @@ public class PipelineEditorPanel extends ContentPanel {
     public JSONObject getPublishJson() {
         JSONObject ret = new JSONObject();
 
-        JSONObject publishJson = pnlInfo.toJson().isObject();
+        JSONObject publishJson = pnlMapping.getPublishJson();
 
-        JSONObject stepsMappingsJson = pnlMapping.getPublishJson();
-        JSONArray steps = JsonUtil.getArray(stepsMappingsJson, PipelineBuilderPanel.STEPS);
-        JSONArray mappings = JsonUtil.getArray(stepsMappingsJson, PipelineBuilderPanel.MAPPINGS);
-
-        if (publishJson == null || steps == null || mappings == null) {
+        if (publishJson == null) {
             // something went wrong, abort
             return null;
         }
 
-        publishJson.put(PipelineBuilderPanel.STEPS, steps);
-        publishJson.put(PipelineBuilderPanel.MAPPINGS, mappings);
         publishJson.put("implementation", getImplementorDetails()); //$NON-NLS-1$
         publishJson.put("full_username", new JSONString(UserInfo.getInstance().getFullUsername())); //$NON-NLS-1$
 
@@ -226,12 +210,7 @@ public class PipelineEditorPanel extends ContentPanel {
      * @return JSONObject containing form data
      */
     public JSONObject toJson() {
-        JSONObject ret = new JSONObject();
-
-        ret.put("info", pnlInfo.toJson()); //$NON-NLS-1$
-        ret.put("pipeline", pnlMapping.toJson()); //$NON-NLS-1$
-
-        return ret;
+        return (JSONObject)pnlMapping.toJson();
     }
 
     /**
@@ -240,7 +219,6 @@ public class PipelineEditorPanel extends ContentPanel {
      * @param obj json representation of the form data
      */
     public void configure(JSONObject obj) {
-        pnlInfo.setData(JsonUtil.getObject(obj, "info")); //$NON-NLS-1$
-        pnlMapping.setData(JsonUtil.getObject(obj, "pipeline")); //$NON-NLS-1$
+        pnlMapping.setData(obj);
     }
 }

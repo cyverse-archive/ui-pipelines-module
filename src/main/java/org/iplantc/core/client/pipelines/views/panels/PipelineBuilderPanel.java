@@ -51,6 +51,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
  */
 public class PipelineBuilderPanel extends PipelineStep {
     // JSON keys used in toJson objects
+    public static final String ANALYSIS_NAME = "analysis_name"; //$NON-NLS-1$
     public static final String STEPS = "steps"; //$NON-NLS-1$
     public static final String MAPPINGS = "mappings"; //$NON-NLS-1$
     public static final String PIPELINE_CREATOR_STEPS = "apps"; //$NON-NLS-1$
@@ -149,7 +150,7 @@ public class PipelineBuilderPanel extends PipelineStep {
     private void compose() {
         BorderLayoutData dataWest = initLayoutRegion(LayoutRegion.WEST, 220, true);
         BorderLayoutData dataCenter = initLayoutRegion(LayoutRegion.CENTER, 0, false);
-        BorderLayoutData dataEast = initLayoutRegion(LayoutRegion.EAST, 300, false);
+        BorderLayoutData dataEast = initLayoutRegion(LayoutRegion.EAST, 400, false);
 
         add(categoryPanel, dataWest);
         add(appsListPanel, dataCenter);
@@ -199,14 +200,18 @@ public class PipelineBuilderPanel extends PipelineStep {
 
     @Override
     public boolean isValid() {
-        JSONArray steps = JsonUtil.getArray(builder.getPipelineJson(), PIPELINE_CREATOR_STEPS);
+        JSONObject pipelineJson = builder.getPipelineJson();
 
-        // A pipline needs at least 2 apps and each app after the first one should have at least one
-        // output-to-input mapping
-        if (steps == null || steps.size() < 2) {
+        String name = JsonUtil.getString(pipelineJson, JSONMetaDataObject.NAME);
+        String description = JsonUtil.getString(pipelineJson, JSONMetaDataObject.DESCRIPTION);
+        JSONArray steps = JsonUtil.getArray(pipelineJson, PIPELINE_CREATOR_STEPS);
+
+        // A pipline needs a name, description, and at least 2 apps.
+        if (name.isEmpty() || description.isEmpty() || steps == null || steps.size() < 2) {
             return false;
         }
 
+        // Each app after the first one should have at least one of its inputs mapped to an output.
         for (int i = 1; i < steps.size(); i++) {
             JSONObject targetStep = JsonUtil.getObjectAt(steps, i);
 
@@ -239,13 +244,21 @@ public class PipelineBuilderPanel extends PipelineStep {
      * @return JSONObject required for publishing.
      */
     public JSONObject getPublishJson() {
-        JSONArray steps = JsonUtil.getArray(builder.getPipelineJson(), PIPELINE_CREATOR_STEPS);
+        JSONObject pipelineJson = builder.getPipelineJson();
+        JSONArray steps = JsonUtil.getArray(pipelineJson, PIPELINE_CREATOR_STEPS);
 
         if (steps == null) {
             return null;
         }
 
         JSONObject publishJson = new JSONObject();
+
+        publishJson.put(JSONMetaDataObject.ID, new JSONString(ID_KEY));
+        publishJson.put(ANALYSIS_NAME,
+                new JSONString(JsonUtil.getString(pipelineJson, JSONMetaDataObject.NAME)));
+        publishJson.put(JSONMetaDataObject.DESCRIPTION,
+                new JSONString(JsonUtil.getString(pipelineJson, JSONMetaDataObject.DESCRIPTION)));
+
         JSONArray publishSteps = new JSONArray();
         JSONArray publishMappings = new JSONArray();
 
