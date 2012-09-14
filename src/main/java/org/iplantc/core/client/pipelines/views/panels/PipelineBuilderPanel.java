@@ -87,11 +87,11 @@ public class PipelineBuilderPanel extends PipelineStep {
     private void init() {
         setLayout(new BorderLayout());
         setSize(500, 300);
+        setHeaderVisible(false);
 
         appsListPanel = new PipelineCatalogMainPanel(tag, service);
 
         builder = new PipelineCreator();
-        builder.setStyleName("pipeline-builder"); //$NON-NLS-1$
 
         builderPanel = new ContentPanel(new FitLayout());
         builderPanel.setScrollMode(Scroll.AUTO);
