@@ -29,6 +29,8 @@ import com.extjs.gxt.ui.client.dnd.GridDragSource;
 import com.extjs.gxt.ui.client.dnd.StatusProxy;
 import com.extjs.gxt.ui.client.event.DNDEvent;
 import com.extjs.gxt.ui.client.event.DNDListener;
+import com.extjs.gxt.ui.client.event.EventType;
+import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
@@ -369,6 +371,18 @@ public class PipelineBuilderPanel extends PipelineStep {
         }
     }
 
+    private void maskPipelineBuilder(String message) {
+        if (builderPanel != null) {
+            builderPanel.mask(message);
+        }
+    }
+
+    private void unmaskPipelineBuilder() {
+        if (builderPanel != null) {
+            builderPanel.unmask();
+        }
+    }
+
     private void validateDNDEventApps(DNDEvent e) {
         StatusProxy eventStatus = e.getStatus();
         List<Analysis> selected = e.getData();
@@ -384,6 +398,8 @@ public class PipelineBuilderPanel extends PipelineStep {
                 eventStatus.update(app.getPipelineEligibility().getReason());
                 return;
             }
+
+            eventStatus.update(I18N.DISPLAY.appendAppToWorkflow(app.getName()));
         }
     }
 
@@ -393,20 +409,32 @@ public class PipelineBuilderPanel extends PipelineStep {
             super(tag, templateService);
 
             GridDragSource dragSource = new GridDragSource(analysisGrid);
-            dragSource.addDNDListener(new AppDNDListener());
-        }
 
+            // GridDragSource does not add listeners to DragCancel events by default.
+            AppDNDListener listener = new AppDNDListener();
+            dragSource.addDNDListener(listener);
+            dragSource.addListener(Events.DragCancel, listener);
+        }
     }
 
     private class AppDNDListener extends DNDListener {
 
         @Override
-        public void dragStart(DNDEvent e) {
-            validateDNDEventApps(e);
+        public void handleEvent(DNDEvent e) {
+            EventType type = e.getType();
+            if (type == Events.DragCancel) {
+                dragCancel(e);
+            } else {
+                super.handleEvent(e);
+            }
+        }
+
+        public void dragCancel(DNDEvent e) {
+            unmaskPipelineBuilder();
         }
 
         @Override
-        public void dragMove(DNDEvent e) {
+        public void dragStart(DNDEvent e) {
             validateDNDEventApps(e);
         }
     }
@@ -419,8 +447,21 @@ public class PipelineBuilderPanel extends PipelineStep {
         }
 
         @Override
-        public void dragMove(DNDEvent e) {
+        public void dragEnter(DNDEvent e) {
             validateDNDEventApps(e);
+
+            if (e.getStatus().getStatus()) {
+                // Event Status is true, so we have a valid App
+                List<Analysis> selected = e.getData();
+                String appName = selected.get(0).getName();
+
+                maskPipelineBuilder(I18N.DISPLAY.appendAppToWorkflow(appName));
+            }
+        }
+
+        @Override
+        public void dragLeave(DNDEvent e) {
+            unmaskPipelineBuilder();
         }
 
         @Override
@@ -447,11 +488,13 @@ public class PipelineBuilderPanel extends PipelineStep {
                             appJson.put(OUTPUTS, JsonUtil.getArray(obj, OUTPUTS));
 
                             builder.appendApp(appJson);
+                            unmaskPipelineBuilder();
                         }
 
                         @Override
                         public void onFailure(Throwable caught) {
                             ErrorHandler.post(I18N.ERROR.dataObjectsRetrieveError(), caught);
+                            unmaskPipelineBuilder();
                         }
                     });
                 }

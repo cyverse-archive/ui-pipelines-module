@@ -185,4 +185,11 @@ public interface PipelinesDisplayStrings extends CommonUIDisplayStrings {
      * @return a string representing the text
      */
     String dragDropAppsToCreator();
+
+    /**
+     * Label for the PipelineCreator panel drag-n-drop feedback.
+     * 
+     * @return a string representing the text
+     */
+    String appendAppToWorkflow(String appName);
 }
