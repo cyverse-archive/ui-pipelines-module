@@ -11,6 +11,7 @@ import org.iplantc.core.client.pipelines.events.PipelineStepValidationEventHandl
 import org.iplantc.core.client.pipelines.images.Resources;
 import org.iplantc.core.client.pipelines.models.PipelineAppModel;
 import org.iplantc.core.jsonutil.JsonUtil;
+import org.iplantc.core.uiapplications.client.Services;
 import org.iplantc.core.uiapplications.client.events.AnalysisGroupCountUpdateEvent;
 import org.iplantc.core.uiapplications.client.services.AppTemplateUserServiceFacade;
 import org.iplantc.core.uiapplications.client.views.panels.AbstractCatalogCategoryPanel;
@@ -76,10 +77,10 @@ public class PipelineEditorPanel extends ContentPanel {
     private ArrayList<HandlerRegistration> handlers;
 
     public PipelineEditorPanel(String tag, AbstractCatalogCategoryPanel categoryPanel,
-            AppTemplateUserServiceFacade service, Command publishCallback) {
+            Command publishCallback) {
         this.tag = tag;
         this.categoryPanel = categoryPanel;
-        this.service = service;
+        this.service = Services.USER_TEMPLATE_SERVICE;
         this.publishCallback = publishCallback;
         init();
         compose();
