@@ -12,8 +12,8 @@ import org.iplantc.core.client.pipelines.images.Resources;
 import org.iplantc.core.client.pipelines.models.PipelineAppModel;
 import org.iplantc.core.jsonutil.JsonUtil;
 import org.iplantc.core.uiapplications.client.Services;
-import org.iplantc.core.uiapplications.client.events.AnalysisGroupCountUpdateEvent;
-import org.iplantc.core.uiapplications.client.services.AppTemplateUserServiceFacade;
+import org.iplantc.core.uiapplications.client.events.AppGroupCountUpdateEvent;
+import org.iplantc.core.uiapplications.client.services.AppUserServiceFacade;
 import org.iplantc.core.uiapplications.client.views.panels.AbstractCatalogCategoryPanel;
 import org.iplantc.core.uicommons.client.ErrorHandler;
 import org.iplantc.core.uicommons.client.events.EventBus;
@@ -68,7 +68,7 @@ public class PipelineEditorPanel extends ContentPanel {
     @SuppressWarnings("unused")
     private List<PipelineAppModel> apps;
     private final AbstractCatalogCategoryPanel categoryPanel;
-    private final AppTemplateUserServiceFacade service;
+    private final AppUserServiceFacade service;
     private ToolBar toolbar;
     private ContentPanel noteContainer;
     private final Command publishCallback;
@@ -80,7 +80,7 @@ public class PipelineEditorPanel extends ContentPanel {
             Command publishCallback) {
         this.tag = tag;
         this.categoryPanel = categoryPanel;
-        this.service = Services.USER_TEMPLATE_SERVICE;
+        this.service = Services.USER_APP_SERVICE;
         this.publishCallback = publishCallback;
         init();
         compose();
@@ -192,7 +192,7 @@ public class PipelineEditorPanel extends ContentPanel {
                 public void onSuccess(String result) {
                     MessageBox.info(I18N.DISPLAY.publishToWorkspace(),
                             I18N.DISPLAY.publishWorkflowSuccess(), null);
-                    AnalysisGroupCountUpdateEvent event = new AnalysisGroupCountUpdateEvent(true, null);
+                    AppGroupCountUpdateEvent event = new AppGroupCountUpdateEvent(true, null);
                     EventBus.getInstance().fireEvent(event);
                     if (publishCallback != null) {
                         publishCallback.execute();

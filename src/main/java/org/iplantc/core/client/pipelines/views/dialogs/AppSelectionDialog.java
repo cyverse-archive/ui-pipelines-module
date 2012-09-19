@@ -4,13 +4,13 @@ import java.util.ArrayList;
 
 import org.iplantc.core.client.pipelines.I18N;
 import org.iplantc.core.jsonutil.JsonUtil;
-import org.iplantc.core.uiapplications.client.events.AnalysisCategorySelectedEvent;
-import org.iplantc.core.uiapplications.client.events.AnalysisCategorySelectedEventHandler;
+import org.iplantc.core.uiapplications.client.events.AppGroupSelectedEvent;
 import org.iplantc.core.uiapplications.client.events.AppSearchResultSelectedEvent;
-import org.iplantc.core.uiapplications.client.events.AppSearchResultSelectedEventHandler;
+import org.iplantc.core.uiapplications.client.events.handlers.AppGroupSelectedEventHandler;
+import org.iplantc.core.uiapplications.client.events.handlers.AppSearchResultSelectedEventHandler;
 import org.iplantc.core.uiapplications.client.models.Analysis;
 import org.iplantc.core.uiapplications.client.models.AnalysisGroup;
-import org.iplantc.core.uiapplications.client.services.AppTemplateServiceFacade;
+import org.iplantc.core.uiapplications.client.services.AppServiceFacade;
 import org.iplantc.core.uiapplications.client.views.panels.AbstractCatalogCategoryPanel;
 import org.iplantc.core.uiapplications.client.views.panels.BaseCatalogMainPanel;
 import org.iplantc.core.uicommons.client.ErrorHandler;
@@ -54,7 +54,7 @@ public class AppSelectionDialog extends Dialog {
     private final AbstractCatalogCategoryPanel categoryPanel;
     private BaseCatalogMainPanel appsListPanel;
     private ArrayList<HandlerRegistration> handlers;
-    private final AppTemplateServiceFacade service;
+    private final AppServiceFacade service;
     private ContentPanel mainPanel;
     private BorderLayoutData dataWest;
     private BorderLayoutData dataCenter;
@@ -70,7 +70,7 @@ public class AppSelectionDialog extends Dialog {
      * @param cmdAdd called when the add button is clicked
      */
     public AppSelectionDialog(String tag, AbstractCatalogCategoryPanel categoryPanel,
-            AppTemplateServiceFacade service, Command cmdAdd) {
+            AppServiceFacade service, Command cmdAdd) {
         this.tag = tag;
         this.categoryPanel = categoryPanel;
         this.service = service;
@@ -251,7 +251,7 @@ public class AppSelectionDialog extends Dialog {
         EventBus eventbus = EventBus.getInstance();
         handlers = new ArrayList<HandlerRegistration>();
 
-        handlers.add(eventbus.addHandler(AnalysisCategorySelectedEvent.TYPE,
+        handlers.add(eventbus.addHandler(AppGroupSelectedEvent.TYPE,
                 new AnalysisCategorySelectedEventHandlerImpl()));
         getButtonById(ADD).addSelectionListener(new SelectionListener<ButtonEvent>() {
             @Override
@@ -300,9 +300,9 @@ public class AppSelectionDialog extends Dialog {
     }
 
     private class AnalysisCategorySelectedEventHandlerImpl implements
-            AnalysisCategorySelectedEventHandler {
+            AppGroupSelectedEventHandler {
         @Override
-        public void onSelection(AnalysisCategorySelectedEvent event) {
+        public void onSelection(AppGroupSelectedEvent event) {
             if (event.getSourcePanel() == categoryPanel && appsListPanel != null) {
                 appsListPanel.setHeading(event.getGroup().getName());
                 updateAnalysesListing(event.getGroup());
@@ -312,7 +312,7 @@ public class AppSelectionDialog extends Dialog {
 
     private void updateAnalysesListing(final AnalysisGroup group) {
         appsListPanel.mask(DeCommonI18N.DISPLAY.loadingMask());
-        service.getAnalysis(group.getId(), new AsyncCallback<String>() {
+        service.getApp(group.getId(), new AsyncCallback<String>() {
             @Override
             public void onSuccess(String result) {
                 ArrayList<Analysis> analyses = new ArrayList<Analysis>();

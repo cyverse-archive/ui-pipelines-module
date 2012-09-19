@@ -13,7 +13,7 @@ import org.iplantc.core.client.pipelines.views.dialogs.AppSelectionDialog;
 import org.iplantc.core.jsonutil.JsonUtil;
 import org.iplantc.core.metadata.client.JSONMetaDataObject;
 import org.iplantc.core.uiapplications.client.models.Analysis;
-import org.iplantc.core.uiapplications.client.services.AppTemplateUserServiceFacade;
+import org.iplantc.core.uiapplications.client.services.AppUserServiceFacade;
 import org.iplantc.core.uiapplications.client.views.panels.AbstractCatalogCategoryPanel;
 import org.iplantc.core.uicommons.client.ErrorHandler;
 import org.iplantc.core.uicommons.client.events.EventBus;
@@ -57,7 +57,7 @@ import com.google.gwt.user.client.ui.AbstractImagePrototype;
 public class SelectAndOrderPanel extends PipelineStep {
 
     private final AbstractCatalogCategoryPanel categoryPanel;
-    private final AppTemplateUserServiceFacade service;
+    private final AppUserServiceFacade service;
     private Grid<PipelineAppModel> grid;
     private ToolBar toolbar;
     private final String ID_ADD = "idbtnAdd"; //$NON-NLS-1$
@@ -68,7 +68,7 @@ public class SelectAndOrderPanel extends PipelineStep {
     private final String tag;
 
     public SelectAndOrderPanel(String title, String tag, AbstractCatalogCategoryPanel categoryPanel,
-            AppTemplateUserServiceFacade service) {
+            AppUserServiceFacade service) {
         super(title);
 
         this.tag = tag;
@@ -145,7 +145,7 @@ public class SelectAndOrderPanel extends PipelineStep {
     }
 
     private void addAppModel(final Analysis app, final AppSelectionDialog dialog) {
-        service.getDataObjectsForAnalysis(app.getId(), new AsyncCallback<String>() {
+        service.getDataObjectsForApp(app.getId(), new AsyncCallback<String>() {
             @Override
             public void onSuccess(String result) {
                 JSONObject obj = JSONParser.parseStrict(result).isObject();
