@@ -268,7 +268,7 @@ public class AppSelectionDialog extends Dialog {
                     @Override
                     public void onSelection(AppSearchResultSelectedEvent event) {
                         if (event.getSourceTag().equals(tag)) {
-                            categoryPanel.selectCategory(event.getCategoryId());
+                            categoryPanel.selectCategory(event.getAppGroupId());
                             appsListPanel.selectTool(event.getAppId());
                         }
                     }
@@ -312,7 +312,7 @@ public class AppSelectionDialog extends Dialog {
 
     private void updateAnalysesListing(final AnalysisGroup group) {
         appsListPanel.mask(DeCommonI18N.DISPLAY.loadingMask());
-        service.getApp(group.getId(), new AsyncCallback<String>() {
+        service.getApps(group.getId(), new AsyncCallback<String>() {
             @Override
             public void onSuccess(String result) {
                 ArrayList<Analysis> analyses = new ArrayList<Analysis>();
