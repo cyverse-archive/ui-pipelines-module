@@ -15,7 +15,7 @@
 		<!-- Current GXT Version -->
 		<gxt.version>2.2.5</gxt.version>
 		<!-- Current GWT Version -->
-		<gwt.version>2.5.0-rc2</gwt.version>
+		<gwt.version>2.5.0</gwt.version>
 		<!-- Define OS/Platform Independent Character Encoding -->
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
