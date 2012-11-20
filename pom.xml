@@ -11,7 +11,7 @@
 
 	<packaging>jar</packaging>
 
-	<version>dev-SNAPSHOT</version>
+	<version>1.6</version>
 
 	<name>The iPlant Collaborative Discovery Environment Pipelines module</name>
 
@@ -42,7 +42,7 @@
 		<dependency>
 			<groupId>org.iplantc.core</groupId>
 			<artifactId>ui-commons</artifactId>
-			<version>dev-SNAPSHOT</version>
+			<version>1.6</version>
 		</dependency>
 
 		<!-- GWT deps (from central repo) -->
@@ -89,19 +89,19 @@
 		<dependency>
 			<groupId>org.iplantc.core</groupId>
 			<artifactId>jsonutil</artifactId>
-			<version>dev-SNAPSHOT</version>
+			<version>1.6</version>
 		</dependency>
 
         <dependency>
             <groupId>org.iplantc.core</groupId>
             <artifactId>metadata</artifactId>
-            <version>dev-SNAPSHOT</version>
+            <version>1.6</version>
         </dependency>
         
         <dependency>
 			<groupId>org.iplantc.core</groupId>
 			<artifactId>applications</artifactId>
-			<version>dev-SNAPSHOT</version>
+			<version>1.6</version>
 		</dependency>
 		</dependencies>
 	
