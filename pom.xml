@@ -4,7 +4,7 @@
 	<groupId>org.iplantc.core</groupId>
 	<artifactId>pipelines</artifactId>
 	<packaging>jar</packaging>
-	<version>dev-SNAPSHOT</version>
+	<version>gxt3Sandbox-SNAPSHOT</version>
 	<name>The iPlant Collaborative Discovery Environment Pipelines module</name>
 	<url>http://project.iplantcollaborative.org</url>
 	<!-- convenience to define GWT version in one place -->
@@ -23,7 +23,7 @@
 		<dependency>
 			<groupId>org.iplantc.core</groupId>
 			<artifactId>ui-commons</artifactId>
-			<version>dev-SNAPSHOT</version>
+			<version>gxt3Sandbox-SNAPSHOT</version>
 		</dependency>
 		<!-- GWT deps (from central repo) -->
 		<dependency>
@@ -63,17 +63,17 @@
 		<dependency>
 			<groupId>org.iplantc.core</groupId>
 			<artifactId>jsonutil</artifactId>
-			<version>dev-SNAPSHOT</version>
+			<version>gxt3Sandbox-SNAPSHOT</version>
 		</dependency>
         <dependency>
             <groupId>org.iplantc.core</groupId>
             <artifactId>metadata</artifactId>
-            <version>dev-SNAPSHOT</version>
+            <version>gxt3Sandbox-SNAPSHOT</version>
         </dependency>
         <dependency>
 			<groupId>org.iplantc.core</groupId>
 			<artifactId>applications</artifactId>
-			<version>dev-SNAPSHOT</version>
+			<version>gxt3Sandbox-SNAPSHOT</version>
 		</dependency>
 		</dependencies>
 	<build>
