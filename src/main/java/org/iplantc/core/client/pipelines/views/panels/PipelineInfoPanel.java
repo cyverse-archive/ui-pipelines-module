@@ -59,6 +59,7 @@ public class PipelineInfoPanel extends PipelineStep {
         txtPipelineName.setAutoValidate(true);
         txtPipelineName.setFieldLabel(I18N.DISPLAY.pipelineName());
         txtPipelineName.setAllowBlank(false);
+        txtPipelineName.setMaxLength(255);
         AnalysisUtil.setAppNameRegexValidation(txtPipelineName);
         addNameValidationListeners();
     }
