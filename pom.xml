@@ -13,7 +13,7 @@
 		<!-- Target Java Version -->
 		<jdk.version>1.6</jdk.version>
 		<!-- Current GXT Version -->
-		<gxt.version>2.2.5</gxt.version>
+		<gxt.version>3.0.1</gxt.version>
 		<!-- Current GWT Version -->
 		<gwt.version>2.5.0</gwt.version>
 		<!-- Define OS/Platform Independent Character Encoding -->
@@ -44,10 +44,15 @@
 			<version>1.2.14</version>
 		</dependency>
 		<dependency>
-			<groupId>com.extjs</groupId>
-			<artifactId>gxt</artifactId>
-			<version>${gxt.version}</version>
-		</dependency>
+            <groupId>com.sencha.gxt</groupId>
+            <artifactId>gxt</artifactId>
+            <version>${gxt.version}</version>
+        </dependency>
+		<dependency>
+            <groupId>com.extjs</groupId>
+            <artifactId>gxt</artifactId>
+            <version>2.2.5</version>
+        </dependency>
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
@@ -143,14 +148,9 @@
 	</build>
 	<repositories>
 		<repository>
-			<id>gwt-maven</id>
-			<url>http://gwt-maven.googlecode.com/svn/trunk/mavenrepo/</url>
-		</repository>
-		<repository>
 			<id>iplantCollaborative</id>
 			<name>The iPlant Collaborative local repository</name>
-			<url>http://projects.iplantcollaborative.org/archiva/repository/internal/
-			</url>
+			<url>http://projects.iplantcollaborative.org/archiva/repository/internal/</url>
 		</repository>
 	</repositories>
 </project>
