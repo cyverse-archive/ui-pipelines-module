@@ -9,17 +9,14 @@ import org.iplantc.core.uicommons.client.ErrorHandler;
 import org.iplantc.core.uicommons.client.events.EventBus;
 import org.iplantc.core.uicommons.client.models.UserInfo;
 
-import com.extjs.gxt.ui.client.Style.LayoutRegion;
-import com.extjs.gxt.ui.client.event.BorderLayoutEvent;
+import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
-import com.extjs.gxt.ui.client.event.Events;
-import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.widget.CardPanel;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
-import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
-import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
+import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.json.client.JSONArray;
@@ -38,14 +35,13 @@ import com.google.gwt.user.client.ui.AbstractImagePrototype;
 public class PipelineEditorPanel extends ContentPanel {
 
     private static final String ID_BTN_PUBLISH = "idBtnPublish"; //$NON-NLS-1$
-    protected BorderLayoutData dataCenter;
-    protected BorderLayoutData dataEast;
 
-    private PipelineBuilderPanel pnlMapping;
+    private CardPanel pnlMain;
+    private PipelineBuilderPanel pnlBuilder;
+    private PipelineEditorView pnlStepEditor;
 
     private final AbstractCatalogCategoryPanel categoryPanel;
     private final AppTemplateUserServiceFacade service;
-    private ToolBar toolbar;
     private final Command publishCallback;
     private final String tag;
 
@@ -60,66 +56,86 @@ public class PipelineEditorPanel extends ContentPanel {
     }
 
     private void init() {
-        pnlMapping = new PipelineBuilderPanel(I18N.DISPLAY.selectAndOrderApps(), tag, categoryPanel,
-                service);
+        pnlMain = new CardPanel();
+        pnlMain.setScrollMode(Scroll.NONE);
+
+        pnlBuilder = new PipelineBuilderPanel(tag, categoryPanel, service);
+        pnlStepEditor = new PipelineStepEditorPanel(tag, categoryPanel, service);
+
+        pnlMain.add(pnlBuilder);
+        pnlMain.add(pnlStepEditor);
 
         initLayout();
         setHeaderVisible(false);
 
-        toolbar = new ToolBar();
-        buildPublishButton();
-        setBottomComponent(toolbar);
+        setBottomComponent(buildToolBar());
     }
 
-    private void buildPublishButton() {
+    private ToolBar buildToolBar() {
+        ToolBar toolbar = new ToolBar();
+
+        toolbar.add(buildSwitchViewButton());
+        toolbar.add(new FillToolItem());
+        toolbar.add(buildPublishButton());
+
+        return toolbar;
+    }
+
+    private Button buildPublishButton() {
         Button btnPublish = new Button(I18N.DISPLAY.publishToWorkspace());
+
         btnPublish.setId(ID_BTN_PUBLISH);
         btnPublish.setIcon(AbstractImagePrototype.create(Resources.ICONS.publish()));
         btnPublish.addSelectionListener(new PublishButtonSelectionListener());
 
-        toolbar.add(new FillToolItem());
-        toolbar.add(btnPublish);
+        return btnPublish;
     }
 
-    private void initLayout() {
-        BorderLayout layout = new BorderLayout();
+    private Button buildSwitchViewButton() {
+        Button btnPublish = new Button("Switch View");
 
-        // make sure we re-draw when a panel expands
-        layout.addListener(Events.Expand, new Listener<BorderLayoutEvent>() {
+        btnPublish.setId("idBtnSwitchView");
+        btnPublish.addSelectionListener(new SelectionListener<ButtonEvent>() {
+
             @Override
-            public void handleEvent(BorderLayoutEvent be) {
-                layout();
+            public void componentSelected(ButtonEvent ce) {
+                PipelineEditorView pnlActive = getActiveView();
+                JSONObject pipelineState = pnlActive.toJson();
+
+                if (pnlActive == pnlBuilder) {
+                    pnlActive = pnlStepEditor;
+                } else {
+                    pnlActive = pnlBuilder;
+                }
+
+                pnlMain.setActiveItem(pnlActive);
+                pnlActive.configure(pipelineState);
             }
         });
 
-        setLayout(layout);
-
-        dataCenter = initLayoutRegion(LayoutRegion.CENTER, 0, false);
-        dataEast = initLayoutRegion(LayoutRegion.EAST, 175, false);
+        return btnPublish;
     }
 
-    private BorderLayoutData initLayoutRegion(LayoutRegion region, float size, boolean collapsible) {
-        BorderLayoutData ret = new BorderLayoutData(region);
-
-        if (size > 0) {
-            ret.setSize(size);
-        }
-
-        ret.setCollapsible(collapsible);
-        ret.setSplit(false);
-
-        return ret;
+    private void initLayout() {
+        setLayout(new FitLayout());
     }
 
     private void compose() {
-        add(pnlMapping, dataCenter);
+        add(pnlMain);
+    }
+
+    /**
+     * @return The active PipelineEditorView currently displayed by the presenter.
+     */
+    private PipelineEditorView getActiveView() {
+        return (PipelineEditorView)pnlMain.getActiveItem();
     }
 
     private final class PublishButtonSelectionListener extends SelectionListener<ButtonEvent> {
 
         @Override
         public void componentSelected(ButtonEvent ce) {
-            if (!pnlMapping.isValid()) {
+            if (!getActiveView().isValid()) {
                 ErrorHandler.post(I18N.ERROR.workflowValidationError());
                 return;
             }
@@ -167,7 +183,7 @@ public class PipelineEditorPanel extends ContentPanel {
     public JSONObject getPublishJson() {
         JSONObject ret = new JSONObject();
 
-        JSONObject publishJson = pnlMapping.getPublishJson();
+        JSONObject publishJson = getActiveView().getPublishJson();
 
         if (publishJson == null) {
             // something went wrong, abort
@@ -201,7 +217,8 @@ public class PipelineEditorPanel extends ContentPanel {
      * 
      */
     public void cleanup() {
-        pnlMapping.cleanup();
+        pnlStepEditor.cleanup();
+        pnlBuilder.cleanup();
     }
 
     /**
@@ -210,7 +227,7 @@ public class PipelineEditorPanel extends ContentPanel {
      * @return JSONObject containing form data
      */
     public JSONObject toJson() {
-        return (JSONObject)pnlMapping.toJson();
+        return getActiveView().toJson();
     }
 
     /**
@@ -219,6 +236,6 @@ public class PipelineEditorPanel extends ContentPanel {
      * @param obj json representation of the form data
      */
     public void configure(JSONObject obj) {
-        pnlMapping.setData(obj);
+        getActiveView().configure(obj);
     }
 }

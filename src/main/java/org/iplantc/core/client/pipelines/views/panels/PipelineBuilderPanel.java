@@ -39,7 +39,6 @@ import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONString;
-import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 /**
@@ -49,7 +48,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
  * @author psarando
  * 
  */
-public class PipelineBuilderPanel extends PipelineStep {
+public class PipelineBuilderPanel extends PipelineEditorView {
     // JSON keys used in toJson objects
     public static final String ANALYSIS_NAME = "analysis_name"; //$NON-NLS-1$
     public static final String STEPS = "steps"; //$NON-NLS-1$
@@ -74,10 +73,8 @@ public class PipelineBuilderPanel extends PipelineStep {
     private PipelineCreator builder;
     private ArrayList<HandlerRegistration> handlers;
 
-    public PipelineBuilderPanel(String title, String tag, AbstractCatalogCategoryPanel categoryPanel,
+    public PipelineBuilderPanel(String tag, AbstractCatalogCategoryPanel categoryPanel,
             AppTemplateUserServiceFacade service) {
-        super(title);
-
         this.tag = tag;
         this.categoryPanel = categoryPanel;
         this.service = service;
@@ -134,8 +131,9 @@ public class PipelineBuilderPanel extends PipelineStep {
     }
 
     /**
-     * Remove event handlers and free-up resources.
+     * {@inheritDoc}
      */
+    @Override
     public void cleanup() {
         categoryPanel.cleanup();
         appsListPanel.cleanup();
@@ -198,6 +196,9 @@ public class PipelineBuilderPanel extends PipelineStep {
 
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean isValid() {
         JSONObject pipelineJson = builder.getPipelineJson();
@@ -233,16 +234,18 @@ public class PipelineBuilderPanel extends PipelineStep {
         return true;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public JSONValue toJson() {
+    public JSONObject toJson() {
         return builder.getPipelineJson();
     }
 
     /**
-     * Get the JSON of this pipeline required for publishing.
-     * 
-     * @return JSONObject required for publishing.
+     * {@inheritDoc}
      */
+    @Override
     public JSONObject getPublishJson() {
         JSONObject pipelineJson = builder.getPipelineJson();
         JSONArray steps = JsonUtil.getArray(pipelineJson, PIPELINE_CREATOR_STEPS);
@@ -377,8 +380,11 @@ public class PipelineBuilderPanel extends PipelineStep {
         return null;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    protected void setData(JSONObject obj) {
+    public void configure(JSONObject obj) {
         if (obj != null) {
             builder.loadPipeline(obj);
         }
