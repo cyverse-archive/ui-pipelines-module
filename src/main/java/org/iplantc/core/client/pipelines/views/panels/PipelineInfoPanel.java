@@ -2,6 +2,7 @@ package org.iplantc.core.client.pipelines.views.panels;
 
 import org.iplantc.core.client.pipelines.I18N;
 import org.iplantc.core.jsonutil.JsonUtil;
+import org.iplantc.core.metadata.client.JSONMetaDataObject;
 import org.iplantc.core.uiapplications.client.util.AnalysisUtil;
 
 import com.extjs.gxt.ui.client.event.Events;
@@ -96,17 +97,17 @@ public class PipelineInfoPanel extends PipelineStep {
 
     @Override
     public JSONValue toJson() {
-        JSONObject obj = new JSONObject();
-        obj.put("id", new JSONString(AUTO_GEN)); //$NON-NLS-1$
-        obj.put("analysis_name", //$NON-NLS-1$
-                new JSONString(
-                        JsonUtil.formatString(txtPipelineName.getValue() != null ? txtPipelineName
-                                .getValue() : ""))); //$NON-NLS-1$
-        obj.put("description", //$NON-NLS-1$
-                new JSONString(
-                        JsonUtil.formatString(txtPipelineDesc.getValue() != null ? txtPipelineDesc
-                                .getValue() : ""))); //$NON-NLS-1$
-        return obj;
+        JSONObject ret = new JSONObject();
+
+        ret.put(JSONMetaDataObject.NAME, new JSONString(getNonNullString(txtPipelineName.getValue())));
+        ret.put(JSONMetaDataObject.DESCRIPTION,
+                new JSONString(getNonNullString(txtPipelineDesc.getValue())));
+
+        return ret;
+    }
+
+    private String getNonNullString(String value) {
+        return value == null ? "" : value; //$NON-NLS-1$
     }
 
     private class FieldValidationEvent implements Listener<FieldEvent> {
@@ -119,11 +120,10 @@ public class PipelineInfoPanel extends PipelineStep {
     }
 
     @Override
-    protected void setData(JSONObject obj) {
-        if (obj != null) {
-            txtPipelineName.setValue(JsonUtil.getString(obj, "analysis_name"));
-            txtPipelineDesc.setValue(JsonUtil.getString(obj, "description"));
-
+    protected void setData(JSONObject pipelineConfig) {
+        if (pipelineConfig != null) {
+            txtPipelineName.setValue(JsonUtil.getString(pipelineConfig, JSONMetaDataObject.NAME));
+            txtPipelineDesc.setValue(JsonUtil.getString(pipelineConfig, JSONMetaDataObject.DESCRIPTION));
         }
     }
 

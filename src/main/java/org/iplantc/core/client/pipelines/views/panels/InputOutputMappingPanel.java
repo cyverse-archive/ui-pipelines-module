@@ -61,7 +61,7 @@ public class InputOutputMappingPanel extends PipelineStep {
     }
 
     private ColumnModel buildColumnModel() {
-        ColumnConfig name = new ColumnConfig(JSONMetaDataObject.DESCRIPTION, I18N.DISPLAY.name(), 125);
+        ColumnConfig name = new ColumnConfig(JSONMetaDataObject.NAME, I18N.DISPLAY.name(), 125);
         name.setSortable(false);
 
         ColumnConfig inputLabel = new ColumnConfig(DataObject.INPUT_TYPE, I18N.DISPLAY.inputLabel(), 200);
@@ -105,16 +105,19 @@ public class InputOutputMappingPanel extends PipelineStep {
         // default to the "blank" selection
         combo.setSelection(Arrays.asList(blankOption));
 
-        for (PipelineAppModel model : sourceSteps) {
-            FastMap<String> mapping = targetStep.getInputOutputMapping().get(model.getStepName());
-            if (mapping != null && !mapping.isEmpty()) {
-                for (PropertyData output : model.getOutputs()) {
-                    if (output.getProperty().getDataObject().getId().equals(mapping.get(targetInputId))) {
+        FastMap<JSONObject> ioMappings = targetStep.getInputOutputMapping();
+        if (ioMappings != null) {
+            for (PipelineAppModel sourceStep : sourceSteps) {
+                JSONObject mapping = ioMappings.get(sourceStep.getStepName());
+                JSONObject map = JsonUtil.getObject(mapping, PipelineAppModel.MAP);
+                String sourceOutputId = JsonUtil.getString(map, targetInputId);
+
+                for (PropertyData output : sourceStep.getOutputs()) {
+                    if (output.getProperty().getDataObject().getId().equals(sourceOutputId)) {
                         combo.setSelection(Arrays.asList(output));
                         break;
                     }
                 }
-
             }
         }
 
@@ -140,11 +143,11 @@ public class InputOutputMappingPanel extends PipelineStep {
     }
 
     private void reInitModels() {
-        int step_no = 1;
+        int step_no = 0;
         if (apps != null) {
             for (PipelineAppModel model : apps) {
                 model.resetInputOutputMapping();
-                model.setStepName(step_no++);
+                model.setStep(step_no++);
             }
         }
 
@@ -183,19 +186,13 @@ public class InputOutputMappingPanel extends PipelineStep {
     public JSONValue toJson() {
         JSONArray ret = new JSONArray();
 
-        if (apps == null || apps.size() < 2) {
+        if (apps == null) {
             return ret;
         }
 
-        int retIndex = 0;
-        for (int i = 1; i < apps.size(); i++) {
-            PipelineAppModel targetModel = apps.get(i);
-            JSONArray mapping = targetModel.ioMappingToJson();
-
-            for (int j = 0; j < mapping.size(); j++) {
-                ret.set(retIndex, mapping.get(j));
-                retIndex++;
-            }
+        int i = 0;
+        for (PipelineAppModel model : apps) {
+            ret.set(i++, model.toJson());
         }
 
         return ret;
@@ -303,8 +300,7 @@ public class InputOutputMappingPanel extends PipelineStep {
             for (PipelineMapping mapping : mappings) {
                 for (PropertyData data : mapping.getPropertyDataList()) {
                     if (selectedOutput.equals(data)) {
-                        targetStep.setInputOutputMapping(mapping.getAppModel().getStepName(), outputId,
-                                targetInputId);
+                        targetStep.setInputOutputMapping(mapping.getAppModel(), outputId, targetInputId);
                         break;
                     }
                 }
@@ -315,26 +311,30 @@ public class InputOutputMappingPanel extends PipelineStep {
     }
 
     @Override
-    protected void setData(JSONObject obj) {
-       JSONArray mappings = JsonUtil.getArray(obj, "mappings");
-        if (mappings != null) {
-            for (int i = 0; i < mappings.size(); i++) {
-                JSONObject temp = mappings.get(i).isObject();
-                String target_step = JsonUtil.getString(temp, "target_step");
-                String source_step = JsonUtil.getString(temp, "source_step");
-                for (PipelineAppModel model : grid.getStore().getModels()) {
-                    if(model.getStepName().equals(target_step)) {
-                        JSONObject map = JsonUtil.getObject(temp, "map");
-                        for (String key : map.keySet()) {
-                            String value = JsonUtil.getString(map, key);
-                            model.setInputOutputMapping(source_step, value, key);
-                        }
+    protected void setData(JSONObject pipelineConfig) {
+        JSONArray steps = JsonUtil.getArray(pipelineConfig, PipelineEditorView.PIPELINE_CREATOR_STEPS);
+        if (steps != null) {
+            for (int i = 0; i < steps.size(); i++) {
+                JSONObject targetStep = JsonUtil.getObjectAt(steps, i);
+                String targetStepId = JsonUtil.getString(targetStep, JSONMetaDataObject.ID);
+                PipelineAppModel targetStepModel = grid.getStore().findModel(JSONMetaDataObject.ID,
+                        targetStepId);
+
+                JSONArray mappings = JsonUtil.getArray(targetStep, PipelineAppModel.MAPPINGS);
+                if (mappings != null) {
+                    for (int j = 0; j < mappings.size(); j++) {
+                        JSONObject mapping = JsonUtil.getObjectAt(mappings, j);
+                        String sourceStepId = JsonUtil.getString(mapping, JSONMetaDataObject.ID);
+                        PipelineAppModel sourceStepModel = grid.getStore().findModel(
+                                JSONMetaDataObject.ID, sourceStepId);
+
+                        targetStepModel.setSourceMappings(sourceStepModel, mapping);
                     }
                 }
-
             }
+
             grid.getView().refresh(false);
+            EventBus.getInstance().fireEvent(new PipelineStepValidationEvent(isValid()));
         }
     }
-    
 }
