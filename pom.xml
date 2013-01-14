@@ -30,7 +30,7 @@
 		<gxt.version>2.2.5</gxt.version>
 
 		<!-- Current GWT Version -->
-		<gwt.version>2.4.0</gwt.version>
+		<gwt.version>2.5.0</gwt.version>
 
 		<!-- Define OS/Platform Independent Character Encoding -->
 
@@ -125,7 +125,7 @@
 
 				<artifactId>gwt-maven-plugin</artifactId>
 
-				<version>2.4.0</version>
+				<version>${gwt.version}</version>
 
 				<executions>
 
