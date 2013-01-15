@@ -8,11 +8,11 @@ import org.iplantc.core.metadata.client.JSONMetaDataObject;
 import org.iplantc.core.metadata.client.property.DataObject;
 import org.iplantc.core.metadata.client.property.Property;
 import org.iplantc.core.metadata.client.property.PropertyData;
-import org.iplantc.core.uiapplications.client.models.Analysis;
 
 import com.extjs.gxt.ui.client.core.FastMap;
 import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.google.gwt.json.client.JSONArray;
+import com.google.gwt.json.client.JSONNumber;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONString;
 
@@ -25,19 +25,12 @@ import com.google.gwt.json.client.JSONString;
  */
 @SuppressWarnings("serial")
 public class PipelineAppModel extends BaseModelData {
-    private static final String ANALYSIS = "Analysis";
-
-    public static final String APP = "app"; //$NON-NLS-1$
-
     // JSON keys used in toJson objects
-    public static final String TEMPLATE_ID = "template_id"; //$NON-NLS-1$
-    public static final String CONFIG = "config"; //$NON-NLS-1$
-    public static final String SOURCE_STEP = "source_step"; //$NON-NLS-1$
-    public static final String TARGET_STEP = "target_step"; //$NON-NLS-1$
+    public static final String STEP = "step"; //$NON-NLS-1$
+    public static final String MAPPINGS = "mappings"; //$NON-NLS-1$
     public static final String MAP = "map"; //$NON-NLS-1$
 
     // JSON keys and values used internally
-    private static final String ID_KEY = "auto-gen"; //$NON-NLS-1$
     private static final String INPUTS = "inputs"; //$NON-NLS-1$
     private static final String OUTPUTS = "outputs"; //$NON-NLS-1$
 
@@ -45,9 +38,9 @@ public class PipelineAppModel extends BaseModelData {
      * A mapping of SourceStepIDs to InputOutputMaps, where InputOutputMap is a mapping of this App's
      * Input IDs to the SourceStep's Output IDs.
      */
-    private FastMap<FastMap<String>> mapInputsOutputs;
+    private FastMap<JSONObject> mapInputsOutputs;
 
-    private Analysis app;
+    private int step;
 
     /**
      * Constructs a PipelineAppModel from JSON which should have keys for an "id" string, "name" string,
@@ -57,12 +50,11 @@ public class PipelineAppModel extends BaseModelData {
      * @param json
      * @param app
      */
-    public PipelineAppModel(JSONObject json, Analysis app) {
+    public PipelineAppModel(JSONObject json) {
 
-        mapInputsOutputs = new FastMap<FastMap<String>>();
+        mapInputsOutputs = new FastMap<JSONObject>();
 
-        setApp(app);
-        setId(JsonUtil.getString(json, TEMPLATE_ID));
+        setId(JsonUtil.getString(json, JSONMetaDataObject.ID));
         setName(JsonUtil.getString(json, JSONMetaDataObject.NAME));
         setDescription(JsonUtil.getString(json, JSONMetaDataObject.DESCRIPTION));
         setInputs(getPropertyDataList(json, INPUTS));
@@ -124,7 +116,7 @@ public class PipelineAppModel extends BaseModelData {
      * @return The name of this App in the Workflow.
      */
     public String getId() {
-        return get(TEMPLATE_ID) != null ? get(TEMPLATE_ID).toString() : ""; //$NON-NLS-1$
+        return get(JSONMetaDataObject.ID) != null ? get(JSONMetaDataObject.ID).toString() : ""; //$NON-NLS-1$
     }
 
     /**
@@ -133,7 +125,7 @@ public class PipelineAppModel extends BaseModelData {
      * @param id
      */
     public void setId(String id) {
-        set(TEMPLATE_ID, id);
+        set(JSONMetaDataObject.ID, id);
     }
 
     /**
@@ -155,21 +147,31 @@ public class PipelineAppModel extends BaseModelData {
     }
 
     /**
-     * Sets this App's step name based on the step number of the App in the workflow.
+     * Sets this App's position in the workflow.
      * 
      * @param step
      */
-    public void setStepName(int step) {
-        set(JSONMetaDataObject.NAME, "step_" + step + "_" + getId()); //$NON-NLS-1$ //$NON-NLS-2$
+    public void setStep(int step) {
+        this.step = step;
     }
 
     /**
-     * Gets this App's workflow step name.
+     * Gets this App's position in the workflow.
+     * 
+     * @return the App's position in the workflow
+     */
+    public int getStep() {
+        return step;
+    }
+
+    /**
+     * Gets this App's workflow step name, based on its position in the workflow and its ID.
      * 
      * @return
      */
     public String getStepName() {
-        return getName();
+        // steps start at 0.
+        return "step_" + (step + 1) + "_" + getId(); //$NON-NLS-1$ //$NON-NLS-2$
     }
 
     public String getDescription() {
@@ -217,66 +219,64 @@ public class PipelineAppModel extends BaseModelData {
         set(DataObject.OUTPUT_TYPE, inputs);
     }
 
+    public void setSourceMappings(PipelineAppModel sourceStep, JSONObject mapping) {
+        if (sourceStep != null) {
+            mapInputsOutputs.put(sourceStep.getStepName(), mapping);
+        }
+    }
+
     /**
      * Sets a mapping for this "target_step" App's Input DataObject, with the given targetInputId, to
      * sourceStepName's Output DataObject with the given sourceOutputId. A null sourceOutputId will clear
      * the mapping for the given targetInputId.
      * 
      * @param sourceStepName
-     * @param sourceOutputIdValue
-     * @param targetInputIdKey
+     * @param sourceOutputId
+     * @param targetInputId
      */
-    public void setInputOutputMapping(String sourceStepName, String sourceOutputIdValue, String targetInputIdKey) {
-        // TODO validate targetInputId belongs to one of this App's Inputs?
+    public void setInputOutputMapping(PipelineAppModel sourceStep, String sourceOutputId,
+            String targetInputId) {
+        String sourceStepName = sourceStep.getStepName();
 
         // Find the input->output mappings for sourceStepName.
-        FastMap<String> ioMapping = mapInputsOutputs.get(sourceStepName);
+        JSONObject ioMapping = mapInputsOutputs.get(sourceStepName);
 
         if (ioMapping == null) {
             // There are no input->output mappings for this sourceStepName yet.
-            if (sourceOutputIdValue == null || sourceOutputIdValue.isEmpty()) {
+            if (sourceOutputId == null || sourceOutputId.isEmpty()) {
                 // nothing to do in order to clear this mapping.
                 return;
             }
 
             // Create a new input->output mapping for sourceStepName.
-            ioMapping = new FastMap<String>();
+            ioMapping = new JSONObject();
+            ioMapping.put(STEP, new JSONNumber(sourceStep.getStep()));
+            ioMapping.put(JSONMetaDataObject.ID, new JSONString(sourceStep.getId()));
+            ioMapping.put(MAP, new JSONObject());
+
             mapInputsOutputs.put(sourceStepName, ioMapping);
         }
 
-        if (sourceOutputIdValue == null || sourceOutputIdValue.isEmpty()) {
+        // TODO validate targetInputId belongs to one of this App's Inputs?
+        JSONObject map = JsonUtil.getObject(ioMapping, MAP);
+        if (sourceOutputId == null || sourceOutputId.isEmpty()) {
             // clear the mapping for this Input ID.
-            ioMapping.remove(targetInputIdKey);
+            map.put(targetInputId, null);
         } else {
             // Map sourceOutputId to this App's given targetInputId.
-            ioMapping.put(targetInputIdKey, sourceOutputIdValue);
+            map.put(targetInputId, new JSONString(sourceOutputId));
         }
     }
 
-    public FastMap<FastMap<String>> getInputOutputMapping() {
+    public FastMap<JSONObject> getInputOutputMapping() {
         return mapInputsOutputs;
-    }
-
-    /**
-     * @param app the app to set
-     */
-    public void setApp(Analysis app) {
-        set(APP, app);
-        this.app = app;
-    }
-
-    /**
-     * @return the app
-     */
-    public Analysis getApp() {
-        return app;
     }
 
     /**
      * Clears the Output-Input mapping for this App in the Workflow.
      */
     public void resetInputOutputMapping() {
-        mapInputsOutputs = new FastMap<FastMap<String>>();
+        mapInputsOutputs = new FastMap<JSONObject>();
     }
 
     /**
@@ -284,16 +284,16 @@ public class PipelineAppModel extends BaseModelData {
      * 
      * @return A JSON object this App as a workflow step.
      */
-    public JSONObject stepToJson() {
+    public JSONObject toJson() {
         JSONObject ret = new JSONObject();
-        ret.put(JSONMetaDataObject.ID, new JSONString(ID_KEY));
-        ret.put(JSONMetaDataObject.NAME, new JSONString(getStepName()));
-        ret.put(TEMPLATE_ID, new JSONString(getId()));
+
+        ret.put(JSONMetaDataObject.ID, new JSONString(getId()));
+        ret.put(JSONMetaDataObject.NAME, new JSONString(getName()));
         ret.put(JSONMetaDataObject.DESCRIPTION, new JSONString(getDescription()));
+        ret.put(STEP, new JSONNumber(getStep()));
+        ret.put(MAPPINGS, ioMappingToJson());
         ret.put(INPUTS, buildPropertyDataArrayFromList(getInputs()));
         ret.put(OUTPUTS, buildPropertyDataArrayFromList(getOutputs()));
-        ret.put(ANALYSIS, app.toJson());
-        ret.put(CONFIG, new JSONObject());
 
         return ret;
     }
@@ -319,32 +319,14 @@ public class PipelineAppModel extends BaseModelData {
         int mappingIndex = 0;
         for (String sourceStepName : mapInputsOutputs.keySet()) {
             // Get the input->output mappings for sourceStepName.
-            FastMap<String> ioMap = mapInputsOutputs.get(sourceStepName);
+            JSONObject ioMapping = mapInputsOutputs.get(sourceStepName);
 
-            if (ioMap != null && !ioMap.isEmpty()) {
-                // Build the JSON output->input map object.
-                JSONObject map = new JSONObject();
+            // Ensure at least one output->input is set for sourceStepName in the JSON map object.
+            JSONObject map = JsonUtil.getObject(ioMapping, MAP);
 
-                for (String inputId : ioMap.keySet()) {
-                    String outputId = ioMap.get(inputId);
-
-                    if (outputId != null && !outputId.isEmpty()) {
-                        map.put(outputId, new JSONString(inputId));
-                    }
-                }
-
-                // Ensure at least one output->input is set for sourceStepName in the JSON map object.
-                if (!map.keySet().isEmpty()) {
-                    // Add the mappings (from sourceStepName to this App) to the JSON array.
-                    JSONObject mapping = new JSONObject();
-
-                    mapping.put(SOURCE_STEP, new JSONString(sourceStepName));
-                    mapping.put(TARGET_STEP, new JSONString(getStepName()));
-                    mapping.put(MAP, map);
-
-                    ret.set(mappingIndex, mapping);
-                    mappingIndex++;
-                }
+            if (map != null && !map.keySet().isEmpty()) {
+                ret.set(mappingIndex, ioMapping);
+                mappingIndex++;
             }
         }
 

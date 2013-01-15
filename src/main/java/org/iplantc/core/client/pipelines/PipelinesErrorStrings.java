@@ -17,4 +17,11 @@ public interface PipelinesErrorStrings extends Messages {
      * @return a string representing error msg
      */
     String workflowPublishError();
+
+    /**
+     * Error msg to display when attempting to publish an invalid workflow.
+     * 
+     * @return a string representing error msg
+     */
+    String workflowValidationError();
 }
