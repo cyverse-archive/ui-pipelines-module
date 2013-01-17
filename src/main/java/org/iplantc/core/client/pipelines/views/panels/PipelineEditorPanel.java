@@ -18,6 +18,7 @@ import org.iplantc.core.uiapplications.client.views.panels.AbstractCatalogCatego
 import org.iplantc.core.uicommons.client.ErrorHandler;
 import org.iplantc.core.uicommons.client.events.EventBus;
 import org.iplantc.core.uicommons.client.models.UserInfo;
+import org.iplantc.core.uicommons.client.views.gxt3.dialogs.IplantInfoBox;
 
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.Style.Scroll;
@@ -30,7 +31,6 @@ import com.extjs.gxt.ui.client.widget.CardPanel;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.Html;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
-import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.button.ToggleButton;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
@@ -190,8 +190,7 @@ public class PipelineEditorPanel extends ContentPanel {
 
                 @Override
                 public void onSuccess(String result) {
-                    MessageBox.info(I18N.DISPLAY.publishToWorkspace(),
-                            I18N.DISPLAY.publishWorkflowSuccess(), null);
+                    new IplantInfoBox(I18N.DISPLAY.publishToWorkspace(), I18N.DISPLAY.publishWorkflowSuccess()).show();
                     AppGroupCountUpdateEvent event = new AppGroupCountUpdateEvent(true, null);
                     EventBus.getInstance().fireEvent(event);
                     if (publishCallback != null) {
