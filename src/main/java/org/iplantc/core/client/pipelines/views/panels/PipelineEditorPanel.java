@@ -1,13 +1,6 @@
 package org.iplantc.core.client.pipelines.views.panels;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.iplantc.core.client.pipelines.I18N;
-import org.iplantc.core.client.pipelines.events.PipelineChangeEvent;
-import org.iplantc.core.client.pipelines.events.PipelineChangeEventHandler;
-import org.iplantc.core.client.pipelines.events.PipelineStepValidationEvent;
-import org.iplantc.core.client.pipelines.events.PipelineStepValidationEventHandler;
 import org.iplantc.core.client.pipelines.images.Resources;
 import org.iplantc.core.client.pipelines.models.PipelineAppModel;
 import org.iplantc.core.jsonutil.JsonUtil;
@@ -20,26 +13,18 @@ import org.iplantc.core.uicommons.client.events.EventBus;
 import org.iplantc.core.uicommons.client.models.UserInfo;
 import org.iplantc.core.uicommons.client.views.gxt3.dialogs.IplantInfoBox;
 
-import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.Style.Scroll;
-import com.extjs.gxt.ui.client.event.BorderLayoutEvent;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
-import com.extjs.gxt.ui.client.event.Events;
-import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.CardPanel;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.Html;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
+import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
-import com.extjs.gxt.ui.client.widget.button.ToggleButton;
-import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
-import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
+import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
-import com.google.gwt.core.client.Scheduler;
-import com.google.gwt.core.client.Scheduler.ScheduledCommand;
-import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONString;
@@ -56,25 +41,15 @@ import com.google.gwt.user.client.ui.AbstractImagePrototype;
 public class PipelineEditorPanel extends ContentPanel {
 
     private static final String ID_BTN_PUBLISH = "idBtnPublish"; //$NON-NLS-1$
-    protected BorderLayoutData dataWest;
-    protected BorderLayoutData dataCenter;
 
     private CardPanel pnlMain;
-    private PipelineStep pnlInfo;
-    private PipelineStep pnlSelect;
-    private InputOutputMappingPanel pnlMapping;
-    private List<ActionsToggleButton> actions;
+    private PipelineBuilderPanel pnlBuilder;
+    private PipelineEditorView pnlStepEditor;
 
-    @SuppressWarnings("unused")
-    private List<PipelineAppModel> apps;
     private final AbstractCatalogCategoryPanel categoryPanel;
     private final AppUserServiceFacade service;
-    private ToolBar toolbar;
-    private ContentPanel noteContainer;
     private final Command publishCallback;
     private final String tag;
-
-    private ArrayList<HandlerRegistration> handlers;
 
     public PipelineEditorPanel(String tag, AbstractCatalogCategoryPanel categoryPanel,
             Command publishCallback) {
@@ -87,106 +62,101 @@ public class PipelineEditorPanel extends ContentPanel {
     }
 
     private void init() {
-        apps = new ArrayList<PipelineAppModel>();
-
         pnlMain = new CardPanel();
         pnlMain.setScrollMode(Scroll.NONE);
 
-        pnlInfo = new PipelineInfoPanel(I18N.DISPLAY.workflowInfo());
+        pnlBuilder = new PipelineBuilderPanel(tag, categoryPanel, service);
+        pnlStepEditor = new PipelineStepEditorPanel(tag, categoryPanel, service);
 
-        pnlSelect = new SelectAndOrderPanel(I18N.DISPLAY.selectAndOrderApps(), tag, categoryPanel,
-                service);
+        pnlMain.add(pnlBuilder);
+        pnlMain.add(pnlStepEditor);
 
-        pnlMapping = new InputOutputMappingPanel(I18N.DISPLAY.mapOutputsToInputs());
-
-        pnlMain.add(pnlInfo);
-        pnlMain.add(pnlSelect);
-        pnlMain.add(pnlMapping);
-
-        initListeners();
         initLayout();
         setHeaderVisible(false);
-        toolbar = new ToolBar();
-        buildPublishButton();
-        setBottomComponent(toolbar);
 
+        setBottomComponent(buildToolBar());
     }
 
-    private void initListeners() {
-        EventBus bus = EventBus.getInstance();
-        handlers = new ArrayList<HandlerRegistration>();
+    private ToolBar buildToolBar() {
+        ToolBar toolbar = new ToolBar();
 
-        handlers.add(bus.addHandler(PipelineChangeEvent.TYPE, new PipelineChangeEventHandler() {
-            @Override
-            public void onChange(PipelineChangeEvent event) {
-                pnlMapping.reconfigure(event.getAppModels());
-            }
-        }));
+        toolbar.add(buildSwitchViewButton());
+        toolbar.add(new FillToolItem());
+        toolbar.add(buildPublishButton());
 
-        handlers.add(bus.addHandler(PipelineStepValidationEvent.TYPE,
-                new PipelineStepValidationEventHandler() {
-                    @Override
-                    public void onValidate(PipelineStepValidationEvent event) {
-                        validateSteps();
-                    }
-                }));
+        return toolbar;
     }
 
-    private void buildPublishButton() {
+    private Button buildPublishButton() {
         Button btnPublish = new Button(I18N.DISPLAY.publishToWorkspace());
+
         btnPublish.setId(ID_BTN_PUBLISH);
-        btnPublish.disable();
         btnPublish.setIcon(AbstractImagePrototype.create(Resources.ICONS.publish()));
         btnPublish.addSelectionListener(new PublishButtonSelectionListener());
 
-        toolbar.add(new FillToolItem());
-        toolbar.add(btnPublish);
+        return btnPublish;
     }
 
-    private void initLayout() {
-        BorderLayout layout = new BorderLayout();
+    private Button buildSwitchViewButton() {
+        Button btnPublish = new Button("Switch View");
 
-        // make sure we re-draw when a panel expands
-        layout.addListener(Events.Expand, new Listener<BorderLayoutEvent>() {
+        btnPublish.setId("idBtnSwitchView");
+        btnPublish.addSelectionListener(new SelectionListener<ButtonEvent>() {
+
             @Override
-            public void handleEvent(BorderLayoutEvent be) {
-                layout();
+            public void componentSelected(ButtonEvent ce) {
+                PipelineEditorView pnlActive = getActiveView();
+                JSONObject pipelineState = pnlActive.toJson();
+
+                if (pnlActive == pnlBuilder) {
+                    pnlActive = pnlStepEditor;
+                } else {
+                    pnlActive = pnlBuilder;
+                }
+
+                pnlMain.setActiveItem(pnlActive);
+                pnlActive.configure(pipelineState);
             }
         });
 
-        setLayout(layout);
-
-        dataWest = initLayoutRegion(LayoutRegion.WEST, 175, false);
-        dataCenter = initLayoutRegion(LayoutRegion.CENTER, 0, false);
+        return btnPublish;
     }
 
-    private BorderLayoutData initLayoutRegion(LayoutRegion region, float size, boolean collapsible) {
-        BorderLayoutData ret = new BorderLayoutData(region);
-
-        if (size > 0) {
-            ret.setSize(size);
-        }
-
-        ret.setCollapsible(collapsible);
-        ret.setSplit(false);
-
-        return ret;
+    private void initLayout() {
+        setLayout(new FitLayout());
     }
 
     private void compose() {
-        buildNotePanel();
-        LayoutContainer btns = new ActionsPanel();
+        add(pnlMain);
+    }
 
-        add(btns, dataWest);
-        add(pnlMain, dataCenter);
+    /**
+     * @return The active PipelineEditorView currently displayed by the presenter.
+     */
+    private PipelineEditorView getActiveView() {
+        return (PipelineEditorView)pnlMain.getActiveItem();
     }
 
     private final class PublishButtonSelectionListener extends SelectionListener<ButtonEvent> {
 
         @Override
         public void componentSelected(ButtonEvent ce) {
-            ((Button)ce.getSource()).disable();
-            service.publishWorkflow(toJson().toString(), new AsyncCallback<String>() {
+            if (!getActiveView().isValid()) {
+                ErrorHandler.post(I18N.ERROR.workflowValidationError());
+                return;
+            }
+
+            final Button btnPublish = (Button)ce.getSource();
+
+            btnPublish.disable();
+
+            JSONObject publishJson = getPublishJson();
+            if (publishJson == null) {
+                ErrorHandler.post(I18N.ERROR.workflowPublishError());
+                return;
+            }
+
+            service.publishWorkflow(publishJson.toString(), new AsyncCallback<String>() {
 
                 @Override
                 public void onSuccess(String result) {
@@ -197,150 +167,42 @@ public class PipelineEditorPanel extends ContentPanel {
                         publishCallback.execute();
                     }
 
+                    btnPublish.enable();
                 }
 
                 @Override
                 public void onFailure(Throwable caught) {
                     ErrorHandler.post(I18N.ERROR.workflowPublishError(), caught);
-
+                    btnPublish.enable();
                 }
             });
 
-        }
-    }
-
-    private class ActionsToggleButton extends ToggleButton {
-        private final PipelineStep step;
-        private final String qtip;
-
-        public ActionsToggleButton(String label, final PipelineStep step, final String qtip) {
-            super(label, new SelectionListener<ButtonEvent>() {
-                @Override
-                public void componentSelected(ButtonEvent ce) {
-                    validateSteps();
-                    toggleButtons(step, (ToggleButton)ce.getButton(), qtip);
-                }
-            });
-
-            setSize(150, 30);
-            this.step = step;
-            this.qtip = qtip;
-            setStyleAttribute("outline", "none"); //$NON-NLS-1$ //$NON-NLS-2$
-        }
-
-        public PipelineStep getStep() {
-            return step;
-        }
-
-        @Override
-        protected void toggle(boolean state, boolean silent) {
-            super.toggle(state, silent);
-            // blur so no dotted line is shown around the button in Firefox
-            if (buttonEl != null) {
-                buttonEl.blur();
-            }
-        }
-
-    }
-
-    private void validateSteps() {
-        for (int i = 0; i < actions.size(); i++) {
-            ActionsToggleButton btn = actions.get(i);
-            if (btn.getStep().isValid()) {
-                btn.setIcon(AbstractImagePrototype
-                        .create(org.iplantc.core.client.pipelines.images.Resources.ICONS.stepComplete()));
-            } else {
-                btn.setIcon(AbstractImagePrototype
-                        .create(org.iplantc.core.client.pipelines.images.Resources.ICONS.stepError()));
-            }
-        }
-
-        setPublishButtonState();
-
-    }
-
-    private void setPublishButtonState() {
-        Button b = (Button)toolbar.getItemByItemId(ID_BTN_PUBLISH);
-        b.setEnabled(pnlInfo.isValid() && pnlSelect.isValid() && pnlMapping.isValid());
-    }
-
-    private void toggleButtons(PipelineStep contents, ToggleButton btnActive, String qtip) {
-        for (ToggleButton btn : actions) {
-            btn.toggle(false);
-        }
-        btnActive.toggle(true);
-
-        pnlMain.setActiveItem(contents);
-
-        noteContainer.removeAll();
-        noteContainer.addText(qtip);
-        noteContainer.layout();
-    }
-
-    private class ActionsPanel extends LayoutContainer {
-
-        public ActionsPanel() {
-            init();
-            compose();
-            setStyleAttribute("padding", "5px"); //$NON-NLS-1$ //$NON-NLS-2$
-            // over ride top padding to match center panel header
-            setStyleAttribute("padding-top", "20px"); //$NON-NLS-1$ //$NON-NLS-2$
-        }
-
-        private void init() {
-            actions = new ArrayList<ActionsToggleButton>();
-        }
-
-        private void compose() {
-            actions.add(new ActionsToggleButton(I18N.DISPLAY.workflowInfo(), pnlInfo, I18N.DISPLAY
-                    .infoPnlTip()));
-            actions.add(new ActionsToggleButton(I18N.DISPLAY.selectAndOrderApps(), pnlSelect,
-                    I18N.DISPLAY.selectOrderPnlTip()));
-            actions.add(new ActionsToggleButton(I18N.DISPLAY.mapOutputsToInputs(), pnlMapping,
-                    I18N.DISPLAY.inputsOutputsPnlTip()));
-
-            for (ToggleButton btn : actions) {
-                add(btn);
-                add(new Html("<br/>")); //$NON-NLS-1$
-            }
-
-            add(noteContainer);
-
-            toggleButtons(actions.get(0).step, actions.get(0), actions.get(0).qtip);
         }
     }
 
     /**
-     * get json representation of the form data
+     * Get the JSON of this pipeline required for publishing.
      * 
-     * @return JSONObject containing form data
+     * @return JSONObject required for publishing.
      */
-    public JSONObject toJson() {
-        JSONObject jsonObj = new JSONObject();
-        JSONObject obj = pnlInfo.toJson().isObject();
+    public JSONObject getPublishJson() {
+        JSONObject ret = new JSONObject();
 
-        if (obj != null) {
-            obj.put("steps", pnlSelect.toJson()); //$NON-NLS-1$
-            obj.put("mappings", pnlMapping.toJson()); //$NON-NLS-1$
-            obj.put("implementation", getImplementorDetails()); //$NON-NLS-1$
-            obj.put("full_username", new JSONString(UserInfo.getInstance().getFullUsername())); //$NON-NLS-1$
-            JSONArray arr = new JSONArray();
-            arr.set(0, obj);
-            jsonObj.put("analyses", arr); //$NON-NLS-1$
-            return jsonObj;
-        } else {
-            ErrorHandler.post(I18N.ERROR.workflowPublishError());
+        JSONObject publishJson = getActiveView().getPublishJson();
+
+        if (publishJson == null) {
+            // something went wrong, abort
             return null;
         }
 
-    }
+        publishJson.put("implementation", getImplementorDetails()); //$NON-NLS-1$
+        publishJson.put("full_username", new JSONString(UserInfo.getInstance().getFullUsername())); //$NON-NLS-1$
 
-    private void buildNotePanel() {
-        noteContainer = new ContentPanel();
-        noteContainer.setHeading(I18N.DISPLAY.quickTipsHeading());
-        noteContainer.setSize(153, 190);
-        noteContainer.setStyleAttribute("padding", "5px"); //$NON-NLS-1$ //$NON-NLS-2$
-        noteContainer.setCollapsible(true);
+        JSONArray analyses = new JSONArray();
+        analyses.set(0, publishJson);
+        ret.put("analyses", analyses); //$NON-NLS-1$
+
+        return ret;
     }
 
     private JSONObject getImplementorDetails() {
@@ -360,27 +222,25 @@ public class PipelineEditorPanel extends ContentPanel {
      * 
      */
     public void cleanup() {
-        for (HandlerRegistration handler : handlers) {
-            handler.removeHandler();
-        }
-
-        handlers.clear();
+        pnlStepEditor.cleanup();
+        pnlBuilder.cleanup();
     }
 
+    /**
+     * get json representation of the form data
+     * 
+     * @return JSONObject containing form data
+     */
+    public JSONObject toJson() {
+        return getActiveView().toJson();
+    }
+
+    /**
+     * Restore state from the given json representation of the form data.
+     * 
+     * @param obj json representation of the form data
+     */
     public void configure(JSONObject obj) {
-        if (obj != null) {
-            JSONArray temp = JsonUtil.getArray(obj, "analyses"); //$NON-NLS-1$
-            final JSONObject pipeline_config = temp.get(0).isObject();
-            if (pipeline_config != null) {
-                pnlInfo.setData(pipeline_config);
-                pnlSelect.setData(pipeline_config);
-                Scheduler.get().scheduleDeferred(new ScheduledCommand() {
-                    @Override
-                    public void execute() {
-                            pnlMapping.setData(pipeline_config);
-                    }
-                });
-        }
-       }
+        getActiveView().configure(obj);
     }
 }

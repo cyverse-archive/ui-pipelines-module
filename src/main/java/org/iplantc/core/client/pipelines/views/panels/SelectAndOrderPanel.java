@@ -30,20 +30,15 @@ import com.extjs.gxt.ui.client.store.Store;
 import com.extjs.gxt.ui.client.store.StoreEvent;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
-import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
-import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.core.client.Scheduler.ScheduledCommand;
-import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
-import com.google.gwt.json.client.JSONParser;
-import com.google.gwt.json.client.JSONString;
 import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -148,12 +143,7 @@ public class SelectAndOrderPanel extends PipelineStep {
         service.getDataObjectsForApp(app.getId(), new AsyncCallback<String>() {
             @Override
             public void onSuccess(String result) {
-                JSONObject obj = JSONParser.parseStrict(result).isObject();
-                obj.put(PipelineAppModel.TEMPLATE_ID, obj.get(JSONMetaDataObject.ID));
-                obj.put(JSONMetaDataObject.DESCRIPTION, obj.get(JSONMetaDataObject.NAME));
-                obj.put(JSONMetaDataObject.NAME, new JSONString(""));
-
-                PipelineAppModel appModel = new PipelineAppModel(obj, app);
+                PipelineAppModel appModel = new PipelineAppModel(JsonUtil.getObject(result));
                 grid.getStore().add(appModel);
                 if (dialog != null) {
                     dialog.updateStatusBar(getAppCount(), getLastAppName());
@@ -169,8 +159,8 @@ public class SelectAndOrderPanel extends PipelineStep {
         });
     }
 
-    private void addAppModel(final Analysis app, JSONObject stepObj) {
-        PipelineAppModel appModel = new PipelineAppModel(stepObj, app);
+    private void addAppModel(JSONObject stepObj) {
+        PipelineAppModel appModel = new PipelineAppModel(stepObj);
         grid.getStore().add(appModel);
     }
 
@@ -181,7 +171,7 @@ public class SelectAndOrderPanel extends PipelineStep {
     private String getLastAppName() {
         ListStore<PipelineAppModel> store = grid.getStore();
         return getAppCount() == 0 ? I18N.DISPLAY.lastAppNotDefined() : store.getAt(getAppCount() - 1)
-                .getApp().getName();
+                .getName();
     }
 
     @SuppressWarnings("rawtypes")
@@ -339,32 +329,16 @@ public class SelectAndOrderPanel extends PipelineStep {
     }
 
     private ColumnModel buildColumnModel() {
-        // initExpander();
-
         List<ColumnConfig> configs = new ArrayList<ColumnConfig>();
 
-        ColumnConfig name = new ColumnConfig();
-        name.setRenderer(new RenderCellWithToolTip());
-        name.setId(Analysis.NAME);
+        ColumnConfig name = new ColumnConfig(JSONMetaDataObject.NAME, 180);
         name.setHeader(I18N.DISPLAY.appName());
-        name.setWidth(180);
 
-        ColumnConfig integrator = new ColumnConfig();
-        integrator.setRenderer(new IntegratorNameCellRenderer());
-        integrator.setId(Analysis.INTEGRATOR_NAME);
-        integrator.setHeader(I18N.DISPLAY.integratedby());
-        integrator.setWidth(130);
-
-        ColumnConfig date = new ColumnConfig();
-        date.setId(Analysis.INTEGRATION_DATE);
-        date.setHeader(I18N.DISPLAY.publishedOn());
-        date.setWidth(130);
-        date.setDateTimeFormat(DateTimeFormat
-                .getFormat(DateTimeFormat.PredefinedFormat.DATE_TIME_MEDIUM));
+        ColumnConfig description = new ColumnConfig(JSONMetaDataObject.DESCRIPTION, 260);
+        description.setHeader(I18N.DISPLAY.description());
 
         configs.add(name);
-        configs.add(integrator);
-        configs.add(date);
+        configs.add(description);
 
         return new ColumnModel(configs);
     }
@@ -387,58 +361,24 @@ public class SelectAndOrderPanel extends PipelineStep {
         JSONArray arr = new JSONArray();
         int i = 0;
         for (PipelineAppModel model : grid.getStore().getModels()) {
-            arr.set(i++, model.stepToJson());
+            arr.set(i++, model.toJson());
         }
         return arr;
     }
 
-    private class IntegratorNameCellRenderer implements GridCellRenderer<PipelineAppModel> {
-
-        @Override
-        public Object render(PipelineAppModel model, String property, ColumnData config, int rowIndex,
-                int colIndex, ListStore<PipelineAppModel> store, Grid<PipelineAppModel> grid) {
-            return model.getApp().getIntegratorsName();
-        }
-
-    }
-
-    private class RenderCellWithToolTip implements GridCellRenderer<PipelineAppModel> {
-        @Override
-        public Object render(PipelineAppModel model, String property, ColumnData config, int rowIndex,
-                int colIndex, ListStore<PipelineAppModel> store, Grid<PipelineAppModel> grid) {
-            String html = ""; //$NON-NLS-1$
-            Analysis app = model.getApp();
-            if (app.isUser_favourite()) {
-                html = "<img src='./images/fav.png'></img> &nbsp;"; //$NON-NLS-1$
-            }
-
-            if (app.getDescription() != null && !app.getDescription().isEmpty()
-                    && !app.getDescription().equalsIgnoreCase("none")) { //$NON-NLS-1$
-                return html + "<span qtip='" + app.getDescription() + "'>" + app.getName() + "</span>"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-            } else {
-                return html + "<span qtip='" + app.getName() + "'>" + app.getName() + "</span>"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-            }
-
-        }
-
-    }
-
     @Override
-    protected void setData(JSONObject obj) {
-        if (obj != null) {
-            JSONArray arr = obj.get("steps").isArray();
-            for (int i = 0;i < arr.size(); i ++) {
-                JSONObject stepObj = arr.get(i).isObject();
-                JSONObject appObj = JsonUtil.getObject(stepObj, "Analysis");
-                Analysis app = new Analysis(appObj);
-                addAppModel(app, stepObj);
+    protected void setData(JSONObject pipelineConfig) {
+        JSONArray steps = JsonUtil.getArray(pipelineConfig, PipelineEditorView.PIPELINE_CREATOR_STEPS);
+        if (steps != null) {
+            for (int i = 0; i < steps.size(); i++) {
+                addAppModel(JsonUtil.getObjectAt(steps, i));
             }
+
             Scheduler.get().scheduleDeferred(new ScheduledCommand() {
                 
                 @Override
                 public void execute() {
                     firePipelineChangeEvent();
-                    
                 }
             });
         }

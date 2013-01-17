@@ -50,7 +50,7 @@ public abstract class PipelineStep extends ContentPanel {
     /**
      * Set data for the pipeline step
      * 
-     * @param obj JSONObject containing data for that step
+     * @param pipelineConfig JSON representation of the Pipeline.
      */
-    protected abstract void setData(JSONObject obj);
+    protected abstract void setData(JSONObject pipelineConfig);
 }

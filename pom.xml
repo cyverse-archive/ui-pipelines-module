@@ -80,6 +80,11 @@
 			<artifactId>applications</artifactId>
 			<version>gxt3Sandbox-SNAPSHOT</version>
 		</dependency>
+        <dependency>
+            <groupId>org.iplantc.plugin</groupId>
+            <artifactId>pipeline-builder</artifactId>
+            <version>dev-SNAPSHOT</version>
+        </dependency>
 		</dependencies>
 	<build>
 		<finalName>ui-pipelines</finalName>
