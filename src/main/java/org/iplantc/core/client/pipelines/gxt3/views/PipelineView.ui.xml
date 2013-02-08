@@ -4,8 +4,8 @@
     xmlns:g="urn:import:com.google.gwt.user.client.ui"
     xmlns:gxt="urn:import:com.sencha.gxt.widget.core.client"
     xmlns:container="urn:import:com.sencha.gxt.widget.core.client.container"
-    xmlns:button="urn:import:com.sencha.gxt.widget.core.client.button">
-<!-- xmlns:builder="org.iplant.pipeline.client.builder" -->
+    xmlns:button="urn:import:com.sencha.gxt.widget.core.client.button"
+    xmlns:builder="urn:import:org.iplant.pipeline.client.builder">
 
     <ui:with
         field="strings"
@@ -92,8 +92,8 @@
                     </container:BorderLayoutContainer>
                     <!-- This is the new Pipeline Builder panel -->
                     <container:SimpleContainer ui:field="builderPanel">
-<!--                         <builder:PipelineCreator ui:field="builder" />
- -->                    </container:SimpleContainer>
+                        <builder:PipelineCreator ui:field="builder" />
+                    </container:SimpleContainer>
                 </container:CardLayoutContainer>
             </container:center>
         </container:BorderLayoutContainer>

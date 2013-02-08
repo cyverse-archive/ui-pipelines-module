@@ -34,9 +34,6 @@ public class PipelineViewImpl implements PipelineView {
 
     public PipelineViewImpl() {
         widget = uiBinder.createAndBindUi(this);
-
-        builder = new PipelineCreator();
-        builderPanel.add(builder);
     }
 
     @UiField
@@ -51,7 +48,7 @@ public class PipelineViewImpl implements PipelineView {
     @UiField
     SimpleContainer builderPanel;
 
-    // @UiField
+    @UiField
     PipelineCreator builder;
 
     @UiField
