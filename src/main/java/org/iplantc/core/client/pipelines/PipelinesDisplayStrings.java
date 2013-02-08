@@ -192,4 +192,11 @@ public interface PipelinesDisplayStrings extends CommonUIDisplayStrings {
      * @return a string representing the text
      */
     String appendAppToWorkflow(String appName);
+
+    /**
+     * Label for a Switch View button.
+     * 
+     * @return a string representing the text
+     */
+    String swapView();
 }
