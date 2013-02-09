@@ -1,6 +1,7 @@
 package org.iplantc.core.client.pipelines.gxt3.views;
 
-import com.google.gwt.json.client.JSONObject;
+import org.iplant.pipeline.client.json.autobeans.Pipeline;
+
 import com.google.gwt.user.client.ui.IsWidget;
 import com.sencha.gxt.widget.core.client.container.BorderLayoutContainer;
 import com.sencha.gxt.widget.core.client.container.CardLayoutContainer;
@@ -15,7 +16,7 @@ import com.sencha.gxt.widget.core.client.container.SimpleContainer;
 public interface PipelineView extends IsWidget {
 
     public interface Presenter extends org.iplantc.core.uicommons.client.presenter.Presenter {
-        JSONObject toJson();
+        Pipeline getPipeline();
 
         public void onInfoClick();
 

@@ -1,14 +1,13 @@
 package org.iplantc.core.client.pipelines.gxt3.presenter;
 
+import org.iplant.pipeline.client.json.autobeans.Pipeline;
 import org.iplant.pipeline.client.json.autobeans.PipelineAutoBeanFactory;
 import org.iplantc.core.client.pipelines.gxt3.views.PipelineView;
 import org.iplantc.core.client.pipelines.gxt3.views.widgets.PipelineViewToolbar;
 import org.iplantc.core.client.pipelines.gxt3.views.widgets.PipelineViewToolbarImpl;
-import org.iplantc.core.uicommons.client.models.WindowConfig;
 import org.iplantc.core.uicommons.client.presenter.Presenter;
 
 import com.google.gwt.core.shared.GWT;
-import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.ui.HasOneWidget;
 import com.google.gwt.user.client.ui.IsWidget;
@@ -27,7 +26,7 @@ public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
     private final Command onPublishCallback;
     private final PipelineAutoBeanFactory factory = GWT.create(PipelineAutoBeanFactory.class);
 
-    public PipelineViewPresenter(PipelineView view, WindowConfig config, Command onPublishCallback) {
+    public PipelineViewPresenter(PipelineView view, Command onPublishCallback) {
         this.view = view;
         this.onPublishCallback = onPublishCallback;
 
@@ -65,7 +64,7 @@ public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
     }
 
     @Override
-    public JSONObject toJson() {
+    public Pipeline getPipeline() {
         // TODO Auto-generated method stub
         return null;
     }
