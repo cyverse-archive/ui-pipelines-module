@@ -33,9 +33,11 @@ public interface PipelineView extends IsWidget {
 
     public void setActiveView(IsWidget view);
 
-    public SimpleContainer getBuilderPanel();
+    public BorderLayoutContainer getBuilderPanel();
 
     public BorderLayoutContainer getStepEditorPanel();
+
+    public SimpleContainer getAppsContainer();
 
     public CardLayoutContainer getStepPanel();
 

@@ -38,6 +38,14 @@
             type="com.sencha.gxt.widget.core.client.container.MarginData">
       <ui:attributes margins="{stepActionMargins}" />
    </ui:with>
+    <ui:with
+        field="builderPanelData"
+        type="com.sencha.gxt.widget.core.client.container.BorderLayoutContainer.BorderLayoutData">
+        <ui:attributes
+            size="400"
+            collapsible="false"
+            split="true" />
+    </ui:with>
 
     <container:SimpleContainer>
         <container:BorderLayoutContainer
@@ -91,9 +99,16 @@
                         </container:center>
                     </container:BorderLayoutContainer>
                     <!-- This is the new Pipeline Builder panel -->
-                    <container:SimpleContainer ui:field="builderPanel">
-                        <builder:PipelineCreator ui:field="builder" />
-                    </container:SimpleContainer>
+                    <container:BorderLayoutContainer ui:field="builderPanel">
+                        <container:center>
+                            <container:SimpleContainer ui:field="appsContainer" />
+                        </container:center>
+                        <container:east layoutData="{builderPanelData}">
+                            <container:SimpleContainer ui:field="builderDropWrapper">
+                                <builder:PipelineCreator ui:field="builder" />
+                            </container:SimpleContainer>
+                        </container:east>
+                    </container:BorderLayoutContainer>
                 </container:CardLayoutContainer>
             </container:center>
         </container:BorderLayoutContainer>

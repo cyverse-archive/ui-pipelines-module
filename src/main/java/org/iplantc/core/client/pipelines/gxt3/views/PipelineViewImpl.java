@@ -46,10 +46,16 @@ public class PipelineViewImpl implements PipelineView {
     CardLayoutContainer centerPanel;
 
     @UiField
-    SimpleContainer builderPanel;
+    BorderLayoutContainer builderPanel;
+
+    @UiField
+    SimpleContainer builderDropWrapper;
 
     @UiField
     PipelineCreator builder;
+
+    @UiField
+    SimpleContainer appsContainer;
 
     @UiField
     BorderLayoutContainer stepEditorPanel;
@@ -116,8 +122,13 @@ public class PipelineViewImpl implements PipelineView {
     }
 
     @Override
-    public SimpleContainer getBuilderPanel() {
+    public BorderLayoutContainer getBuilderPanel() {
         return builderPanel;
+    }
+
+    @Override
+    public SimpleContainer getAppsContainer() {
+        return appsContainer;
     }
 
     @Override

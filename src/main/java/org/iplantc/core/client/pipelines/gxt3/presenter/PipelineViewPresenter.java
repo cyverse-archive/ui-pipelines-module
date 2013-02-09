@@ -9,6 +9,9 @@ import org.iplant.pipeline.client.json.autobeans.PipelineAutoBeanFactory;
 import org.iplantc.core.client.pipelines.gxt3.views.PipelineView;
 import org.iplantc.core.client.pipelines.gxt3.views.widgets.PipelineViewToolbar;
 import org.iplantc.core.client.pipelines.gxt3.views.widgets.PipelineViewToolbarImpl;
+import org.iplantc.core.uiapplications.client.presenter.AppsViewPresenter;
+import org.iplantc.core.uiapplications.client.views.AppsView;
+import org.iplantc.core.uiapplications.client.views.AppsViewImpl;
 import org.iplantc.core.uicommons.client.presenter.Presenter;
 
 import com.google.gwt.core.shared.GWT;
@@ -44,6 +47,18 @@ public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
         toolbar.setPresenter(this);
 
         view.setNorthWidget(toolbar);
+
+        AppsView appsView = new AppsViewImpl();
+        AppsViewPresenter appsPresenter = new AppsViewPresenter(appsView);
+
+        appsPresenter.builder()
+                .hideToolbarButtonCopy()
+                .hideToolbarButtonCreate()
+                .hideToolbarButtonDelete()
+                .hideToolbarButtonEdit()
+                .hideToolbarButtonRequestTool()
+                .hideToolbarButtonSubmit()
+                .go(view.getAppsContainer());
     }
 
     @Override
