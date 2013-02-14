@@ -2,13 +2,17 @@ package org.iplantc.core.client.pipelines.gxt3.presenter;
 
 import java.util.ArrayList;
 
+import org.iplant.pipeline.client.builder.PipelineCreator;
 import org.iplant.pipeline.client.json.autobeans.Pipeline;
 import org.iplant.pipeline.client.json.autobeans.PipelineApp;
 import org.iplant.pipeline.client.json.autobeans.PipelineAppMapping;
+import org.iplantc.core.client.pipelines.gxt3.dnd.AppsGridDragHandler;
+import org.iplantc.core.client.pipelines.gxt3.dnd.PipelineBuilderDropHandler;
 import org.iplantc.core.client.pipelines.gxt3.util.PipelineAutoBeanUtil;
 import org.iplantc.core.client.pipelines.gxt3.views.PipelineView;
 import org.iplantc.core.client.pipelines.gxt3.views.widgets.PipelineViewToolbar;
 import org.iplantc.core.client.pipelines.gxt3.views.widgets.PipelineViewToolbarImpl;
+import org.iplantc.core.uiapplications.client.models.autobeans.App;
 import org.iplantc.core.uiapplications.client.presenter.AppsViewPresenter;
 import org.iplantc.core.uiapplications.client.views.AppsView;
 import org.iplantc.core.uiapplications.client.views.AppsViewImpl;
@@ -21,6 +25,11 @@ import com.google.web.bindery.autobean.shared.AutoBean;
 import com.google.web.bindery.autobean.shared.AutoBeanUtils;
 import com.sencha.gxt.core.client.util.Format;
 import com.sencha.gxt.core.shared.FastMap;
+import com.sencha.gxt.dnd.core.client.DND.Operation;
+import com.sencha.gxt.dnd.core.client.DropTarget;
+import com.sencha.gxt.dnd.core.client.GridDragSource;
+import com.sencha.gxt.widget.core.client.container.Container;
+import com.sencha.gxt.widget.core.client.grid.Grid;
 
 /**
  * The Presenter for the Pipeline View.
@@ -46,8 +55,13 @@ public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
 
         view.setNorthWidget(toolbar);
 
+        Container builderPanel = view.getBuilderDropContainer();
+
         AppsView appsView = new AppsViewImpl();
         AppsViewPresenter appsPresenter = new AppsViewPresenter(appsView);
+
+        initAppsGridDragHandler(builderPanel, appsView.getAppsGrid());
+        initPipelineBuilderDropHandler(builderPanel, view.getPipelineCreator());
 
         appsPresenter.builder()
                 .hideToolbarButtonCopy()
@@ -57,6 +71,25 @@ public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
                 .hideToolbarButtonRequestTool()
                 .hideToolbarButtonSubmit()
                 .go(view.getAppsContainer());
+    }
+
+    private void initAppsGridDragHandler(Container builderPanel, Grid<App> grid) {
+        AppsGridDragHandler handler = new AppsGridDragHandler(builderPanel);
+
+        GridDragSource<App> source = new GridDragSource<App>(grid);
+        source.addDragStartHandler(handler);
+        source.addDragCancelHandler(handler);
+    }
+
+    private void initPipelineBuilderDropHandler(Container builderPanel, PipelineCreator creator) {
+        PipelineBuilderDropHandler handler = new PipelineBuilderDropHandler(builderPanel, creator);
+
+        DropTarget target = new DropTarget(builderPanel);
+        target.setOperation(Operation.COPY);
+        target.addDragEnterHandler(handler);
+        target.addDragLeaveHandler(handler);
+        target.addDragCancelHandler(handler);
+        target.addDropHandler(handler);
     }
 
     @Override

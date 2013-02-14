@@ -127,6 +127,16 @@ public class PipelineViewImpl implements PipelineView {
     }
 
     @Override
+    public SimpleContainer getBuilderDropContainer() {
+        return builderDropWrapper;
+    }
+
+    @Override
+    public PipelineCreator getPipelineCreator() {
+        return builder;
+    }
+
+    @Override
     public SimpleContainer getAppsContainer() {
         return appsContainer;
     }
