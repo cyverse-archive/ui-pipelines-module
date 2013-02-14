@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import org.iplant.pipeline.client.json.autobeans.Pipeline;
 import org.iplant.pipeline.client.json.autobeans.PipelineApp;
 import org.iplant.pipeline.client.json.autobeans.PipelineAppMapping;
-import org.iplant.pipeline.client.json.autobeans.PipelineAutoBeanFactory;
+import org.iplantc.core.client.pipelines.gxt3.util.PipelineAutoBeanUtil;
 import org.iplantc.core.client.pipelines.gxt3.views.PipelineView;
 import org.iplantc.core.client.pipelines.gxt3.views.widgets.PipelineViewToolbar;
 import org.iplantc.core.client.pipelines.gxt3.views.widgets.PipelineViewToolbarImpl;
@@ -14,7 +14,6 @@ import org.iplantc.core.uiapplications.client.views.AppsView;
 import org.iplantc.core.uiapplications.client.views.AppsViewImpl;
 import org.iplantc.core.uicommons.client.presenter.Presenter;
 
-import com.google.gwt.core.shared.GWT;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.ui.HasOneWidget;
 import com.google.gwt.user.client.ui.IsWidget;
@@ -35,7 +34,6 @@ public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
     private final PipelineView view;
     private final PipelineViewToolbar toolbar;
     private final Command onPublishCallback;
-    private final PipelineAutoBeanFactory factory = GWT.create(PipelineAutoBeanFactory.class);
 
     public PipelineViewPresenter(PipelineView view, Command onPublishCallback) {
         this.view = view;
@@ -152,7 +150,7 @@ public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
             }
 
             // Create a new input->output mapping for sourceStepName.
-            ioMapping = factory.appMapping().as();
+            ioMapping = PipelineAutoBeanUtil.getPipelineAutoBeanFactory().appMapping().as();
             ioMapping.setStep(sourceStep.getStep());
             ioMapping.setId(sourceStep.getId());
             ioMapping.setMap(new FastMap<String>());
@@ -175,11 +173,11 @@ public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
 
     private FastMap<PipelineAppMapping> getTargetMappings(PipelineApp targetStep) {
         AutoBean<PipelineApp> targetBean = AutoBeanUtils.getAutoBean(targetStep);
-        FastMap<PipelineAppMapping> mapInputsOutputs = targetBean.getTag("stepMappings");
+        FastMap<PipelineAppMapping> mapInputsOutputs = targetBean.getTag("stepMappings"); //$NON-NLS-1$
 
         if (mapInputsOutputs == null) {
             mapInputsOutputs = new FastMap<PipelineAppMapping>();
-            targetBean.setTag("stepMappings", mapInputsOutputs);
+            targetBean.setTag("stepMappings", mapInputsOutputs); //$NON-NLS-1$
 
             if (targetStep.getMappings() != null) {
                 for (PipelineAppMapping mapping : targetStep.getMappings()) {
