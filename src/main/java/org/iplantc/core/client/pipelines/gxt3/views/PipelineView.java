@@ -51,10 +51,4 @@ public interface PipelineView extends IsWidget {
     public SimpleContainer getAppOrderPanel();
 
     public SimpleContainer getMappingPanel();
-
-    public void setInfoButtonPressed(boolean pressed);
-
-    public void setAppOrderButtonPressed(boolean pressed);
-
-    public void setMappingButtonPressed(boolean pressed);
 }

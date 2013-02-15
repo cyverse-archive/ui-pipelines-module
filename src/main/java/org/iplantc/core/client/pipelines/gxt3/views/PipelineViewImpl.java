@@ -9,6 +9,7 @@ import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.uibinder.client.UiTemplate;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.Widget;
+import com.sencha.gxt.core.client.util.ToggleGroup;
 import com.sencha.gxt.widget.core.client.button.ToggleButton;
 import com.sencha.gxt.widget.core.client.container.BorderLayoutContainer;
 import com.sencha.gxt.widget.core.client.container.BorderLayoutContainer.BorderLayoutData;
@@ -34,6 +35,10 @@ public class PipelineViewImpl implements PipelineView {
 
     public PipelineViewImpl() {
         widget = uiBinder.createAndBindUi(this);
+        ToggleGroup group = new ToggleGroup();
+        group.add(infoBtn);
+        group.add(appOrderBtn);
+        group.add(mappingBtn);
     }
 
     @UiField
@@ -164,20 +169,5 @@ public class PipelineViewImpl implements PipelineView {
     @Override
     public SimpleContainer getMappingPanel() {
         return mappingPanel;
-    }
-
-    @Override
-    public void setInfoButtonPressed(boolean pressed) {
-        infoBtn.setValue(pressed);
-    }
-
-    @Override
-    public void setAppOrderButtonPressed(boolean pressed) {
-        appOrderBtn.setValue(pressed);
-    }
-
-    @Override
-    public void setMappingButtonPressed(boolean pressed) {
-        mappingBtn.setValue(pressed);
     }
 }
