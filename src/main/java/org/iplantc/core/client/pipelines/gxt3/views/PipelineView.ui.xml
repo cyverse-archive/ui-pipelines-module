@@ -5,6 +5,7 @@
     xmlns:gxt="urn:import:com.sencha.gxt.widget.core.client"
     xmlns:container="urn:import:com.sencha.gxt.widget.core.client.container"
     xmlns:button="urn:import:com.sencha.gxt.widget.core.client.button"
+    xmlns:views="urn:import:org.iplantc.core.client.pipelines.gxt3.views"
     xmlns:builder="urn:import:org.iplant.pipeline.client.builder">
 
     <ui:with
@@ -86,9 +87,7 @@
                         </container:west>
                         <container:center>
                             <container:CardLayoutContainer ui:field="stepPanel">
-                                <container:SimpleContainer ui:field="infoPanel">
-                                    <g:Label text="{strings.workflowInfo}" />
-                                </container:SimpleContainer>
+                                <views:PipelineInfoEditor ui:field="infoPanel" />
                                 <container:SimpleContainer ui:field="appOrderPanel">
                                     <g:Label text="{strings.selectAndOrderApps}" />
                                 </container:SimpleContainer>

@@ -110,8 +110,18 @@ public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
 
         if (activeView == view.getStepEditorPanel()) {
             activeView = view.getBuilderPanel();
+
+            Pipeline pipeline = view.getPipeline();
+            if (pipeline != null) {
+                view.getPipelineCreator().loadPipeline(pipeline);
+            }
         } else {
             activeView = view.getStepEditorPanel();
+
+            Pipeline pipeline = view.getPipelineCreator().getPipeline();
+            if (pipeline != null) {
+                view.setPipeline(pipeline);
+            }
         }
 
         view.setActiveView(activeView);

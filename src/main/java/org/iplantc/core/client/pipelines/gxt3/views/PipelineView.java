@@ -28,6 +28,27 @@ public interface PipelineView extends IsWidget {
 
     void setPresenter(final Presenter presenter);
 
+    /**
+     * Checks if the current state of the Pipeline is valid.
+     * 
+     * @return boolean true if the Pipeline is valid, false otherwise.
+     */
+    public boolean isValid();
+
+    /**
+     * Gets the current state of the Pipeline.
+     * 
+     * @return Pipeline current state.
+     */
+    public Pipeline getPipeline();
+
+    /**
+     * Initializes the Pipeline from the given state.
+     * 
+     * @param pipeline
+     */
+    public void setPipeline(Pipeline pipeline);
+
     public void setNorthWidget(IsWidget widget);
 
     public IsWidget getActiveView();
@@ -46,9 +67,9 @@ public interface PipelineView extends IsWidget {
 
     public CardLayoutContainer getStepPanel();
 
-    public SimpleContainer getInfoPanel();
+    public IsWidget getInfoPanel();
 
-    public SimpleContainer getAppOrderPanel();
+    public IsWidget getAppOrderPanel();
 
-    public SimpleContainer getMappingPanel();
+    public IsWidget getMappingPanel();
 }

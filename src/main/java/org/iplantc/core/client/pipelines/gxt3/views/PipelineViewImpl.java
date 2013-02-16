@@ -1,6 +1,8 @@
 package org.iplantc.core.client.pipelines.gxt3.views;
 
 import org.iplant.pipeline.client.builder.PipelineCreator;
+import org.iplant.pipeline.client.json.autobeans.Pipeline;
+import org.iplantc.core.client.pipelines.gxt3.util.PipelineAutoBeanUtil;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.uibinder.client.UiBinder;
@@ -28,6 +30,7 @@ public class PipelineViewImpl implements PipelineView {
     private static PipelineViewUiBinder uiBinder = GWT.create(PipelineViewUiBinder.class);
     private final Widget widget;
     private Presenter presenter;
+    private Pipeline pipeline;
 
     @UiTemplate("PipelineView.ui.xml")
     interface PipelineViewUiBinder extends UiBinder<Widget, PipelineViewImpl> {
@@ -35,6 +38,9 @@ public class PipelineViewImpl implements PipelineView {
 
     public PipelineViewImpl() {
         widget = uiBinder.createAndBindUi(this);
+
+        setPipeline(PipelineAutoBeanUtil.getPipelineAutoBeanFactory().pipeline().as());
+
         ToggleGroup group = new ToggleGroup();
         group.add(infoBtn);
         group.add(appOrderBtn);
@@ -69,7 +75,7 @@ public class PipelineViewImpl implements PipelineView {
     CardLayoutContainer stepPanel;
 
     @UiField
-    SimpleContainer infoPanel;
+    PipelineInfoEditor infoPanel;
 
     @UiField
     SimpleContainer appOrderPanel;
@@ -109,6 +115,22 @@ public class PipelineViewImpl implements PipelineView {
     @Override
     public void setPresenter(Presenter presenter) {
         this.presenter = presenter;
+    }
+
+    @Override
+    public Pipeline getPipeline() {
+        return infoPanel.getPipeline();
+    }
+
+    @Override
+    public void setPipeline(Pipeline pipeline) {
+        this.pipeline = pipeline;
+        infoPanel.setPipeline(pipeline);
+    }
+
+    @Override
+    public boolean isValid() {
+        return !infoPanel.isValid();
     }
 
     @Override
@@ -157,17 +179,17 @@ public class PipelineViewImpl implements PipelineView {
     }
 
     @Override
-    public SimpleContainer getInfoPanel() {
+    public IsWidget getInfoPanel() {
         return infoPanel;
     }
 
     @Override
-    public SimpleContainer getAppOrderPanel() {
+    public IsWidget getAppOrderPanel() {
         return appOrderPanel;
     }
 
     @Override
-    public SimpleContainer getMappingPanel() {
+    public IsWidget getMappingPanel() {
         return mappingPanel;
     }
 }
