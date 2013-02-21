@@ -136,7 +136,7 @@ public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
             if (pipeline != null) {
                 view.setPipeline(pipeline);
 
-                ListStore<PipelineApp> store = view.getAppOrderGrid().getStore();
+                ListStore<PipelineApp> store = view.getPipelineAppStore();
                 store.clear();
                 List<PipelineApp> apps = pipeline.getApps();
                 if (apps != null) {
@@ -181,10 +181,9 @@ public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
 
     @Override
     public void onMoveUpClicked() {
-        Grid<PipelineApp> appOrderGrid = view.getAppOrderGrid();
-        PipelineApp selectedApp = appOrderGrid.getSelectionModel().getSelectedItem();
+        PipelineApp selectedApp = view.getOrderGridSelectedApp();
 
-        ListStore<PipelineApp> store = appOrderGrid.getStore();
+        ListStore<PipelineApp> store = view.getPipelineAppStore();
 
         int selectedStep = selectedApp.getStep();
         if (selectedApp != null && selectedStep > 0) {
@@ -204,10 +203,9 @@ public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
 
     @Override
     public void onMoveDownClicked() {
-        Grid<PipelineApp> appOrderGrid = view.getAppOrderGrid();
-        PipelineApp selectedApp = appOrderGrid.getSelectionModel().getSelectedItem();
+        PipelineApp selectedApp = view.getOrderGridSelectedApp();
 
-        ListStore<PipelineApp> store = appOrderGrid.getStore();
+        ListStore<PipelineApp> store = view.getPipelineAppStore();
 
         int selectedStep = selectedApp.getStep();
         if (selectedApp != null && selectedStep < store.size() - 1) {
@@ -227,15 +225,12 @@ public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
 
     @Override
     public void onRemoveAppClicked() {
-        Grid<PipelineApp> appOrderGrid = view.getAppOrderGrid();
-        List<PipelineApp> selectedApps = appOrderGrid.getSelectionModel().getSelectedItems();
+        PipelineApp selectedApp = view.getOrderGridSelectedApp();
 
-        if (selectedApps != null) {
-            ListStore<PipelineApp> store = appOrderGrid.getStore();
+        if (selectedApp != null) {
+            ListStore<PipelineApp> store = view.getPipelineAppStore();
 
-            for (PipelineApp app : selectedApps) {
-                store.remove(app);
-            }
+            store.remove(selectedApp);
 
             for (int step = 0; step < store.size(); step++) {
                 PipelineApp app = store.get(step);
@@ -255,7 +250,7 @@ public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
             @Override
             public void onSuccess(PipelineApp result) {
                 if (result != null) {
-                    ListStore<PipelineApp> store = view.getAppOrderGrid().getStore();
+                    ListStore<PipelineApp> store = view.getPipelineAppStore();
 
                     result.setStep(store.size());
                     store.add(result);
@@ -268,7 +263,7 @@ public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
 
             @Override
             public void onFailure(Throwable caught) {
-                ListStore<PipelineApp> store = view.getAppOrderGrid().getStore();
+                ListStore<PipelineApp> store = view.getPipelineAppStore();
                 appSelectView.updateStatusBar(store.size(), caught.getMessage());
             }
         });

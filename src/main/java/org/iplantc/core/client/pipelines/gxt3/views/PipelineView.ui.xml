@@ -53,7 +53,7 @@
             split="true" />
     </ui:with>
     <ui:with
-        field="listStore"
+        field="pipelineAppStore"
         type="com.sencha.gxt.data.shared.ListStore" />
     <ui:with
         field="cm"
@@ -136,7 +136,7 @@
                                         <grid:Grid
                                             ui:field="appOrderGrid"
                                             cm="{cm}"
-                                            store="{listStore}"
+                                            store="{pipelineAppStore}"
                                             view="{gridView}" />
                                     </container:center>
                                 </container:BorderLayoutContainer>

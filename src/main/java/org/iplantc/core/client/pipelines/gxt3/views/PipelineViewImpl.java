@@ -103,6 +103,9 @@ public class PipelineViewImpl implements PipelineView {
     @UiField
     Grid<PipelineApp> appOrderGrid;
 
+    @UiField
+    ListStore<PipelineApp> pipelineAppStore;
+
     @UiFactory
     ListStore<PipelineApp> createListStore() {
         ListStore<PipelineApp> store = new ListStore<PipelineApp>(pipelineAppProps.key());
@@ -236,7 +239,12 @@ public class PipelineViewImpl implements PipelineView {
     }
 
     @Override
-    public Grid<PipelineApp> getAppOrderGrid() {
-        return appOrderGrid;
+    public ListStore<PipelineApp> getPipelineAppStore() {
+        return pipelineAppStore;
+    }
+
+    @Override
+    public PipelineApp getOrderGridSelectedApp() {
+        return appOrderGrid.getSelectionModel().getSelectedItem();
     }
 }

@@ -5,10 +5,10 @@ import org.iplant.pipeline.client.json.autobeans.Pipeline;
 import org.iplant.pipeline.client.json.autobeans.PipelineApp;
 
 import com.google.gwt.user.client.ui.IsWidget;
+import com.sencha.gxt.data.shared.ListStore;
 import com.sencha.gxt.widget.core.client.container.BorderLayoutContainer;
 import com.sencha.gxt.widget.core.client.container.CardLayoutContainer;
 import com.sencha.gxt.widget.core.client.container.SimpleContainer;
-import com.sencha.gxt.widget.core.client.grid.Grid;
 
 /**
  * A View for Pipeline editors.
@@ -83,5 +83,7 @@ public interface PipelineView extends IsWidget {
 
     public IsWidget getMappingPanel();
 
-    public Grid<PipelineApp> getAppOrderGrid();
+    public ListStore<PipelineApp> getPipelineAppStore();
+
+    public PipelineApp getOrderGridSelectedApp();
 }
