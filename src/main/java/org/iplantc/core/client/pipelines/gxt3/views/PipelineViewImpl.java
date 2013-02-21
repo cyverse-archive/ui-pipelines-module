@@ -2,22 +2,30 @@ package org.iplantc.core.client.pipelines.gxt3.views;
 
 import org.iplant.pipeline.client.builder.PipelineCreator;
 import org.iplant.pipeline.client.json.autobeans.Pipeline;
-import org.iplantc.core.client.pipelines.gxt3.util.PipelineAutoBeanUtil;
+import org.iplant.pipeline.client.json.autobeans.PipelineApp;
+import org.iplantc.core.client.pipelines.gxt3.models.PipelineAppProperties;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.uibinder.client.UiBinder;
+import com.google.gwt.uibinder.client.UiFactory;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.uibinder.client.UiTemplate;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.Widget;
+import com.sencha.gxt.core.client.Style.SelectionMode;
 import com.sencha.gxt.core.client.util.ToggleGroup;
+import com.sencha.gxt.data.shared.ListStore;
+import com.sencha.gxt.data.shared.SortDir;
+import com.sencha.gxt.data.shared.Store.StoreSortInfo;
 import com.sencha.gxt.widget.core.client.button.ToggleButton;
 import com.sencha.gxt.widget.core.client.container.BorderLayoutContainer;
 import com.sencha.gxt.widget.core.client.container.BorderLayoutContainer.BorderLayoutData;
 import com.sencha.gxt.widget.core.client.container.CardLayoutContainer;
 import com.sencha.gxt.widget.core.client.container.SimpleContainer;
 import com.sencha.gxt.widget.core.client.event.SelectEvent;
+import com.sencha.gxt.widget.core.client.grid.ColumnModel;
+import com.sencha.gxt.widget.core.client.grid.Grid;
 
 /**
  * The main PipelineView implementation.
@@ -28,9 +36,9 @@ import com.sencha.gxt.widget.core.client.event.SelectEvent;
 public class PipelineViewImpl implements PipelineView {
 
     private static PipelineViewUiBinder uiBinder = GWT.create(PipelineViewUiBinder.class);
+    private static PipelineAppProperties pipelineAppProps = GWT.create(PipelineAppProperties.class);
     private final Widget widget;
     private Presenter presenter;
-    private Pipeline pipeline;
 
     @UiTemplate("PipelineView.ui.xml")
     interface PipelineViewUiBinder extends UiBinder<Widget, PipelineViewImpl> {
@@ -39,12 +47,12 @@ public class PipelineViewImpl implements PipelineView {
     public PipelineViewImpl() {
         widget = uiBinder.createAndBindUi(this);
 
-        setPipeline(PipelineAutoBeanUtil.getPipelineAutoBeanFactory().pipeline().as());
-
         ToggleGroup group = new ToggleGroup();
         group.add(infoBtn);
         group.add(appOrderBtn);
         group.add(mappingBtn);
+
+        appOrderGrid.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
     }
 
     @UiField
@@ -78,7 +86,7 @@ public class PipelineViewImpl implements PipelineView {
     PipelineInfoEditor infoPanel;
 
     @UiField
-    SimpleContainer appOrderPanel;
+    BorderLayoutContainer appOrderPanel;
 
     @UiField
     SimpleContainer mappingPanel;
@@ -91,6 +99,21 @@ public class PipelineViewImpl implements PipelineView {
 
     @UiField
     ToggleButton mappingBtn;
+
+    @UiField
+    Grid<PipelineApp> appOrderGrid;
+
+    @UiFactory
+    ListStore<PipelineApp> createListStore() {
+        ListStore<PipelineApp> store = new ListStore<PipelineApp>(pipelineAppProps.key());
+        store.addSortInfo(new StoreSortInfo<PipelineApp>(pipelineAppProps.step(), SortDir.ASC));
+        return store;
+    }
+
+    @UiFactory
+    ColumnModel<PipelineApp> createColumnModel() {
+        return new AppColumnModel(pipelineAppProps);
+    }
 
     @UiHandler("infoBtn")
     public void onInfoClick(SelectEvent e) {
@@ -105,6 +128,26 @@ public class PipelineViewImpl implements PipelineView {
     @UiHandler("mappingBtn")
     public void onMappingClick(SelectEvent e) {
         presenter.onMappingClick();
+    }
+
+    @UiHandler("addAppsBtn")
+    public void onAddAppsClick(SelectEvent e) {
+        presenter.onAddAppsClicked();
+    }
+
+    @UiHandler("removeAppBtn")
+    public void onRemoveAppClick(SelectEvent e) {
+        presenter.onRemoveAppClicked();
+    }
+
+    @UiHandler("moveUpBtn")
+    public void onMoveUpClick(SelectEvent e) {
+        presenter.onMoveUpClicked();
+    }
+
+    @UiHandler("moveDownBtn")
+    public void onMoveDownClick(SelectEvent e) {
+        presenter.onMoveDownClicked();
     }
 
     @Override
@@ -124,7 +167,6 @@ public class PipelineViewImpl implements PipelineView {
 
     @Override
     public void setPipeline(Pipeline pipeline) {
-        this.pipeline = pipeline;
         infoPanel.setPipeline(pipeline);
     }
 
@@ -191,5 +233,10 @@ public class PipelineViewImpl implements PipelineView {
     @Override
     public IsWidget getMappingPanel() {
         return mappingPanel;
+    }
+
+    @Override
+    public Grid<PipelineApp> getAppOrderGrid() {
+        return appOrderGrid;
     }
 }

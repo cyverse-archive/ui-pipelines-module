@@ -1,14 +1,17 @@
 package org.iplantc.core.client.pipelines.gxt3.presenter;
 
 import java.util.ArrayList;
+import java.util.List;
 
-import org.iplant.pipeline.client.builder.PipelineCreator;
 import org.iplant.pipeline.client.json.autobeans.Pipeline;
 import org.iplant.pipeline.client.json.autobeans.PipelineApp;
 import org.iplant.pipeline.client.json.autobeans.PipelineAppMapping;
+import org.iplantc.core.client.pipelines.I18N;
 import org.iplantc.core.client.pipelines.gxt3.dnd.AppsGridDragHandler;
+import org.iplantc.core.client.pipelines.gxt3.dnd.PipelineBuilderDNDHandler;
 import org.iplantc.core.client.pipelines.gxt3.dnd.PipelineBuilderDropHandler;
 import org.iplantc.core.client.pipelines.gxt3.util.PipelineAutoBeanUtil;
+import org.iplantc.core.client.pipelines.gxt3.views.AppSelectionDialog;
 import org.iplantc.core.client.pipelines.gxt3.views.PipelineView;
 import org.iplantc.core.client.pipelines.gxt3.views.widgets.PipelineViewToolbar;
 import org.iplantc.core.client.pipelines.gxt3.views.widgets.PipelineViewToolbarImpl;
@@ -19,12 +22,14 @@ import org.iplantc.core.uiapplications.client.views.AppsViewImpl;
 import org.iplantc.core.uicommons.client.presenter.Presenter;
 
 import com.google.gwt.user.client.Command;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.HasOneWidget;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.web.bindery.autobean.shared.AutoBean;
 import com.google.web.bindery.autobean.shared.AutoBeanUtils;
 import com.sencha.gxt.core.client.util.Format;
 import com.sencha.gxt.core.shared.FastMap;
+import com.sencha.gxt.data.shared.ListStore;
 import com.sencha.gxt.dnd.core.client.DND.Operation;
 import com.sencha.gxt.dnd.core.client.DropTarget;
 import com.sencha.gxt.dnd.core.client.GridDragSource;
@@ -38,30 +43,36 @@ import com.sencha.gxt.widget.core.client.grid.Grid;
  * 
  */
 public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
-        PipelineViewToolbar.Presenter {
+        PipelineViewToolbar.Presenter, PipelineBuilderDNDHandler.Presenter, AppSelectionDialog.Presenter {
 
     private final PipelineView view;
     private final PipelineViewToolbar toolbar;
+    private final AppsViewPresenter appsPresenter;
+    private final AppSelectionDialog appSelectView;
     private final Command onPublishCallback;
+    private Pipeline pipeline;
 
     public PipelineViewPresenter(PipelineView view, Command onPublishCallback) {
         this.view = view;
         this.onPublishCallback = onPublishCallback;
 
+        pipeline = PipelineAutoBeanUtil.getPipelineAutoBeanFactory().pipeline().as();
+        view.setPipeline(pipeline);
+
         toolbar = new PipelineViewToolbarImpl();
+        appSelectView = new AppSelectionDialog();
 
         view.setPresenter(this);
         toolbar.setPresenter(this);
+        appSelectView.setPresenter(this);
 
         view.setNorthWidget(toolbar);
 
-        Container builderPanel = view.getBuilderDropContainer();
-
         AppsView appsView = new AppsViewImpl();
-        AppsViewPresenter appsPresenter = new AppsViewPresenter(appsView);
+        appsPresenter = new AppsViewPresenter(appsView);
 
-        initAppsGridDragHandler(builderPanel, appsView.getAppsGrid());
-        initPipelineBuilderDropHandler(builderPanel, view.getPipelineCreator());
+        initAppsGridDragHandler(appsView.getAppsGrid());
+        initPipelineBuilderDropHandler(view.getBuilderDropContainer());
 
         appsPresenter.builder()
                 .hideToolbarButtonCopy()
@@ -70,19 +81,21 @@ public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
                 .hideToolbarButtonEdit()
                 .hideToolbarButtonRequestTool()
                 .hideToolbarButtonSubmit()
-                .go(view.getAppsContainer());
+                .go(appSelectView);
     }
 
-    private void initAppsGridDragHandler(Container builderPanel, Grid<App> grid) {
-        AppsGridDragHandler handler = new AppsGridDragHandler(builderPanel);
+    private void initAppsGridDragHandler(Grid<App> grid) {
+        AppsGridDragHandler handler = new AppsGridDragHandler();
+        handler.setPresenter(this);
 
         GridDragSource<App> source = new GridDragSource<App>(grid);
         source.addDragStartHandler(handler);
         source.addDragCancelHandler(handler);
     }
 
-    private void initPipelineBuilderDropHandler(Container builderPanel, PipelineCreator creator) {
-        PipelineBuilderDropHandler handler = new PipelineBuilderDropHandler(builderPanel, creator);
+    private void initPipelineBuilderDropHandler(Container builderPanel) {
+        PipelineBuilderDropHandler handler = new PipelineBuilderDropHandler();
+        handler.setPresenter(this);
 
         DropTarget target = new DropTarget(builderPanel);
         target.setOperation(Operation.COPY);
@@ -111,17 +124,27 @@ public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
         if (activeView == view.getStepEditorPanel()) {
             activeView = view.getBuilderPanel();
 
-            Pipeline pipeline = view.getPipeline();
             if (pipeline != null) {
                 view.getPipelineCreator().loadPipeline(pipeline);
             }
+
+            appsPresenter.go(view.getAppsContainer());
         } else {
             activeView = view.getStepEditorPanel();
 
-            Pipeline pipeline = view.getPipelineCreator().getPipeline();
+            pipeline = view.getPipelineCreator().getPipeline();
             if (pipeline != null) {
                 view.setPipeline(pipeline);
+
+                ListStore<PipelineApp> store = view.getAppOrderGrid().getStore();
+                store.clear();
+                List<PipelineApp> apps = pipeline.getApps();
+                if (apps != null) {
+                    store.addAll(apps);
+                }
             }
+
+            appsPresenter.go(appSelectView);
         }
 
         view.setActiveView(activeView);
@@ -129,8 +152,11 @@ public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
 
     @Override
     public Pipeline getPipeline() {
-        // TODO Auto-generated method stub
-        return null;
+        if (view.getActiveView() == view.getBuilderPanel()) {
+            pipeline = view.getPipelineCreator().getPipeline();
+        }
+
+        return pipeline;
     }
 
     @Override
@@ -146,6 +172,136 @@ public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
     @Override
     public void onMappingClick() {
         view.getStepPanel().setActiveWidget(view.getMappingPanel());
+    }
+
+    @Override
+    public void onAddAppsClicked() {
+        appSelectView.show();
+    }
+
+    @Override
+    public void onMoveUpClicked() {
+        Grid<PipelineApp> appOrderGrid = view.getAppOrderGrid();
+        PipelineApp selectedApp = appOrderGrid.getSelectionModel().getSelectedItem();
+
+        ListStore<PipelineApp> store = appOrderGrid.getStore();
+
+        int selectedStep = selectedApp.getStep();
+        if (selectedApp != null && selectedStep > 0) {
+            int stepUp = selectedStep - 1;
+            PipelineApp prevApp = store.get(stepUp);
+            prevApp.setStep(selectedStep);
+            selectedApp.setStep(stepUp);
+
+            store.update(selectedApp);
+            store.update(prevApp);
+
+            store.applySort(false);
+
+            pipeline.setApps(store.getAll());
+        }
+    }
+
+    @Override
+    public void onMoveDownClicked() {
+        Grid<PipelineApp> appOrderGrid = view.getAppOrderGrid();
+        PipelineApp selectedApp = appOrderGrid.getSelectionModel().getSelectedItem();
+
+        ListStore<PipelineApp> store = appOrderGrid.getStore();
+
+        int selectedStep = selectedApp.getStep();
+        if (selectedApp != null && selectedStep < store.size() - 1) {
+            int stepDown = selectedStep + 1;
+            PipelineApp nextApp = store.get(stepDown);
+            nextApp.setStep(selectedStep);
+            selectedApp.setStep(stepDown);
+
+            store.update(selectedApp);
+            store.update(nextApp);
+
+            store.applySort(false);
+
+            pipeline.setApps(store.getAll());
+        }
+    }
+
+    @Override
+    public void onRemoveAppClicked() {
+        Grid<PipelineApp> appOrderGrid = view.getAppOrderGrid();
+        List<PipelineApp> selectedApps = appOrderGrid.getSelectionModel().getSelectedItems();
+
+        if (selectedApps != null) {
+            ListStore<PipelineApp> store = appOrderGrid.getStore();
+
+            for (PipelineApp app : selectedApps) {
+                store.remove(app);
+            }
+
+            for (int step = 0; step < store.size(); step++) {
+                PipelineApp app = store.get(step);
+                app.setStep(step);
+                store.update(app);
+            }
+
+            pipeline.setApps(store.getAll());
+        }
+    }
+
+    @Override
+    public void onAddAppClick() {
+        App selectedApp = appsPresenter.getSelectedApp();
+        PipelineAutoBeanUtil.appToPipelineApp(selectedApp, new AsyncCallback<PipelineApp>() {
+
+            @Override
+            public void onSuccess(PipelineApp result) {
+                if (result != null) {
+                    ListStore<PipelineApp> store = view.getAppOrderGrid().getStore();
+
+                    result.setStep(store.size());
+                    store.add(result);
+
+                    pipeline.setApps(store.getAll());
+
+                    appSelectView.updateStatusBar(store.size(), I18N.DISPLAY.lastApp(result.getName()));
+                }
+            }
+
+            @Override
+            public void onFailure(Throwable caught) {
+                ListStore<PipelineApp> store = view.getAppOrderGrid().getStore();
+                appSelectView.updateStatusBar(store.size(), caught.getMessage());
+            }
+        });
+
+    }
+
+    @Override
+    public void addAppToPipeline(final App app) {
+        PipelineAutoBeanUtil.appToPipelineApp(app, new AsyncCallback<PipelineApp>() {
+
+            @Override
+            public void onSuccess(PipelineApp result) {
+                if (result != null) {
+                    view.getPipelineCreator().appendApp(result);
+                    unmaskPipelineBuilder();
+                }
+            }
+
+            @Override
+            public void onFailure(Throwable caught) {
+                unmaskPipelineBuilder();
+            }
+        });
+    }
+
+    @Override
+    public void maskPipelineBuilder(String message) {
+        view.getBuilderDropContainer().mask(message);
+    }
+
+    @Override
+    public void unmaskPipelineBuilder() {
+        view.getBuilderDropContainer().unmask();
     }
 
     /**

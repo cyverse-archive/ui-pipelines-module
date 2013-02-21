@@ -2,11 +2,13 @@ package org.iplantc.core.client.pipelines.gxt3.views;
 
 import org.iplant.pipeline.client.builder.PipelineCreator;
 import org.iplant.pipeline.client.json.autobeans.Pipeline;
+import org.iplant.pipeline.client.json.autobeans.PipelineApp;
 
 import com.google.gwt.user.client.ui.IsWidget;
 import com.sencha.gxt.widget.core.client.container.BorderLayoutContainer;
 import com.sencha.gxt.widget.core.client.container.CardLayoutContainer;
 import com.sencha.gxt.widget.core.client.container.SimpleContainer;
+import com.sencha.gxt.widget.core.client.grid.Grid;
 
 /**
  * A View for Pipeline editors.
@@ -24,6 +26,14 @@ public interface PipelineView extends IsWidget {
         public void onAppOrderClick();
 
         public void onMappingClick();
+
+        public void onAddAppsClicked();
+
+        public void onRemoveAppClicked();
+
+        public void onMoveUpClicked();
+
+        public void onMoveDownClicked();
     }
 
     void setPresenter(final Presenter presenter);
@@ -72,4 +82,6 @@ public interface PipelineView extends IsWidget {
     public IsWidget getAppOrderPanel();
 
     public IsWidget getMappingPanel();
+
+    public Grid<PipelineApp> getAppOrderGrid();
 }

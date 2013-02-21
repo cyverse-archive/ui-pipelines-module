@@ -8,7 +8,6 @@ import org.iplantc.core.uiapplications.client.models.autobeans.App;
 import com.sencha.gxt.dnd.core.client.DndDragCancelEvent;
 import com.sencha.gxt.dnd.core.client.DndDragCancelEvent.DndDragCancelHandler;
 import com.sencha.gxt.dnd.core.client.StatusProxy;
-import com.sencha.gxt.widget.core.client.container.Container;
 
 /**
  * A common Handler for drag'n'drop events from the Apps grid to the PipelineBuilder.
@@ -17,22 +16,18 @@ import com.sencha.gxt.widget.core.client.container.Container;
  * 
  */
 public abstract class PipelineBuilderDNDHandler implements DndDragCancelHandler {
-    private final Container builderPanel;
+    public interface Presenter {
+        void addAppToPipeline(App app);
 
-    public PipelineBuilderDNDHandler(Container builderPanel) {
-        this.builderPanel = builderPanel;
+        void maskPipelineBuilder(String message);
+
+        void unmaskPipelineBuilder();
     }
 
-    protected void maskPipelineBuilder(String message) {
-        if (builderPanel != null) {
-            builderPanel.mask(message);
-        }
-    }
+    protected Presenter presenter;
 
-    protected void unmaskPipelineBuilder() {
-        if (builderPanel != null) {
-            builderPanel.unmask();
-        }
+    public void setPresenter(Presenter presenter) {
+        this.presenter = presenter;
     }
 
     protected void validateDNDEvent(StatusProxy eventStatus, List<App> selected) {
@@ -58,6 +53,6 @@ public abstract class PipelineBuilderDNDHandler implements DndDragCancelHandler 
 
     @Override
     public void onDragCancel(DndDragCancelEvent event) {
-        unmaskPipelineBuilder();
+        presenter.unmaskPipelineBuilder();
     }
 }
