@@ -199,4 +199,11 @@ public interface PipelinesDisplayStrings extends CommonUIDisplayStrings {
      * @return a string representing the text
      */
     String swapView();
+
+    /**
+     * Label for a Pipeline Step.
+     * 
+     * @return a string representing the text
+     */
+    String step();
 }

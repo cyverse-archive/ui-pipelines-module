@@ -26,7 +26,7 @@ public class AppColumnModel extends ColumnModel<PipelineApp> {
 
     public static List<ColumnConfig<PipelineApp, ?>> createColumnConfigList(PipelineAppProperties props) {
         ColumnConfig<PipelineApp, Integer> step = new ColumnConfig<PipelineApp, Integer>(props.step(),
-                25, "");
+                50, I18N.DISPLAY.step());
         step.setFixed(true);
         step.setHideable(false);
         step.setSortable(false);
