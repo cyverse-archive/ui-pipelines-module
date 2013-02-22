@@ -2,6 +2,7 @@ package org.iplantc.core.client.pipelines.gxt3.presenter;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.iplant.pipeline.client.json.autobeans.Pipeline;
 import org.iplant.pipeline.client.json.autobeans.PipelineApp;
@@ -347,7 +348,7 @@ public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
         }
 
         // TODO validate targetInputId belongs to one of this App's Inputs?
-        FastMap<String> map = (FastMap<String>)ioMapping.getMap();
+        Map<String, String> map = ioMapping.getMap();
         if (sourceOutputId == null || sourceOutputId.isEmpty()) {
             // clear the mapping for this Input ID.
             map.put(targetInputId, null);
