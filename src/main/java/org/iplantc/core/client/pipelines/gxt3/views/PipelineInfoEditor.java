@@ -5,8 +5,10 @@ import org.iplant.pipeline.client.json.autobeans.Pipeline;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.editor.client.Editor;
 import com.google.gwt.editor.client.SimpleBeanEditorDriver;
+import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
+import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.Widget;
 import com.sencha.gxt.widget.core.client.form.TextArea;
@@ -39,6 +41,16 @@ public class PipelineInfoEditor implements IsWidget, Editor<Pipeline> {
     public PipelineInfoEditor() {
         widget = uiBinder.createAndBindUi(this);
         driver.initialize(this);
+    }
+
+    @UiHandler("name")
+    public void nameChanged(ValueChangeEvent<String> event) {
+        driver.flush();
+    }
+
+    @UiHandler("description")
+    public void descriptionChanged(ValueChangeEvent<String> event) {
+        driver.flush();
     }
 
     @Override
