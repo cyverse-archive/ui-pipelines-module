@@ -124,7 +124,7 @@ public class PipelineAppMappingForm implements PipelineAppMappingView {
 
     private FieldSet buildStepFieldSet(PipelineApp app) {
         FieldSet step = new FieldSet();
-        String stepLabel = I18N.DISPLAY.stepWithValue(app.getStep() + 1);
+        String stepLabel = I18N.DISPLAY.stepWithValue(app.getStep());
         step.setHeadingText(Format.substitute("{0}: {1}", stepLabel, app.getName())); //$NON-NLS-1$
         step.setCollapsible(true);
 
@@ -259,7 +259,7 @@ public class PipelineAppMappingForm implements PipelineAppMappingView {
 
         @Override
         public String getLabel(PipelineMappingOutputWrapper item) {
-            String stepLabel = I18N.DISPLAY.stepWithValue(item.getApp().getStep() + 1);
+            String stepLabel = I18N.DISPLAY.stepWithValue(item.getApp().getStep());
             return Format.substitute("{0}: {1}", stepLabel, item.getOutput().getName()); //$NON-NLS-1$
         }
     }

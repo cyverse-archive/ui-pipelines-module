@@ -22,7 +22,6 @@ import org.iplantc.core.uiapplications.client.models.autobeans.App;
 import org.iplantc.core.uiapplications.client.presenter.AppsViewPresenter;
 import org.iplantc.core.uiapplications.client.views.AppsView;
 import org.iplantc.core.uiapplications.client.views.AppsViewImpl;
-import org.iplantc.core.uicommons.client.ErrorHandler;
 import org.iplantc.core.uicommons.client.presenter.Presenter;
 
 import com.google.common.base.Strings;
@@ -208,13 +207,16 @@ public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
     @Override
     public void onMoveUpClicked() {
         PipelineApp selectedApp = view.getOrderGridSelectedApp();
+        if (selectedApp == null) {
+            return;
+        }
 
         ListStore<PipelineApp> store = view.getPipelineAppStore();
 
         int selectedStep = selectedApp.getStep();
-        if (selectedApp != null && selectedStep > 0) {
+        if (selectedStep > 1) {
             int stepUp = selectedStep - 1;
-            PipelineApp prevApp = store.get(stepUp);
+            PipelineApp prevApp = store.get(stepUp - 1);
             prevApp.setStep(selectedStep);
             selectedApp.setStep(stepUp);
 
@@ -232,13 +234,16 @@ public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
     @Override
     public void onMoveDownClicked() {
         PipelineApp selectedApp = view.getOrderGridSelectedApp();
+        if (selectedApp == null) {
+            return;
+        }
 
         ListStore<PipelineApp> store = view.getPipelineAppStore();
 
         int selectedStep = selectedApp.getStep();
-        if (selectedApp != null && selectedStep < store.size() - 1) {
+        if (selectedStep < store.size()) {
             int stepDown = selectedStep + 1;
-            PipelineApp nextApp = store.get(stepDown);
+            PipelineApp nextApp = store.get(stepDown - 1);
             nextApp.setStep(selectedStep);
             selectedApp.setStep(stepDown);
 
@@ -262,8 +267,8 @@ public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
 
             store.remove(selectedApp);
 
-            for (int step = 0; step < store.size(); step++) {
-                PipelineApp app = store.get(step);
+            for (int step = 1; step <= store.size(); step++) {
+                PipelineApp app = store.get(step - 1);
                 app.setStep(step);
                 store.update(app);
             }
@@ -284,7 +289,7 @@ public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
                 if (result != null) {
                     ListStore<PipelineApp> store = view.getPipelineAppStore();
 
-                    result.setStep(store.size());
+                    result.setStep(store.size() + 1);
                     store.add(result);
 
                     pipeline.setApps(store.getAll());
@@ -343,8 +348,7 @@ public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
     }
 
     private String getStepName(int step, String id) {
-        // steps start at 0.
-        return Format.substitute("step_{0}_{1}", (step + 1), id); //$NON-NLS-1$
+        return Format.substitute("step_{0}_{1}", step, id); //$NON-NLS-1$
     }
 
     /**
