@@ -22,6 +22,7 @@ import org.iplantc.core.uiapplications.client.views.AppsView;
 import org.iplantc.core.uiapplications.client.views.AppsViewImpl;
 import org.iplantc.core.uicommons.client.presenter.Presenter;
 
+import com.google.common.base.Strings;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.HasOneWidget;
@@ -315,23 +316,24 @@ public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
     }
 
     /**
-     * Sets a mapping for this "target_step" App's Input DataObject, with the given targetInputId, to
-     * sourceStepName's Output DataObject with the given sourceOutputId. A null sourceOutputId will clear
-     * the mapping for the given targetInputId.
+     * Sets a mapping for targetStep's Input DataObject, with the given targetInputId, to sourceStep's
+     * Output DataObject with the given sourceOutputId. A null sourceOutputId will clear the mapping for
+     * the given targetInputId.
      * 
-     * @param sourceStepName
-     * @param sourceOutputId
+     * @param targetStep
      * @param targetInputId
+     * @param sourceStep
+     * @param sourceOutputId
      */
-    private void setInputOutputMapping(PipelineApp sourceStep, String sourceOutputId,
-            PipelineApp targetStep, String targetInputId) {
+    public void setInputOutputMapping(PipelineApp targetStep, String targetInputId,
+            PipelineApp sourceStep, String sourceOutputId) {
         String sourceStepName = getStepName(sourceStep);
 
         // Find the input->output mappings for sourceStepName.
         FastMap<PipelineAppMapping> mapInputsOutputs = getTargetMappings(targetStep);
-        PipelineAppMapping ioMapping = mapInputsOutputs.get(sourceStepName);
+        PipelineAppMapping targetAppMapping = mapInputsOutputs.get(sourceStepName);
 
-        if (ioMapping == null) {
+        if (targetAppMapping == null) {
             // There are no input->output mappings for this sourceStepName yet.
             if (sourceOutputId == null || sourceOutputId.isEmpty()) {
                 // nothing to do in order to clear this mapping.
@@ -339,17 +341,17 @@ public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
             }
 
             // Create a new input->output mapping for sourceStepName.
-            ioMapping = PipelineAutoBeanUtil.getPipelineAutoBeanFactory().appMapping().as();
-            ioMapping.setStep(sourceStep.getStep());
-            ioMapping.setId(sourceStep.getId());
-            ioMapping.setMap(new FastMap<String>());
+            targetAppMapping = PipelineAutoBeanUtil.getPipelineAutoBeanFactory().appMapping().as();
+            targetAppMapping.setStep(sourceStep.getStep());
+            targetAppMapping.setId(sourceStep.getId());
+            targetAppMapping.setMap(new FastMap<String>());
 
-            mapInputsOutputs.put(sourceStepName, ioMapping);
+            mapInputsOutputs.put(sourceStepName, targetAppMapping);
         }
 
         // TODO validate targetInputId belongs to one of this App's Inputs?
-        Map<String, String> map = ioMapping.getMap();
-        if (sourceOutputId == null || sourceOutputId.isEmpty()) {
+        Map<String, String> map = targetAppMapping.getMap();
+        if (Strings.isNullOrEmpty(sourceOutputId)) {
             // clear the mapping for this Input ID.
             map.put(targetInputId, null);
         } else {
@@ -370,7 +372,8 @@ public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
 
             if (targetStep.getMappings() != null) {
                 for (PipelineAppMapping mapping : targetStep.getMappings()) {
-                    mapInputsOutputs.put(getStepName(mapping.getStep(), mapping.getId()), mapping);
+                    String sourceStepName = getStepName(mapping.getStep(), mapping.getId());
+                    mapInputsOutputs.put(sourceStepName, mapping);
                 }
             }
         }
