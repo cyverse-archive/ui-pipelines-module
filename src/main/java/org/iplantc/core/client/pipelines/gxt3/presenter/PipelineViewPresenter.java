@@ -13,6 +13,8 @@ import org.iplantc.core.client.pipelines.gxt3.dnd.PipelineBuilderDNDHandler;
 import org.iplantc.core.client.pipelines.gxt3.dnd.PipelineBuilderDropHandler;
 import org.iplantc.core.client.pipelines.gxt3.util.PipelineAutoBeanUtil;
 import org.iplantc.core.client.pipelines.gxt3.views.AppSelectionDialog;
+import org.iplantc.core.client.pipelines.gxt3.views.PipelineAppMappingForm;
+import org.iplantc.core.client.pipelines.gxt3.views.PipelineAppMappingView;
 import org.iplantc.core.client.pipelines.gxt3.views.PipelineView;
 import org.iplantc.core.client.pipelines.gxt3.views.widgets.PipelineViewToolbar;
 import org.iplantc.core.client.pipelines.gxt3.views.widgets.PipelineViewToolbarImpl;
@@ -20,6 +22,7 @@ import org.iplantc.core.uiapplications.client.models.autobeans.App;
 import org.iplantc.core.uiapplications.client.presenter.AppsViewPresenter;
 import org.iplantc.core.uiapplications.client.views.AppsView;
 import org.iplantc.core.uiapplications.client.views.AppsViewImpl;
+import org.iplantc.core.uicommons.client.ErrorHandler;
 import org.iplantc.core.uicommons.client.presenter.Presenter;
 
 import com.google.common.base.Strings;
@@ -28,6 +31,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.HasOneWidget;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.web.bindery.autobean.shared.AutoBean;
+import com.google.web.bindery.autobean.shared.AutoBeanCodex;
 import com.google.web.bindery.autobean.shared.AutoBeanUtils;
 import com.sencha.gxt.core.client.util.Format;
 import com.sencha.gxt.core.shared.FastMap;
@@ -45,12 +49,13 @@ import com.sencha.gxt.widget.core.client.grid.Grid;
  * 
  */
 public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
-        PipelineViewToolbar.Presenter, PipelineBuilderDNDHandler.Presenter, AppSelectionDialog.Presenter {
+        PipelineViewToolbar.Presenter, PipelineBuilderDNDHandler.Presenter,
+        AppSelectionDialog.Presenter, PipelineAppMappingView.Presenter {
 
     private final PipelineView view;
     private final PipelineViewToolbar toolbar;
-    private final AppsViewPresenter appsPresenter;
-    private final AppSelectionDialog appSelectView;
+    private AppsViewPresenter appsPresenter;
+    private AppSelectionDialog appSelectView;
     private final Command onPublishCallback;
     private Pipeline pipeline;
 
@@ -62,13 +67,25 @@ public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
         view.setPipeline(pipeline);
 
         toolbar = new PipelineViewToolbarImpl();
-        appSelectView = new AppSelectionDialog();
 
         view.setPresenter(this);
         toolbar.setPresenter(this);
-        appSelectView.setPresenter(this);
 
         view.setNorthWidget(toolbar);
+
+        initAppMappingView();
+        initAppsView();
+    }
+
+    private void initAppMappingView() {
+        PipelineAppMappingForm mappingForm = (PipelineAppMappingForm)view.getMappingPanel();
+        mappingForm.setPresenter(this);
+        mappingForm.setPipeline(pipeline);
+    }
+
+    private void initAppsView() {
+        appSelectView = new AppSelectionDialog();
+        appSelectView.setPresenter(this);
 
         AppsView appsView = new AppsViewImpl();
         appsPresenter = new AppsViewPresenter(appsView);
@@ -138,6 +155,8 @@ public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
             if (pipeline != null) {
                 view.setPipeline(pipeline);
 
+                updatePipelineAppMappingForm();
+
                 ListStore<PipelineApp> store = view.getPipelineAppStore();
                 store.clear();
                 List<PipelineApp> apps = pipeline.getApps();
@@ -150,6 +169,11 @@ public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
         }
 
         view.setActiveView(activeView);
+    }
+
+    private void updatePipelineAppMappingForm() {
+        PipelineAppMappingForm mappingForm = (PipelineAppMappingForm)view.getMappingPanel();
+        mappingForm.setPipeline(pipeline);
     }
 
     @Override
@@ -200,6 +224,8 @@ public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
             store.applySort(false);
 
             pipeline.setApps(store.getAll());
+
+            updatePipelineAppMappingForm();
         }
     }
 
@@ -222,6 +248,8 @@ public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
             store.applySort(false);
 
             pipeline.setApps(store.getAll());
+
+            updatePipelineAppMappingForm();
         }
     }
 
@@ -241,6 +269,8 @@ public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
             }
 
             pipeline.setApps(store.getAll());
+
+            updatePipelineAppMappingForm();
         }
     }
 
@@ -260,6 +290,8 @@ public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
                     pipeline.setApps(store.getAll());
 
                     appSelectView.updateStatusBar(store.size(), I18N.DISPLAY.lastApp(result.getName()));
+
+                    updatePipelineAppMappingForm();
                 }
             }
 
@@ -316,15 +348,9 @@ public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
     }
 
     /**
-     * Sets a mapping for targetStep's Input DataObject, with the given targetInputId, to sourceStep's
-     * Output DataObject with the given sourceOutputId. A null sourceOutputId will clear the mapping for
-     * the given targetInputId.
-     * 
-     * @param targetStep
-     * @param targetInputId
-     * @param sourceStep
-     * @param sourceOutputId
+     * {@inheritDoc}
      */
+    @Override
     public void setInputOutputMapping(PipelineApp targetStep, String targetInputId,
             PipelineApp sourceStep, String sourceOutputId) {
         String sourceStepName = getStepName(sourceStep);

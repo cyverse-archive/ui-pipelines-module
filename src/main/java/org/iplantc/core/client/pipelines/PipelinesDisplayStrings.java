@@ -206,4 +206,11 @@ public interface PipelinesDisplayStrings extends CommonUIDisplayStrings {
      * @return a string representing the text
      */
     String step();
+
+    /**
+     * Label for a Pipeline Step with its step number.
+     * 
+     * @return a string representing the text
+     */
+    String stepWithValue(int step);
 }

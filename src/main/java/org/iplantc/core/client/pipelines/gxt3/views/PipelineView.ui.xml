@@ -140,9 +140,7 @@
                                             view="{gridView}" />
                                     </container:center>
                                 </container:BorderLayoutContainer>
-                                <container:SimpleContainer ui:field="mappingPanel">
-                                    <g:Label text="{strings.mapOutputsToInputs}" />
-                                </container:SimpleContainer>
+                                <views:PipelineAppMappingForm ui:field="mappingPanel"/>
                             </container:CardLayoutContainer>
                         </container:center>
                     </container:BorderLayoutContainer>

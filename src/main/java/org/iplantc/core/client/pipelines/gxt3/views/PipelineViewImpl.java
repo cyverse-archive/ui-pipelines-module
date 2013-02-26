@@ -89,7 +89,7 @@ public class PipelineViewImpl implements PipelineView {
     BorderLayoutContainer appOrderPanel;
 
     @UiField
-    SimpleContainer mappingPanel;
+    PipelineAppMappingForm mappingPanel;
 
     @UiField
     ToggleButton infoBtn;
