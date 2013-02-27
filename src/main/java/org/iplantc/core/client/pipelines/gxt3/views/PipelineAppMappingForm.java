@@ -133,6 +133,8 @@ public class PipelineAppMappingForm implements PipelineAppMappingView {
 
     private ComboBox<PipelineMappingOutputWrapper> buildOutputCombo(PipelineApp app,
             PipelineAppData input, List<PipelineMappingOutputWrapper> outputs) {
+        String targetInputId = input.getId();
+
         ListStore<PipelineMappingOutputWrapper> store = new ListStore<PipelineMappingOutputWrapper>(
                 outputsKeyProvider);
 
@@ -145,7 +147,24 @@ public class PipelineAppMappingForm implements PipelineAppMappingView {
         combo.setForceSelection(true);
         combo.setTriggerAction(TriggerAction.ALL);
         combo.setWidth(200);
-        combo.addSelectionHandler(new OutputComboSelectionHandler(presenter, app, input.getId()));
+        combo.addSelectionHandler(new OutputComboSelectionHandler(presenter, app, targetInputId));
+
+        List<PipelineAppMapping> appMappings = app.getMappings();
+        if (appMappings != null) {
+            PipelineMappingOutputWrapper outputWrapper = null;
+            for (PipelineAppMapping mapping : appMappings) {
+                String outputId = mapping.getMap().get(targetInputId);
+
+                if (outputId != null) {
+                    String wrapperKey = buildOutputWrapperKey(mapping.getStep(), outputId);
+                    outputWrapper = store.findModelWithKey(wrapperKey);
+                }
+            }
+
+            if (outputWrapper != null) {
+                combo.setValue(outputWrapper, false);
+            }
+        }
 
         return combo;
     }
