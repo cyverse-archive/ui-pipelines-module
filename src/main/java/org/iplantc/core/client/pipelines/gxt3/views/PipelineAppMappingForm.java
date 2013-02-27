@@ -165,6 +165,10 @@ public class PipelineAppMappingForm implements PipelineAppMappingView {
         return outputListField;
     }
 
+    private String buildOutputWrapperKey(int step, String outputId) {
+        return step + "-" + outputId; //$NON-NLS-1$
+    }
+
     @Override
     public boolean isValid() {
         // A pipline needs at least 2 apps and each app after the first one should have at least one
@@ -268,7 +272,7 @@ public class PipelineAppMappingForm implements PipelineAppMappingView {
 
         @Override
         public String getKey(PipelineMappingOutputWrapper item) {
-            return item.getOutput().getId();
+            return buildOutputWrapperKey(item.getApp().getStep(), item.getOutput().getId());
         }
     }
 

@@ -34,6 +34,14 @@ public interface PipelineView extends IsWidget {
         public void onMoveUpClicked();
 
         public void onMoveDownClicked();
+
+        /**
+         * Gets the given App's workflow step name, based on its position in the workflow and its ID.
+         * 
+         * @param app
+         * @return the PipelineApp's step name.
+         */
+        public String getStepName(PipelineApp app);
     }
 
     void setPresenter(final Presenter presenter);

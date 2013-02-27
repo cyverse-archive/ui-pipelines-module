@@ -339,11 +339,10 @@ public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
     }
 
     /**
-     * Gets the given App's workflow step name, based on its position in the workflow and its ID.
-     * 
-     * @return
+     * {@inheritDoc}
      */
-    private String getStepName(PipelineApp app) {
+    @Override
+    public String getStepName(PipelineApp app) {
         return app == null ? "" : getStepName(app.getStep(), app.getId()); //$NON-NLS-1$
     }
 

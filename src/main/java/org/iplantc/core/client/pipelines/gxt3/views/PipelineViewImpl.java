@@ -16,6 +16,7 @@ import com.google.gwt.user.client.ui.Widget;
 import com.sencha.gxt.core.client.Style.SelectionMode;
 import com.sencha.gxt.core.client.util.ToggleGroup;
 import com.sencha.gxt.data.shared.ListStore;
+import com.sencha.gxt.data.shared.ModelKeyProvider;
 import com.sencha.gxt.data.shared.SortDir;
 import com.sencha.gxt.data.shared.Store.StoreSortInfo;
 import com.sencha.gxt.widget.core.client.button.ToggleButton;
@@ -108,7 +109,13 @@ public class PipelineViewImpl implements PipelineView {
 
     @UiFactory
     ListStore<PipelineApp> createListStore() {
-        ListStore<PipelineApp> store = new ListStore<PipelineApp>(pipelineAppProps.key());
+        ListStore<PipelineApp> store = new ListStore<PipelineApp>(new ModelKeyProvider<PipelineApp>() {
+
+            @Override
+            public String getKey(PipelineApp item) {
+                return presenter.getStepName(item);
+            }
+        });
         store.addSortInfo(new StoreSortInfo<PipelineApp>(pipelineAppProps.step(), SortDir.ASC));
         return store;
     }
