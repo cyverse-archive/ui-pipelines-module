@@ -169,6 +169,19 @@ public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
         view.setActiveView(activeView);
     }
 
+    private void reconfigurePipelineAppMappingForm(int startingStep) {
+        List<PipelineApp> apps = pipeline.getApps();
+        if (apps != null) {
+            for (PipelineApp app : apps) {
+                if (app.getStep() >= startingStep) {
+                    resetAppMappings(app);
+                }
+            }
+        }
+
+        updatePipelineAppMappingForm();
+    }
+
     private void updatePipelineAppMappingForm() {
         PipelineAppMappingForm mappingForm = (PipelineAppMappingForm)view.getMappingPanel();
         mappingForm.setPipeline(pipeline);
@@ -226,7 +239,7 @@ public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
 
             pipeline.setApps(store.getAll());
 
-            updatePipelineAppMappingForm();
+            reconfigurePipelineAppMappingForm(stepUp);
         }
     }
 
@@ -253,7 +266,7 @@ public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
 
             pipeline.setApps(store.getAll());
 
-            updatePipelineAppMappingForm();
+            reconfigurePipelineAppMappingForm(stepDown);
         }
     }
 
@@ -274,7 +287,7 @@ public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
 
             pipeline.setApps(store.getAll());
 
-            updatePipelineAppMappingForm();
+            reconfigurePipelineAppMappingForm(selectedApp.getStep());
         }
     }
 
@@ -398,8 +411,9 @@ public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
             mapInputsOutputs = new FastMap<PipelineAppMapping>();
             targetBean.setTag("stepMappings", mapInputsOutputs); //$NON-NLS-1$
 
-            if (targetStep.getMappings() != null) {
-                for (PipelineAppMapping mapping : targetStep.getMappings()) {
+            List<PipelineAppMapping> appMappings = targetStep.getMappings();
+            if (appMappings != null) {
+                for (PipelineAppMapping mapping : appMappings) {
                     String sourceStepName = getStepName(mapping.getStep(), mapping.getId());
                     mapInputsOutputs.put(sourceStepName, mapping);
                 }
@@ -407,5 +421,12 @@ public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
         }
 
         return mapInputsOutputs;
+    }
+
+    private void resetAppMappings(PipelineApp targetStep) {
+        AutoBean<PipelineApp> targetBean = AutoBeanUtils.getAutoBean(targetStep);
+        targetBean.setTag("stepMappings", null); //$NON-NLS-1$
+
+        targetStep.setMappings(null);
     }
 }
