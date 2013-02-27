@@ -3,9 +3,9 @@ package org.iplantc.core.client.pipelines.gxt3.views;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.iplant.pipeline.client.json.autobeans.PipelineApp;
 import org.iplantc.core.client.pipelines.I18N;
 import org.iplantc.core.client.pipelines.gxt3.models.PipelineAppProperties;
+import org.iplantc.core.pipelineBuilder.client.json.autobeans.PipelineApp;
 
 import com.sencha.gxt.widget.core.client.grid.ColumnConfig;
 import com.sencha.gxt.widget.core.client.grid.ColumnModel;

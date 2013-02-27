@@ -8,7 +8,7 @@
     xmlns:grid="urn:import:com.sencha.gxt.widget.core.client.grid"
     xmlns:toolbar="urn:import:com.sencha.gxt.widget.core.client.toolbar"
     xmlns:views="urn:import:org.iplantc.core.client.pipelines.gxt3.views"
-    xmlns:builder="urn:import:org.iplant.pipeline.client.builder">
+    xmlns:builder="urn:import:org.iplantc.core.pipelineBuilder.client.builder">
 
     <ui:with
         field="strings"

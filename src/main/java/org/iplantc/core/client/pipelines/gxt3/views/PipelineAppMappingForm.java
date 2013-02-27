@@ -4,11 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.iplant.pipeline.client.json.autobeans.Pipeline;
-import org.iplant.pipeline.client.json.autobeans.PipelineApp;
-import org.iplant.pipeline.client.json.autobeans.PipelineAppData;
-import org.iplant.pipeline.client.json.autobeans.PipelineAppMapping;
 import org.iplantc.core.client.pipelines.I18N;
+import org.iplantc.core.pipelineBuilder.client.json.autobeans.Pipeline;
+import org.iplantc.core.pipelineBuilder.client.json.autobeans.PipelineApp;
+import org.iplantc.core.pipelineBuilder.client.json.autobeans.PipelineAppData;
+import org.iplantc.core.pipelineBuilder.client.json.autobeans.PipelineAppMapping;
 
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;

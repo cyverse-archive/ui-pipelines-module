@@ -81,9 +81,9 @@
 			<version>gxt3Sandbox-SNAPSHOT</version>
 		</dependency>
         <dependency>
-            <groupId>org.iplantc.plugin</groupId>
+            <groupId>org.iplantc.core</groupId>
             <artifactId>pipeline-builder</artifactId>
-            <version>dev-SNAPSHOT</version>
+            <version>gxt3Sandbox-SNAPSHOT</version>
         </dependency>
 		</dependencies>
 	<build>

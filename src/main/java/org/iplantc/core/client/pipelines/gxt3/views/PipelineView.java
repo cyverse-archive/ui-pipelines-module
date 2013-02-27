@@ -1,8 +1,8 @@
 package org.iplantc.core.client.pipelines.gxt3.views;
 
-import org.iplant.pipeline.client.builder.PipelineCreator;
-import org.iplant.pipeline.client.json.autobeans.Pipeline;
-import org.iplant.pipeline.client.json.autobeans.PipelineApp;
+import org.iplantc.core.pipelineBuilder.client.builder.PipelineCreator;
+import org.iplantc.core.pipelineBuilder.client.json.autobeans.Pipeline;
+import org.iplantc.core.pipelineBuilder.client.json.autobeans.PipelineApp;
 
 import com.google.gwt.user.client.ui.IsWidget;
 import com.sencha.gxt.data.shared.ListStore;

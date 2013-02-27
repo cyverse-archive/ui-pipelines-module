@@ -1,6 +1,6 @@
 package org.iplantc.core.client.pipelines.gxt3.views;
 
-import org.iplant.pipeline.client.json.autobeans.Pipeline;
+import org.iplantc.core.pipelineBuilder.client.json.autobeans.Pipeline;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.editor.client.Editor;

@@ -1,6 +1,6 @@
 package org.iplantc.core.client.pipelines.gxt3.models;
 
-import org.iplant.pipeline.client.json.autobeans.PipelineApp;
+import org.iplantc.core.pipelineBuilder.client.json.autobeans.PipelineApp;
 
 import com.google.gwt.editor.client.Editor.Path;
 import com.sencha.gxt.core.client.ValueProvider;

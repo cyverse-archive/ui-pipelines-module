@@ -3,10 +3,10 @@ package org.iplantc.core.client.pipelines.gxt3.util;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.iplant.pipeline.client.json.autobeans.PipelineApp;
-import org.iplant.pipeline.client.json.autobeans.PipelineAppData;
-import org.iplant.pipeline.client.json.autobeans.PipelineAutoBeanFactory;
 import org.iplantc.core.client.pipelines.I18N;
+import org.iplantc.core.pipelineBuilder.client.json.autobeans.PipelineApp;
+import org.iplantc.core.pipelineBuilder.client.json.autobeans.PipelineAppData;
+import org.iplantc.core.pipelineBuilder.client.json.autobeans.PipelineAutoBeanFactory;
 import org.iplantc.core.uiapplications.client.Services;
 import org.iplantc.core.uiapplications.client.models.autobeans.App;
 import org.iplantc.core.uiapplications.client.models.autobeans.AppDataObject;

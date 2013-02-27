@@ -3,11 +3,11 @@ package org.iplantc.core.client.pipelines.views.panels;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.iplant.pipeline.client.builder.PipelineCreator;
 import org.iplantc.core.client.pipelines.I18N;
 import org.iplantc.core.client.pipelines.models.PipelineAppModel;
 import org.iplantc.core.jsonutil.JsonUtil;
 import org.iplantc.core.metadata.client.JSONMetaDataObject;
+import org.iplantc.core.pipelineBuilder.client.builder.PipelineCreator;
 import org.iplantc.core.uiapplications.client.events.AppGroupSelectedEvent;
 import org.iplantc.core.uiapplications.client.events.AppSearchResultSelectedEvent;
 import org.iplantc.core.uiapplications.client.events.handlers.AppGroupSelectedEventHandler;
