@@ -3,7 +3,7 @@ package org.iplantc.core.client.pipelines.views.panels;
 import org.iplantc.core.client.pipelines.I18N;
 import org.iplantc.core.jsonutil.JsonUtil;
 import org.iplantc.core.metadata.client.JSONMetaDataObject;
-import org.iplantc.core.uiapplications.client.util.AnalysisUtil;
+import org.iplantc.core.uiapps.client.util.AnalysisUtil;
 
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.FieldEvent;

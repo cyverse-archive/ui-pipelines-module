@@ -3,7 +3,7 @@
 <module>
     <inherits name="com.google.gwt.user.User" />
     <inherits name="org.iplantc.core.JsonUtil"/>
-    <inherits name="org.iplantc.core.applications"/>
+    <inherits name="org.iplantc.core.uiapps.Apps"/>
     <inherits name="org.iplantc.core.PipelineBuilder"/>
     <inherits name='com.extjs.gxt.ui.GXT'/>
     <source path="client"/>

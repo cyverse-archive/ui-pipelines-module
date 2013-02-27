@@ -12,9 +12,9 @@ import org.iplantc.core.client.pipelines.models.PipelineAppModel;
 import org.iplantc.core.client.pipelines.views.dialogs.AppSelectionDialog;
 import org.iplantc.core.jsonutil.JsonUtil;
 import org.iplantc.core.metadata.client.JSONMetaDataObject;
-import org.iplantc.core.uiapplications.client.models.Analysis;
-import org.iplantc.core.uiapplications.client.services.AppUserServiceFacade;
-import org.iplantc.core.uiapplications.client.views.panels.AbstractCatalogCategoryPanel;
+import org.iplantc.core.uiapps.client.models.Analysis;
+import org.iplantc.core.uiapps.client.services.AppUserServiceFacade;
+import org.iplantc.core.uiapps.client.views.panels.AbstractCatalogCategoryPanel;
 import org.iplantc.core.uicommons.client.ErrorHandler;
 import org.iplantc.core.uicommons.client.events.EventBus;
 

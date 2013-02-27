@@ -7,10 +7,10 @@ import org.iplantc.core.client.pipelines.I18N;
 import org.iplantc.core.pipelineBuilder.client.json.autobeans.PipelineApp;
 import org.iplantc.core.pipelineBuilder.client.json.autobeans.PipelineAppData;
 import org.iplantc.core.pipelineBuilder.client.json.autobeans.PipelineAutoBeanFactory;
-import org.iplantc.core.uiapplications.client.Services;
-import org.iplantc.core.uiapplications.client.models.autobeans.App;
-import org.iplantc.core.uiapplications.client.models.autobeans.AppDataObject;
-import org.iplantc.core.uiapplications.client.models.autobeans.DataObject;
+import org.iplantc.core.uiapps.client.Services;
+import org.iplantc.core.uiapps.client.models.autobeans.App;
+import org.iplantc.core.uiapps.client.models.autobeans.AppDataObject;
+import org.iplantc.core.uiapps.client.models.autobeans.DataObject;
 import org.iplantc.core.uicommons.client.ErrorHandler;
 
 import com.google.gwt.core.shared.GWT;

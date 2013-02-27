@@ -9,8 +9,8 @@ import org.iplantc.core.client.pipelines.events.PipelineChangeEventHandler;
 import org.iplantc.core.client.pipelines.events.PipelineStepValidationEvent;
 import org.iplantc.core.client.pipelines.events.PipelineStepValidationEventHandler;
 import org.iplantc.core.client.pipelines.images.Resources;
-import org.iplantc.core.uiapplications.client.services.AppUserServiceFacade;
-import org.iplantc.core.uiapplications.client.views.panels.AbstractCatalogCategoryPanel;
+import org.iplantc.core.uiapps.client.services.AppUserServiceFacade;
+import org.iplantc.core.uiapps.client.views.panels.AbstractCatalogCategoryPanel;
 import org.iplantc.core.uicommons.client.events.EventBus;
 
 import com.extjs.gxt.ui.client.Style.LayoutRegion;

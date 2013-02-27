@@ -19,7 +19,7 @@ public class PipelineChangeEvent extends GwtEvent<PipelineChangeEventHandler> {
     /**
      * Defines the GWT Event Type.
      * 
-     * @see org.iplantc.core.uiapplications.client.events.handlers.AppGroupSelectedEventHandler.AnalysisCategorySelectedEventHandler
+     * @see org.iplantc.core.uiapps.client.events.handlers.AppGroupSelectedEventHandler.AnalysisCategorySelectedEventHandler
      */
     public static final GwtEvent.Type<PipelineChangeEventHandler> TYPE = new GwtEvent.Type<PipelineChangeEventHandler>();
 
