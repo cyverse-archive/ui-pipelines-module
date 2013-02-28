@@ -26,22 +26,6 @@ public interface PipelineView extends IsWidget {
         public void onAppOrderClick();
 
         public void onMappingClick();
-
-        public void onAddAppsClicked();
-
-        public void onRemoveAppClicked();
-
-        public void onMoveUpClicked();
-
-        public void onMoveDownClicked();
-
-        /**
-         * Gets the given App's workflow step name, based on its position in the workflow and its ID.
-         * 
-         * @param app
-         * @return the PipelineApp's step name.
-         */
-        public String getStepName(PipelineApp app);
     }
 
     void setPresenter(final Presenter presenter);
@@ -52,13 +36,6 @@ public interface PipelineView extends IsWidget {
      * @return boolean true if the Pipeline is valid, false otherwise.
      */
     public boolean isValid();
-
-    /**
-     * Gets the current state of the Pipeline.
-     * 
-     * @return Pipeline current state.
-     */
-    public Pipeline getPipeline();
 
     /**
      * Initializes the Pipeline from the given state.
@@ -85,11 +62,11 @@ public interface PipelineView extends IsWidget {
 
     public CardLayoutContainer getStepPanel();
 
-    public IsWidget getInfoPanel();
+    public PipelineStepEditorView getInfoPanel();
 
-    public IsWidget getAppOrderPanel();
+    public PipelineAppOrderView getAppOrderPanel();
 
-    public IsWidget getMappingPanel();
+    public PipelineAppMappingView getMappingPanel();
 
     public ListStore<PipelineApp> getPipelineAppStore();
 

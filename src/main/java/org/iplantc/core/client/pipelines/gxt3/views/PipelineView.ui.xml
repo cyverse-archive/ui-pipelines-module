@@ -5,17 +5,12 @@
     xmlns:gxt="urn:import:com.sencha.gxt.widget.core.client"
     xmlns:container="urn:import:com.sencha.gxt.widget.core.client.container"
     xmlns:button="urn:import:com.sencha.gxt.widget.core.client.button"
-    xmlns:grid="urn:import:com.sencha.gxt.widget.core.client.grid"
-    xmlns:toolbar="urn:import:com.sencha.gxt.widget.core.client.toolbar"
     xmlns:views="urn:import:org.iplantc.core.client.pipelines.gxt3.views"
     xmlns:builder="urn:import:org.iplantc.core.pipelineBuilder.client.builder">
 
     <ui:with
         field="strings"
         type="org.iplantc.core.client.pipelines.PipelinesDisplayStrings" />
-    <ui:with
-        field="icons"
-        type="org.iplantc.core.client.pipelines.images.Icons" />
     <ui:with
         field="northData"
         type="com.sencha.gxt.widget.core.client.container.BorderLayoutContainer.BorderLayoutData">
@@ -51,19 +46,6 @@
             size="400"
             collapsible="false"
             split="true" />
-    </ui:with>
-    <ui:with
-        field="pipelineAppStore"
-        type="com.sencha.gxt.data.shared.ListStore" />
-    <ui:with
-        field="cm"
-        type="com.sencha.gxt.widget.core.client.grid.ColumnModel" />
-    <ui:with
-        field="gridView"
-        type="com.sencha.gxt.widget.core.client.grid.GridView">
-        <ui:attributes
-            forceFit="true"
-            autoFill="true" />
     </ui:with>
 
     <container:SimpleContainer>
@@ -106,40 +88,7 @@
                         <container:center>
                             <container:CardLayoutContainer ui:field="stepPanel">
                                 <views:PipelineInfoEditor ui:field="infoPanel" />
-                                <container:BorderLayoutContainer ui:field="appOrderPanel">
-                                    <container:north layoutData="{northData}">
-                                        <toolbar:ToolBar>
-                                            <button:TextButton
-                                                ui:field="addAppsBtn"
-                                                debugId="idBtnAddApps"
-                                                text="{strings.add}"
-                                                icon="{icons.add}" />
-                                            <button:TextButton
-                                                ui:field="removeAppBtn"
-                                                debugId="idBtnRemoveApp"
-                                                text="{strings.remove}"
-                                                icon="{icons.remove}" />
-                                            <toolbar:SeparatorToolItem />
-                                            <button:TextButton
-                                                ui:field="moveUpBtn"
-                                                debugId="idBtnMoveUp"
-                                                text="{strings.moveUp}"
-                                                icon="{icons.up}" />
-                                            <button:TextButton
-                                                ui:field="moveDownBtn"
-                                                debugId="idBtnMoveDown"
-                                                text="{strings.moveDown}"
-                                                icon="{icons.down}" />
-                                        </toolbar:ToolBar>
-                                    </container:north>
-                                    <container:center>
-                                        <grid:Grid
-                                            ui:field="appOrderGrid"
-                                            cm="{cm}"
-                                            store="{pipelineAppStore}"
-                                            view="{gridView}" />
-                                    </container:center>
-                                </container:BorderLayoutContainer>
+                                <views:PipelineAppOrderViewImpl ui:field="appOrderPanel" />
                                 <views:PipelineAppMappingForm ui:field="mappingPanel"/>
                             </container:CardLayoutContainer>
                         </container:center>

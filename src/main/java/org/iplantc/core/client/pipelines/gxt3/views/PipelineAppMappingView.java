@@ -1,9 +1,6 @@
 package org.iplantc.core.client.pipelines.gxt3.views;
 
-import org.iplantc.core.pipelineBuilder.client.json.autobeans.Pipeline;
 import org.iplantc.core.pipelineBuilder.client.json.autobeans.PipelineApp;
-
-import com.google.gwt.user.client.ui.IsWidget;
 
 /**
  * A View for displaying and editing Pipeline Output to Input mappings.
@@ -11,7 +8,7 @@ import com.google.gwt.user.client.ui.IsWidget;
  * @author psarando
  * 
  */
-public interface PipelineAppMappingView extends IsWidget {
+public interface PipelineAppMappingView extends PipelineStepEditorView {
 
     public interface Presenter {
         /**
@@ -29,8 +26,4 @@ public interface PipelineAppMappingView extends IsWidget {
     }
 
     public void setPresenter(Presenter presenter);
-
-    public void setPipeline(Pipeline pipeline);
-
-    public boolean isValid();
 }

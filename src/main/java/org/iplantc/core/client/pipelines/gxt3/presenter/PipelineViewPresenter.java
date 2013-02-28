@@ -10,8 +10,8 @@ import org.iplantc.core.client.pipelines.gxt3.dnd.PipelineBuilderDNDHandler;
 import org.iplantc.core.client.pipelines.gxt3.dnd.PipelineBuilderDropHandler;
 import org.iplantc.core.client.pipelines.gxt3.util.PipelineAutoBeanUtil;
 import org.iplantc.core.client.pipelines.gxt3.views.AppSelectionDialog;
-import org.iplantc.core.client.pipelines.gxt3.views.PipelineAppMappingForm;
 import org.iplantc.core.client.pipelines.gxt3.views.PipelineAppMappingView;
+import org.iplantc.core.client.pipelines.gxt3.views.PipelineAppOrderView;
 import org.iplantc.core.client.pipelines.gxt3.views.PipelineView;
 import org.iplantc.core.client.pipelines.gxt3.views.widgets.PipelineViewToolbar;
 import org.iplantc.core.client.pipelines.gxt3.views.widgets.PipelineViewToolbarImpl;
@@ -48,7 +48,7 @@ import com.sencha.gxt.widget.core.client.grid.Grid;
  */
 public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
         PipelineViewToolbar.Presenter, PipelineBuilderDNDHandler.Presenter,
-        AppSelectionDialog.Presenter, PipelineAppMappingView.Presenter {
+        PipelineAppOrderView.Presenter, PipelineAppMappingView.Presenter, AppSelectionDialog.Presenter {
 
     private final PipelineView view;
     private final PipelineViewToolbar toolbar;
@@ -61,24 +61,19 @@ public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
         this.view = view;
         this.onPublishCallback = onPublishCallback;
 
-        pipeline = PipelineAutoBeanUtil.getPipelineAutoBeanFactory().pipeline().as();
-        view.setPipeline(pipeline);
-
         toolbar = new PipelineViewToolbarImpl();
 
         view.setPresenter(this);
+        view.getAppOrderPanel().setPresenter(this);
+        view.getMappingPanel().setPresenter(this);
         toolbar.setPresenter(this);
 
         view.setNorthWidget(toolbar);
 
-        initAppMappingView();
-        initAppsView();
-    }
+        pipeline = PipelineAutoBeanUtil.getPipelineAutoBeanFactory().pipeline().as();
+        view.setPipeline(pipeline);
 
-    private void initAppMappingView() {
-        PipelineAppMappingForm mappingForm = (PipelineAppMappingForm)view.getMappingPanel();
-        mappingForm.setPresenter(this);
-        mappingForm.setPipeline(pipeline);
+        initAppsView();
     }
 
     private void initAppsView() {
@@ -152,15 +147,6 @@ public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
             pipeline = view.getPipelineCreator().getPipeline();
             if (pipeline != null) {
                 view.setPipeline(pipeline);
-
-                updatePipelineAppMappingForm();
-
-                ListStore<PipelineApp> store = view.getPipelineAppStore();
-                store.clear();
-                List<PipelineApp> apps = pipeline.getApps();
-                if (apps != null) {
-                    store.addAll(apps);
-                }
             }
 
             appsPresenter.go(appSelectView);
@@ -169,7 +155,7 @@ public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
         view.setActiveView(activeView);
     }
 
-    private void reconfigurePipelineAppMappingForm(int startingStep) {
+    private void reconfigurePipelineAppMappingView(int startingStep) {
         List<PipelineApp> apps = pipeline.getApps();
         if (apps != null) {
             for (PipelineApp app : apps) {
@@ -179,12 +165,7 @@ public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
             }
         }
 
-        updatePipelineAppMappingForm();
-    }
-
-    private void updatePipelineAppMappingForm() {
-        PipelineAppMappingForm mappingForm = (PipelineAppMappingForm)view.getMappingPanel();
-        mappingForm.setPipeline(pipeline);
+        view.getMappingPanel().setPipeline(pipeline);
     }
 
     @Override
@@ -239,7 +220,7 @@ public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
 
             pipeline.setApps(store.getAll());
 
-            reconfigurePipelineAppMappingForm(stepUp);
+            reconfigurePipelineAppMappingView(stepUp);
         }
     }
 
@@ -266,7 +247,7 @@ public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
 
             pipeline.setApps(store.getAll());
 
-            reconfigurePipelineAppMappingForm(stepDown);
+            reconfigurePipelineAppMappingView(stepDown);
         }
     }
 
@@ -287,7 +268,7 @@ public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
 
             pipeline.setApps(store.getAll());
 
-            reconfigurePipelineAppMappingForm(selectedApp.getStep());
+            reconfigurePipelineAppMappingView(selectedApp.getStep());
         }
     }
 
@@ -308,7 +289,7 @@ public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
 
                     appSelectView.updateStatusBar(store.size(), I18N.DISPLAY.lastApp(result.getName()));
 
-                    updatePipelineAppMappingForm();
+                    view.getMappingPanel().setPipeline(pipeline);
                 }
             }
 

@@ -62,6 +62,9 @@ public class PipelineAppMappingForm implements PipelineAppMappingView {
         this.presenter = presenter;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void setPipeline(Pipeline pipeline) {
         this.pipeline = pipeline;
@@ -188,6 +191,9 @@ public class PipelineAppMappingForm implements PipelineAppMappingView {
         return step + "-" + outputId; //$NON-NLS-1$
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean isValid() {
         // A pipline needs at least 2 apps and each app after the first one should have at least one
