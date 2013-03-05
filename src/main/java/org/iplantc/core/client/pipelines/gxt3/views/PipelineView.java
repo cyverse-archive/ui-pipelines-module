@@ -1,11 +1,16 @@
 package org.iplantc.core.client.pipelines.gxt3.views;
 
+import java.util.List;
+
 import org.iplantc.core.pipelineBuilder.client.builder.PipelineCreator;
 import org.iplantc.core.pipelineBuilder.client.json.autobeans.Pipeline;
 import org.iplantc.core.pipelineBuilder.client.json.autobeans.PipelineApp;
 
+import com.google.gwt.editor.client.Editor;
+import com.google.gwt.editor.client.EditorError;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.sencha.gxt.data.shared.ListStore;
+import com.sencha.gxt.widget.core.client.button.ToggleButton;
 import com.sencha.gxt.widget.core.client.container.BorderLayoutContainer;
 import com.sencha.gxt.widget.core.client.container.CardLayoutContainer;
 import com.sencha.gxt.widget.core.client.container.SimpleContainer;
@@ -16,7 +21,7 @@ import com.sencha.gxt.widget.core.client.container.SimpleContainer;
  * @author psarando
  * 
  */
-public interface PipelineView extends IsWidget {
+public interface PipelineView extends IsWidget, Editor<Pipeline> {
 
     public interface Presenter extends org.iplantc.core.uicommons.client.presenter.Presenter {
         Pipeline getPipeline();
@@ -36,6 +41,17 @@ public interface PipelineView extends IsWidget {
      * @return boolean true if the Pipeline is valid, false otherwise.
      */
     public boolean isValid();
+
+    public List<EditorError> getErrors();
+
+    public void clearInvalid();
+
+    /**
+     * Gets the current state of the Pipeline.
+     * 
+     * @return Pipeline current state.
+     */
+    public Pipeline getPipeline();
 
     /**
      * Initializes the Pipeline from the given state.
@@ -62,13 +78,35 @@ public interface PipelineView extends IsWidget {
 
     public CardLayoutContainer getStepPanel();
 
-    public PipelineStepEditorView getInfoPanel();
+    public IsWidget getInfoPanel();
 
     public PipelineAppOrderView getAppOrderPanel();
 
+    @Editor.Ignore
     public PipelineAppMappingView getMappingPanel();
 
     public ListStore<PipelineApp> getPipelineAppStore();
 
     public PipelineApp getOrderGridSelectedApp();
+
+    @Editor.Ignore
+    public ToggleButton getInfoBtn();
+
+    @Editor.Ignore
+    public ToggleButton getAppOrderBtn();
+
+    @Editor.Ignore
+    public ToggleButton getMappingBtn();
+
+    public void markInfoBtnValid();
+
+    public void markInfoBtnInvalid(String error);
+
+    public void markAppOrderBtnValid();
+
+    public void markAppOrderBtnInvalid(String error);
+
+    public void markMappingBtnValid();
+
+    public void markMappingBtnInvalid(String error);
 }

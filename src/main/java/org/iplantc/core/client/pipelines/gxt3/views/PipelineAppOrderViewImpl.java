@@ -2,11 +2,14 @@ package org.iplantc.core.client.pipelines.gxt3.views;
 
 import java.util.List;
 
+import org.iplantc.core.client.pipelines.I18N;
 import org.iplantc.core.client.pipelines.gxt3.models.PipelineAppProperties;
 import org.iplantc.core.pipelineBuilder.client.json.autobeans.Pipeline;
 import org.iplantc.core.pipelineBuilder.client.json.autobeans.PipelineApp;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.editor.client.Editor;
+import com.google.gwt.editor.client.EditorDelegate;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiFactory;
 import com.google.gwt.uibinder.client.UiField;
@@ -14,6 +17,7 @@ import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.uibinder.client.UiTemplate;
 import com.google.gwt.user.client.ui.Widget;
 import com.sencha.gxt.core.client.Style.SelectionMode;
+import com.sencha.gxt.data.client.editor.ListStoreEditor;
 import com.sencha.gxt.data.shared.ListStore;
 import com.sencha.gxt.data.shared.ModelKeyProvider;
 import com.sencha.gxt.data.shared.SortDir;
@@ -28,7 +32,7 @@ import com.sencha.gxt.widget.core.client.grid.Grid;
  * @author psarando
  * 
  */
-public class PipelineAppOrderViewImpl implements PipelineAppOrderView {
+public class PipelineAppOrderViewImpl implements PipelineAppOrderView, Editor<Pipeline> {
 
     @UiTemplate("PipelineAppOrderView.ui.xml")
     interface PipelineAppOrderUiBinder extends UiBinder<Widget, PipelineAppOrderViewImpl> {
@@ -39,9 +43,12 @@ public class PipelineAppOrderViewImpl implements PipelineAppOrderView {
     private final Widget widget;
     private Presenter presenter;
 
+    ListStoreEditor<PipelineApp> apps;
+
     public PipelineAppOrderViewImpl() {
         widget = uiBinder.createAndBindUi(this);
 
+        apps = new AppListStoreEditor(this);
         appOrderGrid.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
     }
 
@@ -96,28 +103,6 @@ public class PipelineAppOrderViewImpl implements PipelineAppOrderView {
         return widget;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void setPipeline(Pipeline pipeline) {
-        pipelineAppStore.clear();
-
-        List<PipelineApp> apps = pipeline.getApps();
-        if (apps != null) {
-            pipelineAppStore.addAll(apps);
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean isValid() {
-        // A valid Pipeline has at least 2 Apps.
-        return pipelineAppStore.size() > 1;
-    }
-
     @Override
     public void setPresenter(Presenter presenter) {
         this.presenter = presenter;
@@ -131,5 +116,36 @@ public class PipelineAppOrderViewImpl implements PipelineAppOrderView {
     @Override
     public PipelineApp getOrderGridSelectedApp() {
         return appOrderGrid.getSelectionModel().getSelectedItem();
+    }
+
+    public class AppListStoreEditor extends ListStoreEditor<PipelineApp> {
+        private final PipelineAppOrderView view;
+        private EditorDelegate<List<PipelineApp>> delegate;
+
+        public AppListStoreEditor(PipelineAppOrderView view) {
+            super(view.getPipelineAppStore());
+
+            this.view = view;
+        }
+
+        @Override
+        public void flush() {
+            ListStore<PipelineApp> pipelineAppStore = view.getPipelineAppStore();
+            if (delegate != null && pipelineAppStore.size() < 2) {
+                delegate.recordError(I18N.DISPLAY.selectOrderPnlTip(), pipelineAppStore.getAll(), view);
+            }
+
+            super.flush();
+        }
+
+        @Override
+        public void onPropertyChange(String... paths) {
+            // no-op
+        }
+
+        @Override
+        public void setDelegate(EditorDelegate<List<PipelineApp>> delegate) {
+            this.delegate = delegate;
+        }
     }
 }

@@ -24,4 +24,11 @@ public interface PipelinesErrorStrings extends Messages {
      * @return a string representing error msg
      */
     String workflowValidationError();
+
+    /**
+     * Error msg to display when a mapping step is invalid.
+     * 
+     * @return a string representing error msg
+     */
+    String mappingStepError();
 }

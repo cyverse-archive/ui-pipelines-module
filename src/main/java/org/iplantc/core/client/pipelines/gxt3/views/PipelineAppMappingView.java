@@ -1,6 +1,11 @@
 package org.iplantc.core.client.pipelines.gxt3.views;
 
+import java.util.List;
+
 import org.iplantc.core.pipelineBuilder.client.json.autobeans.PipelineApp;
+
+import com.google.gwt.editor.client.ValueAwareEditor;
+import com.google.gwt.user.client.ui.IsWidget;
 
 /**
  * A View for displaying and editing Pipeline Output to Input mappings.
@@ -8,7 +13,7 @@ import org.iplantc.core.pipelineBuilder.client.json.autobeans.PipelineApp;
  * @author psarando
  * 
  */
-public interface PipelineAppMappingView extends PipelineStepEditorView {
+public interface PipelineAppMappingView extends IsWidget, ValueAwareEditor<List<PipelineApp>> {
 
     public interface Presenter {
         /**
@@ -23,7 +28,11 @@ public interface PipelineAppMappingView extends PipelineStepEditorView {
          */
         public void setInputOutputMapping(PipelineApp targetStep, String targetInputId,
                 PipelineApp sourceStep, String sourceOutputId);
+
+        public boolean isMappingValid(PipelineApp targetStep);
     }
 
     public void setPresenter(Presenter presenter);
+
+    public void clearInvalid();
 }

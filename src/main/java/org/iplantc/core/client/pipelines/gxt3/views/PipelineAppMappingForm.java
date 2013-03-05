@@ -1,15 +1,16 @@
 package org.iplantc.core.client.pipelines.gxt3.views;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 import org.iplantc.core.client.pipelines.I18N;
-import org.iplantc.core.pipelineBuilder.client.json.autobeans.Pipeline;
 import org.iplantc.core.pipelineBuilder.client.json.autobeans.PipelineApp;
 import org.iplantc.core.pipelineBuilder.client.json.autobeans.PipelineAppData;
 import org.iplantc.core.pipelineBuilder.client.json.autobeans.PipelineAppMapping;
 
+import com.google.gwt.editor.client.EditorDelegate;
+import com.google.gwt.editor.client.EditorError;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.user.client.ui.Widget;
@@ -26,6 +27,8 @@ import com.sencha.gxt.widget.core.client.form.ComboBox;
 import com.sencha.gxt.widget.core.client.form.FieldLabel;
 import com.sencha.gxt.widget.core.client.form.FieldSet;
 import com.sencha.gxt.widget.core.client.form.ListField;
+import com.sencha.gxt.widget.core.client.form.error.DefaultEditorError;
+import com.sencha.gxt.widget.core.client.form.error.SideErrorHandler;
 
 /**
  * A PipelineAppMappingView that displays input mappings as FieldLabels with a ComboBox for mapping an
@@ -35,9 +38,12 @@ import com.sencha.gxt.widget.core.client.form.ListField;
  * 
  */
 public class PipelineAppMappingForm implements PipelineAppMappingView {
-    private Presenter presenter;
-    private Pipeline pipeline;
+    List<PipelineApp> apps;
 
+    private Presenter presenter;
+    private EditorDelegate<List<PipelineApp>> delegate;
+
+    private final List<MappingFieldSet> mappingFields;
     private final VerticalLayoutContainer container;
     private final LabelProvider<PipelineMappingOutputWrapper> labelProvider;
     private final ModelKeyProvider<PipelineMappingOutputWrapper> outputsKeyProvider;
@@ -50,6 +56,8 @@ public class PipelineAppMappingForm implements PipelineAppMappingView {
         labelProvider = new OutputComboLabelProvider();
         outputsKeyProvider = new OutputWrapperKeyProvider();
         outputsValueProvider = new OutputWrapperValueProvider();
+
+        mappingFields = new ArrayList<MappingFieldSet>();
     }
 
     @Override
@@ -62,16 +70,52 @@ public class PipelineAppMappingForm implements PipelineAppMappingView {
         this.presenter = presenter;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    public void setPipeline(Pipeline pipeline) {
-        this.pipeline = pipeline;
+    public void clearInvalid() {
+        for (MappingFieldSet step : mappingFields) {
+            step.clearInvalid();
+        }
+    }
 
+    @Override
+    public void setDelegate(EditorDelegate<List<PipelineApp>> delegate) {
+        this.delegate = delegate;
+    }
+
+    @Override
+    public void flush() {
+        if (delegate != null) {
+            // A pipline needs at least 2 apps and each app after the first one should have at least one
+            // output-to-input mapping
+            if (mappingFields.size() > 1) {
+                for (MappingFieldSet mappingStep : mappingFields) {
+                    PipelineApp app = mappingStep.getApp();
+                    mappingStep.clearInvalid();
+                    if (!mappingStep.isValid()) {
+                        String err = I18N.ERROR.mappingStepError();
+                        delegate.recordError(err, app, this);
+
+                        DefaultEditorError editorError = new DefaultEditorError(this, err, app);
+                        mappingStep.markInvalid(Collections.<EditorError> singletonList(editorError));
+                    }
+                }
+            } else {
+                delegate.recordError(I18N.DISPLAY.selectOrderPnlTip(), apps, this);
+            }
+        }
+    }
+
+    @Override
+    public void onPropertyChange(String... paths) {
+        // no-op
+    }
+
+    @Override
+    public void setValue(List<PipelineApp> value) {
+        apps = value;
+        mappingFields.clear();
         container.clear();
 
-        List<PipelineApp> apps = pipeline.getApps();
         if (apps == null) {
             return;
         }
@@ -126,10 +170,8 @@ public class PipelineAppMappingForm implements PipelineAppMappingView {
     }
 
     private FieldSet buildStepFieldSet(PipelineApp app) {
-        FieldSet step = new FieldSet();
-        String stepLabel = I18N.DISPLAY.stepWithValue(app.getStep());
-        step.setHeadingText(Format.substitute("{0}: {1}", stepLabel, app.getName())); //$NON-NLS-1$
-        step.setCollapsible(true);
+        MappingFieldSet step = new MappingFieldSet(app);
+        mappingFields.add(step);
 
         return step;
     }
@@ -189,38 +231,6 @@ public class PipelineAppMappingForm implements PipelineAppMappingView {
 
     private String buildOutputWrapperKey(int step, String outputId) {
         return step + "-" + outputId; //$NON-NLS-1$
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean isValid() {
-        // A pipline needs at least 2 apps and each app after the first one should have at least one
-        // output-to-input mapping
-        List<PipelineApp> apps = pipeline.getApps();
-        if (apps == null || apps.size() < 2) {
-            return false;
-        }
-
-        for (int i = 1; i < apps.size(); i++) {
-            PipelineApp targetApp = apps.get(i);
-
-            List<PipelineAppMapping> mappings = targetApp.getMappings();
-            if (mappings == null || mappings.size() < 1) {
-                return false;
-            }
-
-            for (PipelineAppMapping mapping : mappings) {
-                Map<String, String> map = mapping.getMap();
-
-                if (map == null || map.keySet().isEmpty()) {
-                    return false;
-                }
-            }
-        }
-
-        return true;
     }
 
     /**
@@ -315,6 +325,47 @@ public class PipelineAppMappingForm implements PipelineAppMappingView {
         @Override
         public String getPath() {
             return null;
+        }
+    }
+
+    /**
+     * A FieldSet wrapper for App mapping that can mark itself as invalid
+     * 
+     * @author psarando
+     * 
+     */
+    public class MappingFieldSet extends FieldSet {
+        private final SideErrorHandler errorHandler;
+        private final PipelineApp app;
+
+        public MappingFieldSet(PipelineApp app) {
+            this.app = app;
+            errorHandler = new SideErrorHandler(this);
+
+            init();
+        }
+
+        private void init() {
+            String stepLabel = I18N.DISPLAY.stepWithValue(app.getStep());
+            setHeadingText(Format.substitute("{0}: {1}", stepLabel, app.getName())); //$NON-NLS-1$
+            setCollapsible(true);
+            setWidth(400);
+        }
+
+        public PipelineApp getApp() {
+            return app;
+        }
+
+        public void clearInvalid() {
+            errorHandler.clearInvalid();
+        }
+
+        public void markInvalid(List<EditorError> errors) {
+            errorHandler.markInvalid(errors);
+        }
+
+        public boolean isValid() {
+            return presenter.isMappingValid(app);
         }
     }
 }

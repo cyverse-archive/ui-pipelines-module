@@ -2,6 +2,7 @@ package org.iplantc.core.client.pipelines.gxt3.views;
 
 import org.iplantc.core.pipelineBuilder.client.json.autobeans.PipelineApp;
 
+import com.google.gwt.user.client.ui.IsWidget;
 import com.sencha.gxt.data.shared.ListStore;
 
 /**
@@ -10,7 +11,7 @@ import com.sencha.gxt.data.shared.ListStore;
  * @author psarando
  * 
  */
-public interface PipelineAppOrderView extends PipelineStepEditorView {
+public interface PipelineAppOrderView extends IsWidget {
     public interface Presenter extends org.iplantc.core.uicommons.client.presenter.Presenter {
 
         public void onAddAppsClicked();

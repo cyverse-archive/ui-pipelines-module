@@ -25,11 +25,14 @@ import org.iplantc.core.uiapps.client.views.AppsViewImpl;
 import org.iplantc.core.uicommons.client.presenter.Presenter;
 
 import com.google.common.base.Strings;
+import com.google.gwt.core.shared.GWT;
+import com.google.gwt.editor.client.EditorError;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.HasOneWidget;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.web.bindery.autobean.shared.AutoBean;
+import com.google.web.bindery.autobean.shared.AutoBeanCodex;
 import com.google.web.bindery.autobean.shared.AutoBeanUtils;
 import com.sencha.gxt.core.client.util.Format;
 import com.sencha.gxt.core.shared.FastMap;
@@ -55,7 +58,6 @@ public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
     private AppsViewPresenter appsPresenter;
     private AppSelectionDialog appSelectView;
     private final Command onPublishCallback;
-    private Pipeline pipeline;
 
     public PipelineViewPresenter(PipelineView view, Command onPublishCallback) {
         this.view = view;
@@ -70,7 +72,7 @@ public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
 
         view.setNorthWidget(toolbar);
 
-        pipeline = PipelineAutoBeanUtil.getPipelineAutoBeanFactory().pipeline().as();
+        Pipeline pipeline = PipelineAutoBeanUtil.getPipelineAutoBeanFactory().pipeline().as();
         view.setPipeline(pipeline);
 
         initAppsView();
@@ -124,14 +126,45 @@ public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
 
     @Override
     public void onPublishClicked() {
-        if (onPublishCallback != null) {
-            onPublishCallback.execute();
+        // if (onPublishCallback != null) {
+        // onPublishCallback.execute();
+        // }
+
+        if (view.isValid()) {
+            view.markInfoBtnValid();
+            view.markAppOrderBtnValid();
+            view.markMappingBtnValid();
+        } else {
+            markErrors();
+        }
+    }
+
+    private void markErrors() {
+        view.markInfoBtnValid();
+        view.markAppOrderBtnValid();
+        view.markMappingBtnValid();
+
+        List<EditorError> errors = view.getErrors();
+        if (errors != null) {
+            for (EditorError err : errors) {
+                String path = err.getAbsolutePath();
+                if ("name".equals(path) || "description".equals(path)) { //$NON-NLS-1$ //$NON-NLS-2$
+                    view.markInfoBtnInvalid(err.getMessage());
+                } else if (err.getUserData() == view.getAppOrderPanel()) {
+                    view.markAppOrderBtnInvalid(err.getMessage());
+                } else if (err.getUserData() == view.getMappingPanel()) {
+                    view.markMappingBtnInvalid(err.getMessage());
+                }
+            }
         }
     }
 
     @Override
     public void onSwapViewClicked() {
+        view.clearInvalid();
+
         IsWidget activeView = view.getActiveView();
+        Pipeline pipeline = getPipeline();
 
         if (activeView == view.getStepEditorPanel()) {
             activeView = view.getBuilderPanel();
@@ -144,7 +177,6 @@ public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
         } else {
             activeView = view.getStepEditorPanel();
 
-            pipeline = view.getPipelineCreator().getPipeline();
             if (pipeline != null) {
                 view.setPipeline(pipeline);
             }
@@ -155,8 +187,7 @@ public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
         view.setActiveView(activeView);
     }
 
-    private void reconfigurePipelineAppMappingView(int startingStep) {
-        List<PipelineApp> apps = pipeline.getApps();
+    private void reconfigurePipelineAppMappingView(int startingStep, List<PipelineApp> apps) {
         if (apps != null) {
             for (PipelineApp app : apps) {
                 if (app.getStep() >= startingStep) {
@@ -165,16 +196,16 @@ public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
             }
         }
 
-        view.getMappingPanel().setPipeline(pipeline);
+        view.getMappingPanel().setValue(apps);
     }
 
     @Override
     public Pipeline getPipeline() {
         if (view.getActiveView() == view.getBuilderPanel()) {
-            pipeline = view.getPipelineCreator().getPipeline();
+            return view.getPipelineCreator().getPipeline();
         }
 
-        return pipeline;
+        return view.getPipeline();
     }
 
     @Override
@@ -218,9 +249,7 @@ public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
 
             store.applySort(false);
 
-            pipeline.setApps(store.getAll());
-
-            reconfigurePipelineAppMappingView(stepUp);
+            reconfigurePipelineAppMappingView(stepUp, store.getAll());
         }
     }
 
@@ -245,9 +274,7 @@ public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
 
             store.applySort(false);
 
-            pipeline.setApps(store.getAll());
-
-            reconfigurePipelineAppMappingView(stepDown);
+            reconfigurePipelineAppMappingView(stepDown, store.getAll());
         }
     }
 
@@ -266,9 +293,7 @@ public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
                 store.update(app);
             }
 
-            pipeline.setApps(store.getAll());
-
-            reconfigurePipelineAppMappingView(selectedApp.getStep());
+            reconfigurePipelineAppMappingView(selectedApp.getStep(), store.getAll());
         }
     }
 
@@ -285,11 +310,9 @@ public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
                     result.setStep(store.size() + 1);
                     store.add(result);
 
-                    pipeline.setApps(store.getAll());
-
                     appSelectView.updateStatusBar(store.size(), I18N.DISPLAY.lastApp(result.getName()));
 
-                    view.getMappingPanel().setPipeline(pipeline);
+                    view.getMappingPanel().setValue(store.getAll());
                 }
             }
 
@@ -409,5 +432,30 @@ public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
         targetBean.setTag("stepMappings", null); //$NON-NLS-1$
 
         targetStep.setMappings(null);
+    }
+
+    @Override
+    public boolean isMappingValid(PipelineApp targetStep) {
+        if (targetStep == null) {
+            return false;
+        }
+
+        // Each app after the first one should have at least one output-to-input mapping.
+        if (targetStep.getStep() > 1) {
+            List<PipelineAppMapping> mappings = targetStep.getMappings();
+            if (mappings == null || mappings.size() < 1) {
+                return false;
+            }
+
+            for (PipelineAppMapping mapping : mappings) {
+                Map<String, String> map = mapping.getMap();
+
+                if (map == null || map.keySet().isEmpty()) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
     }
 }

@@ -4,11 +4,9 @@ import org.iplantc.core.pipelineBuilder.client.json.autobeans.Pipeline;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.editor.client.Editor;
-import com.google.gwt.editor.client.SimpleBeanEditorDriver;
-import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
-import com.google.gwt.uibinder.client.UiHandler;
+import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.Widget;
 import com.sencha.gxt.widget.core.client.form.TextArea;
 import com.sencha.gxt.widget.core.client.form.TextField;
@@ -19,16 +17,12 @@ import com.sencha.gxt.widget.core.client.form.TextField;
  * @author psarando
  * 
  */
-public class PipelineInfoEditor implements PipelineStepEditorView, Editor<Pipeline> {
+public class PipelineInfoEditor implements IsWidget, Editor<Pipeline> {
 
     private static PipelineInfoEditorUiBinder uiBinder = GWT.create(PipelineInfoEditorUiBinder.class);
-    private final Driver driver = GWT.create(Driver.class);
     private final Widget widget;
 
     interface PipelineInfoEditorUiBinder extends UiBinder<Widget, PipelineInfoEditor> {
-    }
-
-    interface Driver extends SimpleBeanEditorDriver<Pipeline, PipelineInfoEditor> {
     }
 
     @UiField
@@ -39,17 +33,6 @@ public class PipelineInfoEditor implements PipelineStepEditorView, Editor<Pipeli
 
     public PipelineInfoEditor() {
         widget = uiBinder.createAndBindUi(this);
-        driver.initialize(this);
-    }
-
-    @UiHandler("name")
-    public void nameChanged(ValueChangeEvent<String> event) {
-        driver.flush();
-    }
-
-    @UiHandler("description")
-    public void descriptionChanged(ValueChangeEvent<String> event) {
-        driver.flush();
     }
 
     @Override
@@ -57,22 +40,8 @@ public class PipelineInfoEditor implements PipelineStepEditorView, Editor<Pipeli
         return widget;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void setPipeline(Pipeline pipeline) {
-        driver.edit(pipeline);
+    public void clearInvalid() {
+        name.clearInvalid();
+        description.clearInvalid();
     }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean isValid() {
-        driver.flush();
-
-        return !driver.hasErrors();
-    }
-
 }

@@ -1,10 +1,17 @@
 package org.iplantc.core.client.pipelines.gxt3.views;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.iplantc.core.client.pipelines.images.Resources;
 import org.iplantc.core.pipelineBuilder.client.builder.PipelineCreator;
 import org.iplantc.core.pipelineBuilder.client.json.autobeans.Pipeline;
 import org.iplantc.core.pipelineBuilder.client.json.autobeans.PipelineApp;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.editor.client.Editor;
+import com.google.gwt.editor.client.EditorError;
+import com.google.gwt.editor.client.SimpleBeanEditorDriver;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
@@ -19,6 +26,7 @@ import com.sencha.gxt.widget.core.client.container.BorderLayoutContainer.BorderL
 import com.sencha.gxt.widget.core.client.container.CardLayoutContainer;
 import com.sencha.gxt.widget.core.client.container.SimpleContainer;
 import com.sencha.gxt.widget.core.client.event.SelectEvent;
+import com.sencha.gxt.widget.core.client.tips.ToolTip;
 
 /**
  * The main PipelineView implementation.
@@ -29,6 +37,7 @@ import com.sencha.gxt.widget.core.client.event.SelectEvent;
 public class PipelineViewImpl implements PipelineView {
 
     private static PipelineViewUiBinder uiBinder = GWT.create(PipelineViewUiBinder.class);
+    private final Driver driver = GWT.create(Driver.class);
     private final Widget widget;
     private Presenter presenter;
 
@@ -36,8 +45,12 @@ public class PipelineViewImpl implements PipelineView {
     interface PipelineViewUiBinder extends UiBinder<Widget, PipelineViewImpl> {
     }
 
+    interface Driver extends SimpleBeanEditorDriver<Pipeline, PipelineViewImpl> {
+    }
+
     public PipelineViewImpl() {
         widget = uiBinder.createAndBindUi(this);
+        driver.initialize(this);
 
         ToggleGroup group = new ToggleGroup();
         group.add(infoBtn);
@@ -73,21 +86,27 @@ public class PipelineViewImpl implements PipelineView {
     CardLayoutContainer stepPanel;
 
     @UiField
+    @Path("")
     PipelineInfoEditor infoPanel;
 
     @UiField
-    PipelineAppOrderView appOrderPanel;
+    @Path("")
+    PipelineAppOrderViewImpl appOrderPanel;
 
     @UiField
+    @Path("apps")
     PipelineAppMappingForm mappingPanel;
 
     @UiField
+    @Editor.Ignore
     ToggleButton infoBtn;
 
     @UiField
+    @Editor.Ignore
     ToggleButton appOrderBtn;
 
     @UiField
+    @Editor.Ignore
     ToggleButton mappingBtn;
 
     @UiHandler("infoBtn")
@@ -117,14 +136,52 @@ public class PipelineViewImpl implements PipelineView {
 
     @Override
     public void setPipeline(Pipeline pipeline) {
-        infoPanel.setPipeline(pipeline);
-        appOrderPanel.setPipeline(pipeline);
-        mappingPanel.setPipeline(pipeline);
+        if (pipeline.getApps() == null) {
+            pipeline.setApps(new ArrayList<PipelineApp>());
+        }
+
+        driver.edit(pipeline);
     }
 
     @Override
     public boolean isValid() {
-        return infoPanel.isValid() && appOrderPanel.isValid() && mappingPanel.isValid();
+        return !driver.hasErrors();
+    }
+
+    @Override
+    public List<EditorError> getErrors() {
+        if (driver.hasErrors()) {
+            return driver.getErrors();
+        }
+
+        return null;
+    }
+
+    @Override
+    public void clearInvalid() {
+        clearInvalid(infoBtn);
+        clearInvalid(appOrderBtn);
+        clearInvalid(mappingBtn);
+
+        infoPanel.clearInvalid();
+        mappingPanel.clearInvalid();
+    }
+
+    private void clearInvalid(ToggleButton btn) {
+        btn.setIcon(null);
+        clearErrorTip(btn);
+    }
+
+    private void clearErrorTip(ToggleButton btn) {
+        ToolTip toolTip = btn.getToolTip();
+        if (toolTip != null) {
+            toolTip.disable();
+        }
+    }
+
+    @Override
+    public Pipeline getPipeline() {
+        return driver.flush();
     }
 
     @Override
@@ -173,7 +230,7 @@ public class PipelineViewImpl implements PipelineView {
     }
 
     @Override
-    public PipelineStepEditorView getInfoPanel() {
+    public IsWidget getInfoPanel() {
         return infoPanel;
     }
 
@@ -183,6 +240,7 @@ public class PipelineViewImpl implements PipelineView {
     }
 
     @Override
+    @Editor.Ignore
     public PipelineAppMappingView getMappingPanel() {
         return mappingPanel;
     }
@@ -195,5 +253,64 @@ public class PipelineViewImpl implements PipelineView {
     @Override
     public PipelineApp getOrderGridSelectedApp() {
         return appOrderPanel.getOrderGridSelectedApp();
+    }
+
+    @Override
+    @Editor.Ignore
+    public ToggleButton getInfoBtn() {
+        return infoBtn;
+    }
+
+    @Override
+    @Editor.Ignore
+    public ToggleButton getAppOrderBtn() {
+        return appOrderBtn;
+    }
+
+    @Override
+    @Editor.Ignore
+    public ToggleButton getMappingBtn() {
+        return mappingBtn;
+    }
+
+    @Override
+    public void markInfoBtnValid() {
+        markValid(infoBtn);
+    }
+
+    @Override
+    public void markInfoBtnInvalid(String error) {
+        markInvalid(infoBtn, error);
+    }
+
+    @Override
+    public void markAppOrderBtnValid() {
+        markValid(appOrderBtn);
+    }
+
+    @Override
+    public void markAppOrderBtnInvalid(String error) {
+        markInvalid(appOrderBtn, error);
+    }
+
+    @Override
+    public void markMappingBtnValid() {
+        markValid(mappingBtn);
+    }
+
+    @Override
+    public void markMappingBtnInvalid(String error) {
+        markInvalid(mappingBtn, error);
+    }
+
+    private void markValid(ToggleButton btn) {
+        btn.setIcon(Resources.ICONS.stepComplete());
+        clearErrorTip(btn);
+    }
+
+    private void markInvalid(ToggleButton btn, String error) {
+        btn.setIcon(Resources.ICONS.stepError());
+        btn.setToolTip(error);
+        btn.getToolTip().enable();
     }
 }
