@@ -156,7 +156,7 @@ public class PipelineViewImpl implements PipelineView {
 
     @Override
     public boolean isValid() {
-        return !driver.hasErrors();
+        return driver.flush() != null && !driver.hasErrors();
     }
 
     @Override

@@ -18,23 +18,25 @@ import org.iplantc.core.client.pipelines.gxt3.views.widgets.PipelineViewToolbarI
 import org.iplantc.core.pipelineBuilder.client.json.autobeans.Pipeline;
 import org.iplantc.core.pipelineBuilder.client.json.autobeans.PipelineApp;
 import org.iplantc.core.pipelineBuilder.client.json.autobeans.PipelineAppMapping;
+import org.iplantc.core.uiapps.client.Services;
+import org.iplantc.core.uiapps.client.events.AppGroupCountUpdateEvent;
 import org.iplantc.core.uiapps.client.models.autobeans.App;
 import org.iplantc.core.uiapps.client.presenter.AppsViewPresenter;
 import org.iplantc.core.uiapps.client.views.AppsView;
 import org.iplantc.core.uiapps.client.views.AppsViewImpl;
+import org.iplantc.core.uicommons.client.ErrorHandler;
+import org.iplantc.core.uicommons.client.events.EventBus;
 import org.iplantc.core.uicommons.client.presenter.Presenter;
+import org.iplantc.core.uicommons.client.views.gxt3.dialogs.IplantInfoBox;
 
 import com.google.common.base.Strings;
-import com.google.gwt.core.shared.GWT;
 import com.google.gwt.editor.client.EditorError;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.HasOneWidget;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.web.bindery.autobean.shared.AutoBean;
-import com.google.web.bindery.autobean.shared.AutoBeanCodex;
 import com.google.web.bindery.autobean.shared.AutoBeanUtils;
-import com.sencha.gxt.core.client.util.Format;
 import com.sencha.gxt.core.shared.FastMap;
 import com.sencha.gxt.data.shared.ListStore;
 import com.sencha.gxt.dnd.core.client.DND.Operation;
@@ -58,6 +60,7 @@ public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
     private AppsViewPresenter appsPresenter;
     private AppSelectionDialog appSelectView;
     private final Command onPublishCallback;
+    private final PipelineAutoBeanUtil utils = new PipelineAutoBeanUtil();
 
     public PipelineViewPresenter(PipelineView view, Command onPublishCallback) {
         this.view = view;
@@ -72,7 +75,7 @@ public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
 
         view.setNorthWidget(toolbar);
 
-        Pipeline pipeline = PipelineAutoBeanUtil.getPipelineAutoBeanFactory().pipeline().as();
+        Pipeline pipeline = utils.getPipelineFactory().pipeline().as();
         view.setPipeline(pipeline);
 
         initAppsView();
@@ -126,17 +129,43 @@ public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
 
     @Override
     public void onPublishClicked() {
-        // if (onPublishCallback != null) {
-        // onPublishCallback.execute();
-        // }
-
         if (view.isValid()) {
-            view.markInfoBtnValid();
-            view.markAppOrderBtnValid();
-            view.markMappingBtnValid();
+            publishPipeline();
         } else {
             markErrors();
         }
+    }
+
+    private void publishPipeline() {
+        view.markInfoBtnValid();
+        view.markAppOrderBtnValid();
+        view.markMappingBtnValid();
+
+        String publishJson = utils.getPublishJson(getPipeline());
+        if (publishJson == null) {
+            ErrorHandler.post(I18N.ERROR.workflowPublishError());
+            return;
+        }
+
+        Services.USER_APP_SERVICE.publishWorkflow(publishJson, new AsyncCallback<String>() {
+
+            @Override
+            public void onSuccess(String result) {
+                new IplantInfoBox(I18N.DISPLAY.publishToWorkspace(), I18N.DISPLAY
+                        .publishWorkflowSuccess()).show();
+                AppGroupCountUpdateEvent event = new AppGroupCountUpdateEvent(true, null);
+                EventBus.getInstance().fireEvent(event);
+
+                if (onPublishCallback != null) {
+                    onPublishCallback.execute();
+                }
+            }
+
+            @Override
+            public void onFailure(Throwable caught) {
+                ErrorHandler.post(I18N.ERROR.workflowPublishError(), caught);
+            }
+        });
     }
 
     private void markErrors() {
@@ -303,7 +332,7 @@ public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
     @Override
     public void onAddAppClick() {
         App selectedApp = appsPresenter.getSelectedApp();
-        PipelineAutoBeanUtil.appToPipelineApp(selectedApp, new AsyncCallback<PipelineApp>() {
+        utils.appToPipelineApp(selectedApp, new AsyncCallback<PipelineApp>() {
 
             @Override
             public void onSuccess(PipelineApp result) {
@@ -330,7 +359,7 @@ public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
 
     @Override
     public void addAppToPipeline(final App app) {
-        PipelineAutoBeanUtil.appToPipelineApp(app, new AsyncCallback<PipelineApp>() {
+        utils.appToPipelineApp(app, new AsyncCallback<PipelineApp>() {
 
             @Override
             public void onSuccess(PipelineApp result) {
@@ -362,11 +391,7 @@ public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
      */
     @Override
     public String getStepName(PipelineApp app) {
-        return app == null ? "" : getStepName(app.getStep(), app.getId()); //$NON-NLS-1$
-    }
-
-    private String getStepName(int step, String id) {
-        return Format.substitute("step_{0}_{1}", step, id); //$NON-NLS-1$
+        return utils.getStepName(app);
     }
 
     /**
@@ -377,19 +402,19 @@ public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
             PipelineApp sourceStep, String sourceOutputId) {
         String sourceStepName = getStepName(sourceStep);
 
-        // Find the input->output mappings for sourceStepName.
+        // Find the output->input mappings for sourceStepName.
         FastMap<PipelineAppMapping> mapInputsOutputs = getTargetMappings(targetStep);
         PipelineAppMapping targetAppMapping = mapInputsOutputs.get(sourceStepName);
 
         if (targetAppMapping == null) {
-            // There are no input->output mappings for this sourceStepName yet.
+            // There are no output mappings from this sourceStepName yet.
             if (sourceOutputId == null || sourceOutputId.isEmpty()) {
                 // nothing to do in order to clear this mapping.
                 return;
             }
 
-            // Create a new input->output mapping for sourceStepName.
-            targetAppMapping = PipelineAutoBeanUtil.getPipelineAutoBeanFactory().appMapping().as();
+            // Create a new output->input mapping for sourceStepName.
+            targetAppMapping = utils.getPipelineFactory().appMapping().as();
             targetAppMapping.setStep(sourceStep.getStep());
             targetAppMapping.setId(sourceStep.getId());
             targetAppMapping.setMap(new FastMap<String>());
@@ -421,7 +446,7 @@ public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
             List<PipelineAppMapping> appMappings = targetStep.getMappings();
             if (appMappings != null) {
                 for (PipelineAppMapping mapping : appMappings) {
-                    String sourceStepName = getStepName(mapping.getStep(), mapping.getId());
+                    String sourceStepName = utils.getStepName(mapping.getStep(), mapping.getId());
                     mapInputsOutputs.put(sourceStepName, mapping);
                 }
             }
