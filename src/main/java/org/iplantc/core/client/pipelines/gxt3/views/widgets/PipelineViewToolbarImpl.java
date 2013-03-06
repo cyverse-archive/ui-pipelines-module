@@ -2,9 +2,11 @@ package org.iplantc.core.client.pipelines.gxt3.views.widgets;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.uibinder.client.UiBinder;
+import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.uibinder.client.UiTemplate;
 import com.google.gwt.user.client.ui.Widget;
+import com.sencha.gxt.widget.core.client.button.TextButton;
 import com.sencha.gxt.widget.core.client.event.SelectEvent;
 
 /**
@@ -28,6 +30,9 @@ public class PipelineViewToolbarImpl implements PipelineViewToolbar {
         widget = uiBinder.createAndBindUi(this);
     }
 
+    @UiField
+    TextButton publishBtn;
+
     @Override
     public Widget asWidget() {
         return widget;
@@ -46,5 +51,10 @@ public class PipelineViewToolbarImpl implements PipelineViewToolbar {
     @UiHandler("swapViewBtn")
     public void onSwapViewClick(SelectEvent e) {
         presenter.onSwapViewClicked();
+    }
+
+    @Override
+    public void setPublishButtonEnabled(boolean enabled) {
+        publishBtn.setEnabled(enabled);
     }
 }

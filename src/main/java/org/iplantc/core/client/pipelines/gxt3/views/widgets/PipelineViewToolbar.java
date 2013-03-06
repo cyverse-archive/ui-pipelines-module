@@ -16,4 +16,6 @@ public interface PipelineViewToolbar extends IsWidget {
     }
 
     void setPresenter(Presenter presenter);
+
+    void setPublishButtonEnabled(boolean enabled);
 }

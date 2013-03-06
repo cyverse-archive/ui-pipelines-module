@@ -137,6 +137,7 @@ public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
     }
 
     private void publishPipeline() {
+        toolbar.setPublishButtonEnabled(false);
         view.markInfoBtnValid();
         view.markAppOrderBtnValid();
         view.markMappingBtnValid();
@@ -144,6 +145,7 @@ public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
         String publishJson = utils.getPublishJson(getPipeline());
         if (publishJson == null) {
             ErrorHandler.post(I18N.ERROR.workflowPublishError());
+            toolbar.setPublishButtonEnabled(true);
             return;
         }
 
@@ -159,11 +161,14 @@ public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
                 if (onPublishCallback != null) {
                     onPublishCallback.execute();
                 }
+
+                toolbar.setPublishButtonEnabled(true);
             }
 
             @Override
             public void onFailure(Throwable caught) {
                 ErrorHandler.post(I18N.ERROR.workflowPublishError(), caught);
+                toolbar.setPublishButtonEnabled(true);
             }
         });
     }
