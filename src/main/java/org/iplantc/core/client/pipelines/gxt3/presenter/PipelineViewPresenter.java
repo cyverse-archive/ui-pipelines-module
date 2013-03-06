@@ -211,16 +211,19 @@ public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
     @Override
     public void onInfoClick() {
         view.getStepPanel().setActiveWidget(view.getInfoPanel());
+        view.getHelpContainer().setHTML(I18N.DISPLAY.infoPnlTip());
     }
 
     @Override
     public void onAppOrderClick() {
         view.getStepPanel().setActiveWidget(view.getAppOrderPanel());
+        view.getHelpContainer().setHTML(I18N.DISPLAY.selectOrderPnlTip());
     }
 
     @Override
     public void onMappingClick() {
         view.getStepPanel().setActiveWidget(view.getMappingPanel());
+        view.getHelpContainer().setHTML(I18N.DISPLAY.inputsOutputsPnlTip());
     }
 
     @Override

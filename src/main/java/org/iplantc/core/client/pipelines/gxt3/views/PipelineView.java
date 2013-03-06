@@ -13,6 +13,7 @@ import com.sencha.gxt.data.shared.ListStore;
 import com.sencha.gxt.widget.core.client.button.ToggleButton;
 import com.sencha.gxt.widget.core.client.container.BorderLayoutContainer;
 import com.sencha.gxt.widget.core.client.container.CardLayoutContainer;
+import com.sencha.gxt.widget.core.client.container.HtmlLayoutContainer;
 import com.sencha.gxt.widget.core.client.container.SimpleContainer;
 
 /**
@@ -97,6 +98,8 @@ public interface PipelineView extends IsWidget, Editor<Pipeline> {
 
     @Editor.Ignore
     public ToggleButton getMappingBtn();
+
+    public HtmlLayoutContainer getHelpContainer();
 
     public void markInfoBtnValid();
 

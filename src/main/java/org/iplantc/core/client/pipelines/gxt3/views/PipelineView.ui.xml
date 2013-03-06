@@ -35,10 +35,11 @@
             bottom="5"
             left="5" />
     </ui:with>
-   <ui:with field="stepActionData"
-            type="com.sencha.gxt.widget.core.client.container.MarginData">
-      <ui:attributes margins="{stepActionMargins}" />
-   </ui:with>
+    <ui:with
+        field="stepActionData"
+        type="com.sencha.gxt.widget.core.client.container.MarginData">
+        <ui:attributes margins="{stepActionMargins}" />
+    </ui:with>
     <ui:with
         field="builderPanelData"
         type="com.sencha.gxt.widget.core.client.container.BorderLayoutContainer.BorderLayoutData">
@@ -83,6 +84,16 @@
                                     width="150"
                                     height="30"
                                     layoutData="{stepActionData}" />
+                                <gxt:ContentPanel
+                                    headingText="{strings.quickTipsHeading}"
+                                    width="150"
+                                    height="150"
+                                    collapsible="true"
+                                    layoutData="{stepActionData}" >
+                                    <container:HtmlLayoutContainer
+                                        ui:field="helpContainer"
+                                        layoutData="{stepActionData}" />
+                                </gxt:ContentPanel>
                             </container:VerticalLayoutContainer>
                         </container:west>
                         <container:center>

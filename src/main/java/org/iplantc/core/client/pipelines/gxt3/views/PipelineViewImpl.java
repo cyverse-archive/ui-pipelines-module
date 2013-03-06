@@ -3,6 +3,7 @@ package org.iplantc.core.client.pipelines.gxt3.views;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.iplantc.core.client.pipelines.I18N;
 import org.iplantc.core.client.pipelines.images.Resources;
 import org.iplantc.core.pipelineBuilder.client.builder.PipelineCreator;
 import org.iplantc.core.pipelineBuilder.client.json.autobeans.Pipeline;
@@ -13,6 +14,7 @@ import com.google.gwt.editor.client.Editor;
 import com.google.gwt.editor.client.EditorError;
 import com.google.gwt.editor.client.SimpleBeanEditorDriver;
 import com.google.gwt.uibinder.client.UiBinder;
+import com.google.gwt.uibinder.client.UiFactory;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.uibinder.client.UiTemplate;
@@ -24,6 +26,7 @@ import com.sencha.gxt.widget.core.client.button.ToggleButton;
 import com.sencha.gxt.widget.core.client.container.BorderLayoutContainer;
 import com.sencha.gxt.widget.core.client.container.BorderLayoutContainer.BorderLayoutData;
 import com.sencha.gxt.widget.core.client.container.CardLayoutContainer;
+import com.sencha.gxt.widget.core.client.container.HtmlLayoutContainer;
 import com.sencha.gxt.widget.core.client.container.SimpleContainer;
 import com.sencha.gxt.widget.core.client.event.SelectEvent;
 import com.sencha.gxt.widget.core.client.tips.ToolTip;
@@ -109,6 +112,9 @@ public class PipelineViewImpl implements PipelineView {
     @Editor.Ignore
     ToggleButton mappingBtn;
 
+    @UiField
+    HtmlLayoutContainer helpContainer;
+
     @UiHandler("infoBtn")
     public void onInfoClick(SelectEvent e) {
         presenter.onInfoClick();
@@ -122,6 +128,11 @@ public class PipelineViewImpl implements PipelineView {
     @UiHandler("mappingBtn")
     public void onMappingClick(SelectEvent e) {
         presenter.onMappingClick();
+    }
+
+    @UiFactory
+    public HtmlLayoutContainer buildHelpContainer() {
+        return new HtmlLayoutContainer(I18N.DISPLAY.infoPnlTip());
     }
 
     @Override
@@ -271,6 +282,11 @@ public class PipelineViewImpl implements PipelineView {
     @Editor.Ignore
     public ToggleButton getMappingBtn() {
         return mappingBtn;
+    }
+
+    @Override
+    public HtmlLayoutContainer getHelpContainer() {
+        return helpContainer;
     }
 
     @Override
