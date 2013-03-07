@@ -75,9 +75,6 @@ public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
 
         view.setNorthWidget(toolbar);
 
-        Pipeline pipeline = utils.getPipelineFactory().pipeline().as();
-        view.setPipeline(pipeline);
-
         initAppsView();
     }
 
@@ -124,6 +121,15 @@ public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
 
     @Override
     public void go(HasOneWidget container) {
+        go(container, null);
+    }
+
+    public void go(HasOneWidget container, Pipeline pipeline) {
+        if (pipeline == null) {
+            pipeline = utils.getPipelineFactory().pipeline().as();
+        }
+        view.setPipeline(pipeline);
+
         container.setWidget(view);
     }
 
