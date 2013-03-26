@@ -13,4 +13,8 @@ public interface ServicePipeline {
     public List<ServicePipelineAnalysis> getAnalyses();
 
     public void setAnalyses(List<ServicePipelineAnalysis> analyses);
+
+    public List<ServicePipelineTemplate> getTemplates();
+
+    public void setTemplates(List<ServicePipelineTemplate> templates);
 }
