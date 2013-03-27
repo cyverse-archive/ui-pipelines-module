@@ -7,7 +7,7 @@
 
     <ui:with
         field="icons"
-        type="org.iplantc.core.pipelines.client.images.Icons" />
+        type="org.iplantc.core.resources.client.IplantResources" />
     <ui:with
         field="strings"
         type="org.iplantc.core.pipelines.client.PipelinesDisplayStrings" />

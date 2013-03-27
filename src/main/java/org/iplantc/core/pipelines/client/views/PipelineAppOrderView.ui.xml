@@ -13,7 +13,7 @@
         type="org.iplantc.core.pipelines.client.PipelinesDisplayStrings" />
     <ui:with
         field="icons"
-        type="org.iplantc.core.pipelines.client.images.Icons" />
+        type="org.iplantc.core.resources.client.IplantResources" />
     <ui:with
         field="northData"
         type="com.sencha.gxt.widget.core.client.container.BorderLayoutContainer.BorderLayoutData">
@@ -47,18 +47,18 @@
                     ui:field="removeAppBtn"
                     debugId="idBtnRemoveApp"
                     text="{strings.remove}"
-                    icon="{icons.remove}" />
+                    icon="{icons.delete}" />
                 <toolbar:SeparatorToolItem />
                 <button:TextButton
                     ui:field="moveUpBtn"
                     debugId="idBtnMoveUp"
                     text="{strings.moveUp}"
-                    icon="{icons.up}" />
+                    icon="{icons.arrowUp}" />
                 <button:TextButton
                     ui:field="moveDownBtn"
                     debugId="idBtnMoveDown"
                     text="{strings.moveDown}"
-                    icon="{icons.down}" />
+                    icon="{icons.arrowDown}" />
             </toolbar:ToolBar>
         </container:north>
         <container:center>
