@@ -1,6 +1,5 @@
 package org.iplantc.core.pipelines.client.presenter;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -29,15 +28,12 @@ import org.iplantc.core.uicommons.client.events.EventBus;
 import org.iplantc.core.uicommons.client.presenter.Presenter;
 import org.iplantc.core.uicommons.client.views.gxt3.dialogs.IplantInfoBox;
 
-import com.google.common.base.Strings;
 import com.google.gwt.editor.client.EditorError;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.HasOneWidget;
 import com.google.gwt.user.client.ui.IsWidget;
-import com.google.web.bindery.autobean.shared.AutoBean;
-import com.google.web.bindery.autobean.shared.AutoBeanUtils;
-import com.sencha.gxt.core.shared.FastMap;
+import com.google.web.bindery.autobean.shared.Splittable;
 import com.sencha.gxt.data.shared.ListStore;
 import com.sencha.gxt.dnd.core.client.DND.Operation;
 import com.sencha.gxt.dnd.core.client.DropTarget;
@@ -76,6 +72,10 @@ public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
         view.setNorthWidget(toolbar);
 
         initAppsView();
+
+        // Set an initial Pipeline to edit.
+        Pipeline pipeline = utils.getPipelineFactory().pipeline().as();
+        setPipeline(pipeline);
     }
 
     private void initAppsView() {
@@ -120,16 +120,24 @@ public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
     }
 
     @Override
-    public void go(HasOneWidget container) {
-        go(container, null);
-    }
-
-    public void go(HasOneWidget container, Pipeline pipeline) {
+    public void setPipeline(Pipeline pipeline) {
         if (pipeline == null) {
             pipeline = utils.getPipelineFactory().pipeline().as();
         }
         view.setPipeline(pipeline);
+    }
 
+    @Override
+    public void setPipeline(Splittable serviceWorkflowJson) {
+        Pipeline pipeline = null;
+        if (serviceWorkflowJson != null) {
+            pipeline = utils.serviceJsonToPipeline(serviceWorkflowJson);
+        }
+        setPipeline(pipeline);
+    }
+
+    @Override
+    public void go(HasOneWidget container) {
         container.setWidget(view);
     }
 
@@ -231,7 +239,7 @@ public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
         if (apps != null) {
             for (PipelineApp app : apps) {
                 if (app.getStep() >= startingStep) {
-                    resetAppMappings(app);
+                    utils.resetAppMappings(app);
                 }
             }
         }
@@ -411,66 +419,7 @@ public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
     @Override
     public void setInputOutputMapping(PipelineApp targetStep, String targetInputId,
             PipelineApp sourceStep, String sourceOutputId) {
-        String sourceStepName = getStepName(sourceStep);
-
-        // Find the output->input mappings for sourceStepName.
-        FastMap<PipelineAppMapping> mapInputsOutputs = getTargetMappings(targetStep);
-        PipelineAppMapping targetAppMapping = mapInputsOutputs.get(sourceStepName);
-
-        if (targetAppMapping == null) {
-            // There are no output mappings from this sourceStepName yet.
-            if (sourceOutputId == null || sourceOutputId.isEmpty()) {
-                // nothing to do in order to clear this mapping.
-                return;
-            }
-
-            // Create a new output->input mapping for sourceStepName.
-            targetAppMapping = utils.getPipelineFactory().appMapping().as();
-            targetAppMapping.setStep(sourceStep.getStep());
-            targetAppMapping.setId(sourceStep.getId());
-            targetAppMapping.setMap(new FastMap<String>());
-
-            mapInputsOutputs.put(sourceStepName, targetAppMapping);
-        }
-
-        // TODO validate targetInputId belongs to one of this App's Inputs?
-        Map<String, String> map = targetAppMapping.getMap();
-        if (Strings.isNullOrEmpty(sourceOutputId)) {
-            // clear the mapping for this Input ID.
-            map.put(targetInputId, null);
-        } else {
-            // Map sourceOutputId to this App's given targetInputId.
-            map.put(targetInputId, sourceOutputId);
-        }
-
-        targetStep.setMappings(new ArrayList<PipelineAppMapping>(mapInputsOutputs.values()));
-    }
-
-    private FastMap<PipelineAppMapping> getTargetMappings(PipelineApp targetStep) {
-        AutoBean<PipelineApp> targetBean = AutoBeanUtils.getAutoBean(targetStep);
-        FastMap<PipelineAppMapping> mapInputsOutputs = targetBean.getTag("stepMappings"); //$NON-NLS-1$
-
-        if (mapInputsOutputs == null) {
-            mapInputsOutputs = new FastMap<PipelineAppMapping>();
-            targetBean.setTag("stepMappings", mapInputsOutputs); //$NON-NLS-1$
-
-            List<PipelineAppMapping> appMappings = targetStep.getMappings();
-            if (appMappings != null) {
-                for (PipelineAppMapping mapping : appMappings) {
-                    String sourceStepName = utils.getStepName(mapping.getStep(), mapping.getId());
-                    mapInputsOutputs.put(sourceStepName, mapping);
-                }
-            }
-        }
-
-        return mapInputsOutputs;
-    }
-
-    private void resetAppMappings(PipelineApp targetStep) {
-        AutoBean<PipelineApp> targetBean = AutoBeanUtils.getAutoBean(targetStep);
-        targetBean.setTag("stepMappings", null); //$NON-NLS-1$
-
-        targetStep.setMappings(null);
+        utils.setInputOutputMapping(targetStep, targetInputId, sourceStep, sourceOutputId);
     }
 
     @Override

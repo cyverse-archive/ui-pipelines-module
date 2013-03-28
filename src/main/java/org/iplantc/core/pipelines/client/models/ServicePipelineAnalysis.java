@@ -15,6 +15,11 @@ import com.google.web.bindery.autobean.shared.AutoBean.PropertyName;
  */
 public interface ServicePipelineAnalysis extends HasId, HasDescription {
 
+    @Override
+    @PropertyName("analysis_id")
+    public String getId();
+
+    @PropertyName("analysis_id")
     public void setId(String id);
 
     @PropertyName("analysis_name")

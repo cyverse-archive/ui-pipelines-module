@@ -8,8 +8,8 @@ import org.iplantc.core.pipelineBuilder.client.json.autobeans.PipelineApp;
 
 import com.google.gwt.editor.client.Editor;
 import com.google.gwt.editor.client.EditorError;
-import com.google.gwt.user.client.ui.HasOneWidget;
 import com.google.gwt.user.client.ui.IsWidget;
+import com.google.web.bindery.autobean.shared.Splittable;
 import com.sencha.gxt.data.shared.ListStore;
 import com.sencha.gxt.widget.core.client.button.ToggleButton;
 import com.sencha.gxt.widget.core.client.container.BorderLayoutContainer;
@@ -26,9 +26,11 @@ import com.sencha.gxt.widget.core.client.container.SimpleContainer;
 public interface PipelineView extends IsWidget, Editor<Pipeline> {
 
     public interface Presenter extends org.iplantc.core.uicommons.client.presenter.Presenter {
-        public void go(HasOneWidget container, Pipeline pipeline);
-
         public Pipeline getPipeline();
+
+        public void setPipeline(Pipeline pipeline);
+
+        public void setPipeline(Splittable serviceWorkflowJson);
 
         public void onInfoClick();
 
