@@ -7,7 +7,6 @@ import java.util.Map;
 import org.iplantc.core.pipelineBuilder.client.json.autobeans.Pipeline;
 import org.iplantc.core.pipelineBuilder.client.json.autobeans.PipelineApp;
 import org.iplantc.core.pipelineBuilder.client.json.autobeans.PipelineAppMapping;
-import org.iplantc.core.pipelines.client.I18N;
 import org.iplantc.core.pipelines.client.dnd.AppsGridDragHandler;
 import org.iplantc.core.pipelines.client.dnd.PipelineBuilderDNDHandler;
 import org.iplantc.core.pipelines.client.dnd.PipelineBuilderDropHandler;
@@ -18,6 +17,7 @@ import org.iplantc.core.pipelines.client.views.PipelineAppOrderView;
 import org.iplantc.core.pipelines.client.views.PipelineView;
 import org.iplantc.core.pipelines.client.views.widgets.PipelineViewToolbar;
 import org.iplantc.core.pipelines.client.views.widgets.PipelineViewToolbarImpl;
+import org.iplantc.core.resources.client.messages.I18N;
 import org.iplantc.core.uiapps.client.Services;
 import org.iplantc.core.uiapps.client.events.AppGroupCountUpdateEvent;
 import org.iplantc.core.uiapps.client.models.autobeans.App;
@@ -47,9 +47,9 @@ import com.sencha.gxt.widget.core.client.grid.Grid;
 
 /**
  * The Presenter for the Pipeline View.
- * 
+ *
  * @author psarando
- * 
+ *
  */
 public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
         PipelineViewToolbar.Presenter, PipelineBuilderDNDHandler.Presenter,

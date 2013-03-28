@@ -10,7 +10,7 @@
         type="org.iplantc.core.resources.client.IplantResources" />
     <ui:with
         field="strings"
-        type="org.iplantc.core.pipelines.client.PipelinesDisplayStrings" />
+        type="org.iplantc.core.resources.client.messages.IplantDisplayStrings" />
 
     <toolbar:ToolBar ui:field="toolBar">
         <button:TextButton

@@ -10,7 +10,6 @@ import org.iplantc.core.pipelineBuilder.client.json.autobeans.PipelineApp;
 import org.iplantc.core.pipelineBuilder.client.json.autobeans.PipelineAppData;
 import org.iplantc.core.pipelineBuilder.client.json.autobeans.PipelineAppMapping;
 import org.iplantc.core.pipelineBuilder.client.json.autobeans.PipelineAutoBeanFactory;
-import org.iplantc.core.pipelines.client.I18N;
 import org.iplantc.core.pipelines.client.models.ImplementorDetailTest;
 import org.iplantc.core.pipelines.client.models.ImplementorDetails;
 import org.iplantc.core.pipelines.client.models.ServicePipeline;
@@ -18,6 +17,7 @@ import org.iplantc.core.pipelines.client.models.ServicePipelineAnalysis;
 import org.iplantc.core.pipelines.client.models.ServicePipelineAutoBeanFactory;
 import org.iplantc.core.pipelines.client.models.ServicePipelineMapping;
 import org.iplantc.core.pipelines.client.models.ServicePipelineStep;
+import org.iplantc.core.resources.client.messages.I18N;
 import org.iplantc.core.uiapps.client.Services;
 import org.iplantc.core.uiapps.client.models.autobeans.App;
 import org.iplantc.core.uiapps.client.models.autobeans.AppDataObject;
@@ -38,9 +38,9 @@ import com.sencha.gxt.core.shared.FastMap;
 
 /**
  * A Utility class for Pipeline AutoBeans and converting them to/from the service JSON.
- * 
+ *
  * @author psarando
- * 
+ *
  */
 public class PipelineAutoBeanUtil {
 
@@ -60,7 +60,7 @@ public class PipelineAutoBeanUtil {
     /**
      * Clones the data contained in the given App into a PipelineApp, calling the App service to fetch
      * the input and output data objects for inclusion in the PipelineApp result.
-     * 
+     *
      * @param app Must be eligible for pipelines, otherwise the callback's onFailure method is called.
      * @param callback Receives the PipelineApp result on success, cloned from the data contained in the
      *            given app plus the data objects returned from the App service.
@@ -102,7 +102,7 @@ public class PipelineAutoBeanUtil {
 
     /**
      * Converts an App AutoBean into a PipelineApp.
-     * 
+     *
      * @param appBean
      * @return A PipelineApp cloned from the data contained in the given appBean.
      */
@@ -157,7 +157,7 @@ public class PipelineAutoBeanUtil {
 
     /**
      * Get the JSON of the given pipeline required for publishing.
-     * 
+     *
      * @return JSON string required for publishing the given pipeline.
      */
     public String getPublishJson(Pipeline pipeline) {
@@ -234,7 +234,7 @@ public class PipelineAutoBeanUtil {
 
     /**
      * Gets a ServicePipelineStep representing the given PipelineApp step.
-     * 
+     *
      * @return The PipelineApp as a workflow ServicePipelineStep.
      */
     private ServicePipelineStep getServiceStep(PipelineApp app) {
@@ -251,7 +251,7 @@ public class PipelineAutoBeanUtil {
 
     /**
      * Gets the given App's workflow step name, based on its position in the workflow and its ID.
-     * 
+     *
      * @param app
      * @return the PipelineApp's step name.
      */
@@ -261,7 +261,7 @@ public class PipelineAutoBeanUtil {
 
     /**
      * Gets a workflow step name, based on the given workflow step position and App ID.
-     * 
+     *
      * @param step A position in the workflow.
      * @param id An App ID.
      * @return A workflow step name.
@@ -273,7 +273,7 @@ public class PipelineAutoBeanUtil {
     /**
      * Formats the output->input mappings for the given source PipelineAppMapping to the targetStepName,
      * as a ServicePipelineMapping for the Import Workflow service.
-     * 
+     *
      * @return A ServicePipelineMapping of input->output mappings.
      */
     private ServicePipelineMapping getServiceMapping(String targetStepName,

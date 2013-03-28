@@ -10,7 +10,7 @@
 
     <ui:with
         field="strings"
-        type="org.iplantc.core.pipelines.client.PipelinesDisplayStrings" />
+        type="org.iplantc.core.resources.client.messages.IplantDisplayStrings" />
     <ui:with
         field="icons"
         type="org.iplantc.core.resources.client.IplantResources" />

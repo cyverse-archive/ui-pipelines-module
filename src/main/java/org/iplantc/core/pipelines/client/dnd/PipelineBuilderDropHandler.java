@@ -2,7 +2,7 @@ package org.iplantc.core.pipelines.client.dnd;
 
 import java.util.List;
 
-import org.iplantc.core.pipelines.client.I18N;
+import org.iplantc.core.resources.client.messages.I18N;
 import org.iplantc.core.uiapps.client.models.autobeans.App;
 
 import com.sencha.gxt.dnd.core.client.DndDragEnterEvent;
@@ -15,9 +15,9 @@ import com.sencha.gxt.dnd.core.client.StatusProxy;
 
 /**
  * A PipelineBuilderDNDHandler for dropping Apps onto the PipelineCreator panel.
- * 
+ *
  * @author psarando
- * 
+ *
  */
 public class PipelineBuilderDropHandler extends PipelineBuilderDNDHandler implements
         DndDragEnterHandler, DndDragLeaveHandler, DndDropHandler {

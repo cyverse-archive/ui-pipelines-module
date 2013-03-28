@@ -7,7 +7,7 @@ import java.util.List;
 import org.iplantc.core.pipelineBuilder.client.json.autobeans.PipelineApp;
 import org.iplantc.core.pipelineBuilder.client.json.autobeans.PipelineAppData;
 import org.iplantc.core.pipelineBuilder.client.json.autobeans.PipelineAppMapping;
-import org.iplantc.core.pipelines.client.I18N;
+import org.iplantc.core.resources.client.messages.I18N;
 
 import com.google.gwt.editor.client.EditorDelegate;
 import com.google.gwt.editor.client.EditorError;
@@ -33,9 +33,9 @@ import com.sencha.gxt.widget.core.client.form.error.SideErrorHandler;
 /**
  * A PipelineAppMappingView that displays input mappings as FieldLabels with a ComboBox for mapping an
  * output to an input.
- * 
+ *
  * @author psarando
- * 
+ *
  */
 public class PipelineAppMappingForm implements PipelineAppMappingView {
     List<PipelineApp> apps;
@@ -235,9 +235,9 @@ public class PipelineAppMappingForm implements PipelineAppMappingView {
 
     /**
      * A convenience wrapper to hold a reference to a Pipeline App and one of its Outputs.
-     * 
+     *
      * @author psarando
-     * 
+     *
      */
     private class PipelineMappingOutputWrapper {
         private final PipelineApp sourceApp;
@@ -265,9 +265,9 @@ public class PipelineAppMappingForm implements PipelineAppMappingView {
 
     /**
      * A SelectionHandler for the output ComboBoxes that sets the mapping when an output is selected.
-     * 
+     *
      * @author psarando
-     * 
+     *
      */
     private class OutputComboSelectionHandler implements SelectionHandler<PipelineMappingOutputWrapper> {
 
@@ -330,9 +330,9 @@ public class PipelineAppMappingForm implements PipelineAppMappingView {
 
     /**
      * A FieldSet wrapper for App mapping that can mark itself as invalid
-     * 
+     *
      * @author psarando
-     * 
+     *
      */
     public class MappingFieldSet extends FieldSet {
         private final SideErrorHandler errorHandler;

@@ -1,6 +1,6 @@
 package org.iplantc.core.pipelines.client.views;
 
-import org.iplantc.core.pipelines.client.I18N;
+import org.iplantc.core.resources.client.messages.I18N;
 
 import com.google.gwt.core.shared.GWT;
 import com.sencha.gxt.widget.core.client.Dialog;
@@ -15,9 +15,9 @@ import com.sencha.gxt.widget.core.client.toolbar.FillToolItem;
 
 /**
  * A Dialog for displaying the Apps View and adding Apps to pipelines.
- * 
+ *
  * @author psarando
- * 
+ *
  */
 public class AppSelectionDialog extends Dialog {
 
@@ -68,7 +68,7 @@ public class AppSelectionDialog extends Dialog {
 
     /**
      * Updates the app count and last app added status label.
-     * 
+     *
      * @param appCount Number of apps added to the workflow.
      * @param lastAppLabel A label describing the app that was added last, or null.
      */

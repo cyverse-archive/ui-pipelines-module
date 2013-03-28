@@ -4,8 +4,8 @@ import java.util.List;
 
 import org.iplantc.core.pipelineBuilder.client.json.autobeans.Pipeline;
 import org.iplantc.core.pipelineBuilder.client.json.autobeans.PipelineApp;
-import org.iplantc.core.pipelines.client.I18N;
 import org.iplantc.core.pipelines.client.models.PipelineAppProperties;
+import org.iplantc.core.resources.client.messages.I18N;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.editor.client.Editor;
@@ -28,9 +28,9 @@ import com.sencha.gxt.widget.core.client.grid.Grid;
 
 /**
  * An implementation of the PipelineAppOrderView.
- * 
+ *
  * @author psarando
- * 
+ *
  */
 public class PipelineAppOrderViewImpl implements PipelineAppOrderView, Editor<Pipeline> {
 
