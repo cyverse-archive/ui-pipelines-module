@@ -17,8 +17,8 @@ import org.iplantc.core.pipelines.client.models.ServicePipelineAnalysis;
 import org.iplantc.core.pipelines.client.models.ServicePipelineAutoBeanFactory;
 import org.iplantc.core.pipelines.client.models.ServicePipelineMapping;
 import org.iplantc.core.pipelines.client.models.ServicePipelineStep;
-import org.iplantc.core.resources.client.messages.I18N;
 import org.iplantc.core.pipelines.client.models.ServicePipelineTemplate;
+import org.iplantc.core.resources.client.messages.I18N;
 import org.iplantc.core.uiapps.client.Services;
 import org.iplantc.core.uiapps.client.models.autobeans.App;
 import org.iplantc.core.uiapps.client.models.autobeans.AppDataObject;
@@ -364,7 +364,7 @@ public class PipelineAutoBeanUtil {
                 PipelineApp app = serviceStepToPipelineApp(step, stepPosition++, templateLookup);
 
                 ret.getApps().add(app);
-                stepLookup.put(getStepName(app), app);
+                stepLookup.put(step.getName(), app);
             }
         }
 
