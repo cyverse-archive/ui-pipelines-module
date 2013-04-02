@@ -18,6 +18,7 @@ import org.iplantc.core.pipelines.client.models.ServicePipelineAutoBeanFactory;
 import org.iplantc.core.pipelines.client.models.ServicePipelineMapping;
 import org.iplantc.core.pipelines.client.models.ServicePipelineStep;
 import org.iplantc.core.pipelines.client.models.ServicePipelineTemplate;
+import org.iplantc.core.pipelines.client.models.ServiceSaveResponse;
 import org.iplantc.core.resources.client.messages.I18N;
 import org.iplantc.core.uiapps.client.Services;
 import org.iplantc.core.uiapps.client.models.autobeans.App;
@@ -315,6 +316,28 @@ public class PipelineAutoBeanUtil {
     }
 
     /**
+     * Parses the Pipeline's ID from the save service call response.
+     * 
+     * @param response The JSON response from the Pipeline save service call.
+     * @return The ID of the saved Pipeline.
+     */
+    public String parseServiceSaveResponseId(String response) {
+        AutoBean<ServiceSaveResponse> responseBean = AutoBeanCodex.decode(serviceFactory,
+                ServiceSaveResponse.class, response);
+
+        if (responseBean != null) {
+            ServiceSaveResponse saveResponse = responseBean.as();
+
+            List<String> ids = saveResponse.getWorkflowIds();
+            if (ids != null && !ids.isEmpty()) {
+                return ids.get(0);
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * Converts a workflow JSON object into a Pipeline object.
      *
      * @param serviceJson A JSON object representing a workflow.
@@ -328,7 +351,7 @@ public class PipelineAutoBeanUtil {
             ServicePipeline servicePipeline = serviceBean.as();
 
             List<ServicePipelineAnalysis> analyses = servicePipeline.getAnalyses();
-            if (analyses != null && analyses.size() > 0) {
+            if (analyses != null && !analyses.isEmpty()) {
                 return serviceAnalysisToPipeline(analyses.get(0), servicePipeline.getTemplates());
             }
         }

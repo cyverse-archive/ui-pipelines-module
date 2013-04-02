@@ -26,8 +26,8 @@ import org.iplantc.core.uiapps.client.views.AppsViewImpl;
 import org.iplantc.core.uicommons.client.ErrorHandler;
 import org.iplantc.core.uicommons.client.events.EventBus;
 import org.iplantc.core.uicommons.client.presenter.Presenter;
-import org.iplantc.core.uicommons.client.views.gxt3.dialogs.IplantInfoBox;
 
+import com.google.common.base.Strings;
 import com.google.gwt.editor.client.EditorError;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -156,7 +156,8 @@ public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
         view.markAppOrderBtnValid();
         view.markMappingBtnValid();
 
-        String publishJson = utils.getPublishJson(getPipeline());
+        final Pipeline pipeline = getPipeline();
+        String publishJson = utils.getPublishJson(pipeline);
         if (publishJson == null) {
             ErrorHandler.post(I18N.ERROR.workflowPublishError());
             toolbar.setPublishButtonEnabled(true);
@@ -167,16 +168,22 @@ public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
 
             @Override
             public void onSuccess(String result) {
-                new IplantInfoBox(I18N.DISPLAY.publishToWorkspace(), I18N.DISPLAY
-                        .publishWorkflowSuccess()).show();
-                AppGroupCountUpdateEvent event = new AppGroupCountUpdateEvent(true, null);
-                EventBus.getInstance().fireEvent(event);
+
+                String newId = utils.parseServiceSaveResponseId(result);
+
+                if (!Strings.isNullOrEmpty(newId) && !newId.equals(pipeline.getId())) {
+                    pipeline.setId(newId);
+                    loadPipeline(pipeline);
+
+                    AppGroupCountUpdateEvent event = new AppGroupCountUpdateEvent(true, null);
+                    EventBus.getInstance().fireEvent(event);
+                }
+
+                toolbar.setPublishButtonEnabled(true);
 
                 if (onPublishCallback != null) {
                     onPublishCallback.execute();
                 }
-
-                toolbar.setPublishButtonEnabled(true);
             }
 
             @Override
@@ -216,23 +223,15 @@ public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
 
         if (activeView == view.getStepEditorPanel()) {
             activeView = view.getBuilderPanel();
-
-            if (pipeline != null) {
-                view.getPipelineCreator().loadPipeline(pipeline);
-            }
-
             appsPresenter.go(view.getAppsContainer());
         } else {
             activeView = view.getStepEditorPanel();
-
-            if (pipeline != null) {
-                view.setPipeline(pipeline);
-            }
-
             appsPresenter.go(appSelectView);
         }
 
         view.setActiveView(activeView);
+
+        loadPipeline(pipeline);
     }
 
     private void reconfigurePipelineAppMappingView(int startingStep, List<PipelineApp> apps) {
@@ -254,6 +253,17 @@ public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
         }
 
         return view.getPipeline();
+    }
+
+    private void loadPipeline(Pipeline pipeline) {
+        if (pipeline != null) {
+            if (view.getActiveView() == view.getBuilderPanel()) {
+                view.getPipelineCreator().loadPipeline(pipeline);
+            } else {
+                view.setPipeline(pipeline);
+            }
+        }
+
     }
 
     @Override

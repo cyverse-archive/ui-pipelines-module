@@ -23,4 +23,6 @@ public interface ServicePipelineAutoBeanFactory extends AutoBeanFactory {
     AutoBean<ServicePipelineStepConfig> servicePipelineMappingConfig();
 
     AutoBean<ServicePipelineMapping> servicePipelineMapping();
+
+    AutoBean<ServiceSaveResponse> serviceSaveResponse();
 }

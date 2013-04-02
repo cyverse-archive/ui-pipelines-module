@@ -16,12 +16,13 @@
         <button:TextButton
             ui:field="publishBtn"
             debugId="idBtnPublish"
-            text="{strings.publishToWorkspace}"
-            icon="{icons.publish}" />
+            text="{strings.save}"
+            icon="{icons.save}" />
         <toolbar:FillToolItem />
         <button:TextButton
             ui:field="swapViewBtn"
             debugId="idBtnSwitchView"
-            text="{strings.swapView}" />
+            text="{strings.swapView}"
+            icon="{icons.copy}" />
     </toolbar:ToolBar>
 </ui:UiBinder>
