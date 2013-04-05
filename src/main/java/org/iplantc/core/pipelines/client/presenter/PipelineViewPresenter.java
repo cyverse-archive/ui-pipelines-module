@@ -19,10 +19,9 @@ import org.iplantc.core.pipelines.client.views.widgets.PipelineViewToolbarImpl;
 import org.iplantc.core.resources.client.messages.I18N;
 import org.iplantc.core.uiapps.client.Services;
 import org.iplantc.core.uiapps.client.events.AppGroupCountUpdateEvent;
+import org.iplantc.core.uiapps.client.gin.AppsInjector;
 import org.iplantc.core.uiapps.client.models.autobeans.App;
-import org.iplantc.core.uiapps.client.presenter.AppsViewPresenter;
 import org.iplantc.core.uiapps.client.views.AppsView;
-import org.iplantc.core.uiapps.client.views.AppsViewImpl;
 import org.iplantc.core.uicommons.client.ErrorHandler;
 import org.iplantc.core.uicommons.client.events.EventBus;
 import org.iplantc.core.uicommons.client.presenter.Presenter;
@@ -53,7 +52,7 @@ public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
 
     private final PipelineView view;
     private final PipelineViewToolbar toolbar;
-    private AppsViewPresenter appsPresenter;
+    private AppsView.Presenter appsPresenter;
     private AppSelectionDialog appSelectView;
     private final Command onPublishCallback;
     private final PipelineAutoBeanUtil utils = new PipelineAutoBeanUtil();
@@ -82,10 +81,9 @@ public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
         appSelectView = new AppSelectionDialog();
         appSelectView.setPresenter(this);
 
-        AppsView appsView = new AppsViewImpl();
-        appsPresenter = new AppsViewPresenter(appsView);
+        appsPresenter = AppsInjector.INSTANCE.getAppsViewPresenter();
 
-        initAppsGridDragHandler(appsView.getAppsGrid());
+        initAppsGridDragHandler(appsPresenter.getAppsGrid());
         initPipelineBuilderDropHandler(view.getBuilderDropContainer());
 
         appsPresenter.builder()
