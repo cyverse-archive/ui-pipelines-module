@@ -2,7 +2,7 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.iplantc.core</groupId>
-	<artifactId>pipelines</artifactId>
+	<artifactId>ui-pipelines</artifactId>
 	<packaging>jar</packaging>
 	<version>gxt3Sandbox-SNAPSHOT</version>
 	<name>The iPlant Collaborative Discovery Environment Pipelines module</name>
@@ -67,17 +67,17 @@
 		</dependency>
         <dependency>
             <groupId>org.iplantc.core</groupId>
-            <artifactId>metadata</artifactId>
+            <artifactId>ui-metadata</artifactId>
             <version>gxt3Sandbox-SNAPSHOT</version>
         </dependency>
         <dependency>
 			<groupId>org.iplantc.core</groupId>
-			<artifactId>applications</artifactId>
+			<artifactId>ui-applications</artifactId>
 			<version>gxt3Sandbox-SNAPSHOT</version>
 		</dependency>
         <dependency>
             <groupId>org.iplantc.core</groupId>
-            <artifactId>pipeline-builder</artifactId>
+            <artifactId>ui-pipeline-builder</artifactId>
             <version>gxt3Sandbox-SNAPSHOT</version>
         </dependency>
 		</dependencies>
