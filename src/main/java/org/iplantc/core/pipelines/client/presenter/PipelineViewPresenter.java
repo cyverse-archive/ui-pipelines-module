@@ -93,7 +93,7 @@ public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
                 .hideToolbarButtonEdit()
                 .hideToolbarButtonRequestTool()
                 .hideToolbarButtonSubmit()
-                .go(appSelectView, null, null);
+                .go(appSelectView);
     }
 
     private void initAppsGridDragHandler(Grid<App> grid) {
