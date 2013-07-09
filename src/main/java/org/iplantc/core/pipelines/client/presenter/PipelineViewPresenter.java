@@ -20,6 +20,7 @@ import org.iplantc.core.pipelines.client.views.widgets.PipelineViewToolbarImpl;
 import org.iplantc.core.resources.client.messages.I18N;
 import org.iplantc.core.uiapps.client.Services;
 import org.iplantc.core.uiapps.client.events.AppGroupCountUpdateEvent;
+import org.iplantc.core.uiapps.client.events.AppUpdatedEvent;
 import org.iplantc.core.uiapps.client.gin.AppsInjector;
 import org.iplantc.core.uiapps.client.models.autobeans.App;
 import org.iplantc.core.uiapps.client.views.AppsView;
@@ -238,6 +239,8 @@ public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
 
                     AppGroupCountUpdateEvent event = new AppGroupCountUpdateEvent(true, null);
                     EventBus.getInstance().fireEvent(event);
+                    AppUpdatedEvent aevent = new AppUpdatedEvent(null);
+                    EventBus.getInstance().fireEvent(aevent);
                 }
 
                 toolbar.setPublishButtonEnabled(true);
