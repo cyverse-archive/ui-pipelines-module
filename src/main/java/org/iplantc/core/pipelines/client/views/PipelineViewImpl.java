@@ -6,6 +6,7 @@ import java.util.List;
 import org.iplantc.core.pipelineBuilder.client.builder.PipelineCreator;
 import org.iplantc.core.pipelineBuilder.client.json.autobeans.Pipeline;
 import org.iplantc.core.pipelineBuilder.client.json.autobeans.PipelineApp;
+import org.iplantc.core.resources.client.IplantResources;
 import org.iplantc.core.resources.client.messages.I18N;
 
 import com.google.gwt.core.client.GWT;
@@ -319,12 +320,12 @@ public class PipelineViewImpl implements PipelineView {
     }
 
     private void markValid(ToggleButton btn) {
-     //   btn.setIcon(IplantResources.ICON.stepComplete());
+        btn.setIcon(IplantResources.RESOURCES.tick());
         clearErrorTip(btn);
     }
 
     private void markInvalid(ToggleButton btn, String error) {
-       // btn.setIcon(IplantResources.ICON.stepError());
+        btn.setIcon(IplantResources.RESOURCES.exclamation());
         btn.setToolTip(error);
         btn.getToolTip().enable();
     }

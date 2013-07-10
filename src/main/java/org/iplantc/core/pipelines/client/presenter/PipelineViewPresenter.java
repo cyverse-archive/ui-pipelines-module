@@ -1,5 +1,6 @@
 package org.iplantc.core.pipelines.client.presenter;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -19,6 +20,7 @@ import org.iplantc.core.pipelines.client.views.widgets.PipelineViewToolbarImpl;
 import org.iplantc.core.resources.client.messages.I18N;
 import org.iplantc.core.uiapps.client.Services;
 import org.iplantc.core.uiapps.client.events.AppGroupCountUpdateEvent;
+import org.iplantc.core.uiapps.client.events.AppUpdatedEvent;
 import org.iplantc.core.uiapps.client.gin.AppsInjector;
 import org.iplantc.core.uiapps.client.models.autobeans.App;
 import org.iplantc.core.uiapps.client.views.AppsView;
@@ -28,8 +30,11 @@ import org.iplantc.core.uicommons.client.presenter.Presenter;
 
 import com.google.common.base.Strings;
 import com.google.gwt.editor.client.EditorError;
+import com.google.gwt.safehtml.shared.SafeHtml;
+import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HasOneWidget;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.web.bindery.autobean.shared.Splittable;
@@ -37,7 +42,9 @@ import com.sencha.gxt.data.shared.ListStore;
 import com.sencha.gxt.dnd.core.client.DND.Operation;
 import com.sencha.gxt.dnd.core.client.DropTarget;
 import com.sencha.gxt.dnd.core.client.GridDragSource;
+import com.sencha.gxt.widget.core.client.Dialog;
 import com.sencha.gxt.widget.core.client.container.Container;
+import com.sencha.gxt.widget.core.client.container.VerticalLayoutContainer;
 import com.sencha.gxt.widget.core.client.grid.Grid;
 
 /**
@@ -141,11 +148,68 @@ public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
 
     @Override
     public void onPublishClicked() {
-        if (view.isValid()) {
+        if (view.getActiveView() == view.getBuilderPanel()) {
+            if(isValidJson(getPipeline())) {
+                publishPipeline();
+            }
+            
+        } else if (view.isValid()) {
             publishPipeline();
         } else {
             markErrors();
         }
+    }
+    
+    private boolean isValidJson(Pipeline pipeline) {
+        List<String> errorList = new ArrayList<String>();
+        if(Strings.isNullOrEmpty(pipeline.getName()) || pipeline.getName().equalsIgnoreCase("Click to edit name")) {
+            errorList.add("Name is required.");
+        }
+        
+        if(Strings.isNullOrEmpty(pipeline.getDescription()) || pipeline.getDescription().equalsIgnoreCase("Click to edit description")) {
+            errorList.add("Description is required.");
+        }
+        
+        if(pipeline.getApps() == null || pipeline.getApps().size() <2) {
+            errorList.add(I18N.DISPLAY.selectOrderPnlTip());
+        } else {
+            List<PipelineApp> apps = pipeline.getApps();
+            for (PipelineApp app : apps) {
+                if(!isMappingValid(app)) {
+                    errorList.add(I18N.DISPLAY.inputsOutputsPnlTip());
+                    break;
+                }
+            }
+        }
+        
+        showErrors(errorList);
+        return errorList.isEmpty();
+    }
+    
+    private void showErrors(List<String> errorList) {
+        if(errorList == null || errorList.size() == 0) {
+            return;
+        }
+        
+        Dialog d = new Dialog();
+        d.setHeadingText(I18N.DISPLAY.error());
+        VerticalLayoutContainer vlc = new VerticalLayoutContainer();
+       
+        d.setWidget(vlc);
+        HTML html = new HTML(formatErrors(errorList));
+        vlc.add(html);
+        d.setSize("300", "175");
+        d.setHideOnButtonClick(true);
+        d.show();
+    }
+    
+    private SafeHtml formatErrors(List<String> errorList) {
+        SafeHtmlBuilder builder = new SafeHtmlBuilder();
+        builder.appendEscapedLines("Please fix the following errors:");
+        for (String err : errorList) {
+            builder.appendHtmlConstant("<p>*<span style='color:red;'>" +  err + "</span> </p>");
+        }
+        return builder.toSafeHtml();
     }
 
     private void publishPipeline() {
@@ -175,6 +239,8 @@ public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
 
                     AppGroupCountUpdateEvent event = new AppGroupCountUpdateEvent(true, null);
                     EventBus.getInstance().fireEvent(event);
+                    AppUpdatedEvent aevent = new AppUpdatedEvent(null);
+                    EventBus.getInstance().fireEvent(aevent);
                 }
 
                 toolbar.setPublishButtonEnabled(true);
@@ -207,9 +273,9 @@ public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
                     view.markAppOrderBtnInvalid(err.getMessage());
                 } else if (err.getUserData() == view.getMappingPanel()) {
                     view.markMappingBtnInvalid(err.getMessage());
-                }
+                } 
             }
-        }
+        } 
     }
 
     @Override
@@ -250,8 +316,12 @@ public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
             return view.getPipelineCreator().getPipeline();
         }
 
+        
+        
         return view.getPipeline();
     }
+    
+    
 
     private void loadPipeline(Pipeline pipeline) {
         if (pipeline != null) {
@@ -268,18 +338,26 @@ public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
     public void onInfoClick() {
         view.getStepPanel().setActiveWidget(view.getInfoPanel());
         view.getHelpContainer().setHTML(I18N.DISPLAY.infoPnlTip());
+        updateErrors();
     }
 
     @Override
     public void onAppOrderClick() {
         view.getStepPanel().setActiveWidget(view.getAppOrderPanel());
         view.getHelpContainer().setHTML(I18N.DISPLAY.selectOrderPnlTip());
+        updateErrors();
     }
 
     @Override
     public void onMappingClick() {
         view.getStepPanel().setActiveWidget(view.getMappingPanel());
         view.getHelpContainer().setHTML(I18N.DISPLAY.inputsOutputsPnlTip());
+        updateErrors();
+    }
+    
+    private void updateErrors() {
+        view.isValid();
+        markErrors();
     }
 
     @Override
