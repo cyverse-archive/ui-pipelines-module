@@ -1,7 +1,7 @@
 package org.iplantc.core.pipelines.client.views;
 
 import org.iplantc.core.pipelineBuilder.client.json.autobeans.Pipeline;
-import org.iplantc.core.uicommons.client.validators.CmdLineArgCharacterValidator;
+import org.iplantc.core.uicommons.client.validators.DiskResourceNameValidator;
 import org.iplantc.core.uicommons.client.widgets.PreventEntryAfterLimitHandler;
 
 import com.google.gwt.core.client.GWT;
@@ -38,7 +38,7 @@ public class PipelineInfoEditor implements IsWidget, Editor<Pipeline> {
         widget = uiBinder.createAndBindUi(this);
         name.addKeyDownHandler(new PreventEntryAfterLimitHandler(name));
         name.addValidator(new MaxLengthValidator(PreventEntryAfterLimitHandler.DEFAULT_LIMIT));
-        name.addValidator(new CmdLineArgCharacterValidator());
+        name.addValidator(new DiskResourceNameValidator());
     }
 
     @Override
