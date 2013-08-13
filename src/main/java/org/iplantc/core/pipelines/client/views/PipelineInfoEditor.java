@@ -1,6 +1,8 @@
 package org.iplantc.core.pipelines.client.views;
 
 import org.iplantc.core.pipelineBuilder.client.json.autobeans.Pipeline;
+import org.iplantc.core.uicommons.client.validators.DiskResourceNameValidator;
+import org.iplantc.core.uicommons.client.widgets.PreventEntryAfterLimitHandler;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.editor.client.Editor;
@@ -10,6 +12,7 @@ import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.Widget;
 import com.sencha.gxt.widget.core.client.form.TextArea;
 import com.sencha.gxt.widget.core.client.form.TextField;
+import com.sencha.gxt.widget.core.client.form.validator.MaxLengthValidator;
 
 /**
  * An Editor for the Pipeline name and description fields.
@@ -33,6 +36,9 @@ public class PipelineInfoEditor implements IsWidget, Editor<Pipeline> {
 
     public PipelineInfoEditor() {
         widget = uiBinder.createAndBindUi(this);
+        name.addKeyDownHandler(new PreventEntryAfterLimitHandler(name));
+        name.addValidator(new MaxLengthValidator(PreventEntryAfterLimitHandler.DEFAULT_LIMIT));
+        name.addValidator(new DiskResourceNameValidator());
     }
 
     @Override
