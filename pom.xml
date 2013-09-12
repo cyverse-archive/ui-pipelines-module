@@ -4,7 +4,7 @@
 	<groupId>org.iplantc.core</groupId>
 	<artifactId>ui-pipelines</artifactId>
 	<packaging>jar</packaging>
-	<version>1.8-SNAPSHOT</version>
+	<version>1.8.2-SNAPSHOT</version>
 	<name>The iPlant Collaborative Discovery Environment Pipelines module</name>
 	<url>http://project.iplantcollaborative.org</url>
 	<!-- convenience to define GWT version in one place -->
