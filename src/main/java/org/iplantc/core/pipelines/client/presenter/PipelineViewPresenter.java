@@ -160,6 +160,12 @@ public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
         }
     }
     
+    @Override
+    public void saveOnClose() {
+        onPublishClicked();
+    }
+    
+    
     private boolean isValidJson(Pipeline pipeline) {
         List<String> errorList = new ArrayList<String>();
         if(Strings.isNullOrEmpty(pipeline.getName()) || pipeline.getName().equalsIgnoreCase("Click to edit name")) {
@@ -211,7 +217,13 @@ public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
         }
         return builder.toSafeHtml();
     }
-
+    
+    @Override
+    public String getPublishJson(Pipeline pipeline) {
+        String publishJson = utils.getPublishJson(pipeline);
+        return publishJson;
+    }
+    
     private void publishPipeline() {
         toolbar.setPublishButtonEnabled(false);
         view.markInfoBtnValid();

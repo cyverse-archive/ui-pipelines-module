@@ -31,12 +31,16 @@ public interface PipelineView extends IsWidget, Editor<Pipeline> {
         public void setPipeline(Pipeline pipeline);
 
         public void setPipeline(Splittable serviceWorkflowJson);
+        
+        public String getPublishJson(Pipeline pipeline);
 
         public void onInfoClick();
 
         public void onAppOrderClick();
 
         public void onMappingClick();
+        
+        public void saveOnClose();
     }
 
     void setPresenter(final Presenter presenter);
