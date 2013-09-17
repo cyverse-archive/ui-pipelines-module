@@ -100,6 +100,7 @@ public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
                 .hideToolbarButtonEdit()
                 .hideToolbarButtonRequestTool()
                 .hideToolbarButtonSubmit()
+                .hideToolbarButtonEdit()
                 .go(appSelectView);
     }
 
