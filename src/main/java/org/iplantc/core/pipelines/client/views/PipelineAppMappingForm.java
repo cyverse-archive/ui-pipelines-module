@@ -100,7 +100,7 @@ public class PipelineAppMappingForm implements PipelineAppMappingView {
                     }
                 }
             } else {
-                delegate.recordError(I18N.DISPLAY.selectOrderPnlTip(), apps, this);
+                delegate.recordError(I18N.ERROR.mappingStepError(), apps, this);
             }
         }
     }
