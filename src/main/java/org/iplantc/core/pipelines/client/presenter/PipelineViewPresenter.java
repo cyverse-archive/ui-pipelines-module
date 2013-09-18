@@ -45,6 +45,7 @@ import com.sencha.gxt.dnd.core.client.GridDragSource;
 import com.sencha.gxt.widget.core.client.Dialog;
 import com.sencha.gxt.widget.core.client.container.Container;
 import com.sencha.gxt.widget.core.client.container.VerticalLayoutContainer;
+import com.sencha.gxt.widget.core.client.form.error.DefaultEditorError;
 import com.sencha.gxt.widget.core.client.grid.Grid;
 
 /**
@@ -168,22 +169,22 @@ public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
     
     
     private boolean isValidJson(Pipeline pipeline) {
-        List<String> errorList = new ArrayList<String>();
+        List<EditorError> errorList = new ArrayList<EditorError>();
         if(Strings.isNullOrEmpty(pipeline.getName()) || pipeline.getName().equalsIgnoreCase("Click to edit name")) {
-            errorList.add("Name is required.");
+            errorList.add(new DefaultEditorError(null,"Name is required.",null));
         }
         
         if(Strings.isNullOrEmpty(pipeline.getDescription()) || pipeline.getDescription().equalsIgnoreCase("Click to edit description")) {
-            errorList.add("Description is required.");
+            errorList.add(new DefaultEditorError(null,"Description is required.",null));
         }
         
         if(pipeline.getApps() == null || pipeline.getApps().size() <2) {
-            errorList.add(I18N.DISPLAY.selectOrderPnlTip());
+            errorList.add(new DefaultEditorError(null,I18N.DISPLAY.selectOrderPnlTip(),null));
         } else {
             List<PipelineApp> apps = pipeline.getApps();
             for (PipelineApp app : apps) {
                 if(!isMappingValid(app)) {
-                    errorList.add(I18N.DISPLAY.inputsOutputsPnlTip());
+                    errorList.add(new DefaultEditorError(null,I18N.DISPLAY.inputsOutputsPnlTip(),null));
                     break;
                 }
             }
@@ -193,7 +194,7 @@ public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
         return errorList.isEmpty();
     }
     
-    private void showErrors(List<String> errorList) {
+    private void showErrors(List<EditorError> errorList) {
         if(errorList == null || errorList.size() == 0) {
             return;
         }
@@ -210,11 +211,16 @@ public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
         d.show();
     }
     
-    private SafeHtml formatErrors(List<String> errorList) {
+    private SafeHtml formatErrors(List<EditorError> errorList) {
         SafeHtmlBuilder builder = new SafeHtmlBuilder();
         builder.appendEscapedLines("Please fix the following errors:");
-        for (String err : errorList) {
-            builder.appendHtmlConstant("<p>*<span style='color:red;'>" +  err + "</span> </p>");
+        for (EditorError err : errorList) {
+            //SS - this is ugly fix to display field names in the error message
+            if(err.getMessage().equalsIgnoreCase("This field is required")) {
+                builder.appendHtmlConstant("<p>*&nbsp;<span style='color:red;'>" + "Name / Description field is required."+ "</span> </p>");
+            } else {
+                builder.appendHtmlConstant("<p>*&nbsp;<span style='color:red;'>" +  err.getMessage() + "</span> </p>");
+            }
         }
         return builder.toSafeHtml();
     }
@@ -288,6 +294,7 @@ public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
                     view.markMappingBtnInvalid(err.getMessage());
                 } 
             }
+            showErrors(errors);
         } 
     }
 
