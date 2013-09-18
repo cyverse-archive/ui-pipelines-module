@@ -35,7 +35,7 @@ public class AppSelectionDialog extends Dialog {
         setHeadingText(I18N.DISPLAY.selectWindowTitle());
         setSize("800", "400"); //$NON-NLS-1$ //$NON-NLS-2$
         setModal(true);
-        setAutoHide(true);
+        setAutoHide(false);
         setResizable(false);
         setHideOnButtonClick(false);
         setButtonAlign(BoxLayoutPack.START);
