@@ -158,7 +158,7 @@ public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
         } else if (view.isValid()) {
             publishPipeline();
         } else {
-            markErrors();
+            markErrors(true);
         }
     }
     
@@ -277,7 +277,7 @@ public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
         });
     }
 
-    private void markErrors() {
+    private void markErrors(boolean showErrDialog) {
         view.markInfoBtnValid();
         view.markAppOrderBtnValid();
         view.markMappingBtnValid();
@@ -294,7 +294,9 @@ public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
                     view.markMappingBtnInvalid(err.getMessage());
                 } 
             }
-            showErrors(errors);
+            if(showErrDialog) {
+                showErrors(errors);
+            }
         } 
     }
 
@@ -377,7 +379,7 @@ public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
     
     private void updateErrors() {
         view.isValid();
-        markErrors();
+        markErrors(false);
     }
 
     @Override
