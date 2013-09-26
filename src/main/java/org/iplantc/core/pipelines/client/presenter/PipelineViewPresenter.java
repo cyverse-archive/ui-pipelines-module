@@ -26,6 +26,8 @@ import org.iplantc.core.uiapps.client.models.autobeans.App;
 import org.iplantc.core.uiapps.client.views.AppsView;
 import org.iplantc.core.uicommons.client.ErrorHandler;
 import org.iplantc.core.uicommons.client.events.EventBus;
+import org.iplantc.core.uicommons.client.info.ErrorAnnouncementConfig;
+import org.iplantc.core.uicommons.client.info.IplantAnnouncer;
 import org.iplantc.core.uicommons.client.presenter.Presenter;
 
 import com.google.common.base.Strings;
@@ -158,7 +160,7 @@ public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
         } else if (view.isValid()) {
             publishPipeline();
         } else {
-            markErrors();
+            markErrors(true);
         }
     }
     
@@ -200,6 +202,7 @@ public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
         }
         
         Dialog d = new Dialog();
+        d.setModal(true);
         d.setHeadingText(I18N.DISPLAY.error());
         VerticalLayoutContainer vlc = new VerticalLayoutContainer();
        
@@ -277,7 +280,7 @@ public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
         });
     }
 
-    private void markErrors() {
+    private void markErrors(boolean showErrDialog) {
         view.markInfoBtnValid();
         view.markAppOrderBtnValid();
         view.markMappingBtnValid();
@@ -294,7 +297,9 @@ public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
                     view.markMappingBtnInvalid(err.getMessage());
                 } 
             }
-            showErrors(errors);
+            if(showErrDialog) {
+                showErrors(errors);
+            }
         } 
     }
 
@@ -377,7 +382,7 @@ public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
     
     private void updateErrors() {
         view.isValid();
-        markErrors();
+        markErrors(false);
     }
 
     @Override
@@ -467,7 +472,7 @@ public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
                     result.setStep(store.size() + 1);
                     store.add(result);
 
-                    appSelectView.updateStatusBar(store.size(), I18N.DISPLAY.lastApp(result.getName()));
+                    appSelectView.updateStatusBar(store.size(), result.getName());
 
                     view.getMappingPanel().setValue(store.getAll());
                 }
@@ -475,8 +480,10 @@ public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
 
             @Override
             public void onFailure(Throwable caught) {
-                ListStore<PipelineApp> store = view.getPipelineAppStore();
-                appSelectView.updateStatusBar(store.size(), caught.getMessage());
+                SafeHtmlBuilder builder = new SafeHtmlBuilder();
+                builder.appendEscaped("Error adding app to workflow:" + caught.getMessage());
+                ErrorAnnouncementConfig config = new ErrorAnnouncementConfig(builder.toSafeHtml(), true);
+                IplantAnnouncer.getInstance().schedule(config);
             }
         });
 

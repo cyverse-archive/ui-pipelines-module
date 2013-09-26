@@ -1,8 +1,12 @@
 package org.iplantc.core.pipelines.client.views;
 
 import org.iplantc.core.resources.client.messages.I18N;
+import org.iplantc.core.uicommons.client.info.IplantAnnouncer;
+import org.iplantc.core.uicommons.client.info.SuccessAnnouncementConfig;
 
+import com.google.common.base.Strings;
 import com.google.gwt.core.shared.GWT;
+import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.sencha.gxt.widget.core.client.Dialog;
 import com.sencha.gxt.widget.core.client.Status;
 import com.sencha.gxt.widget.core.client.Status.BoxStatusAppearance;
@@ -76,6 +80,12 @@ public class AppSelectionDialog extends Dialog {
         appCountStatus.setText(appCount == 1 ? I18N.DISPLAY.appCountSingular() : I18N.DISPLAY
                 .appCountPlural(appCount));
         lastAppStatus.setText(lastAppLabel == null ? I18N.DISPLAY.lastApp(I18N.DISPLAY
-                .lastAppNotDefined()) : lastAppLabel);
+                .lastAppNotDefined()) : I18N.DISPLAY.lastApp(lastAppLabel));
+        if(!Strings.isNullOrEmpty(lastAppLabel)) {
+            SafeHtmlBuilder builder = new SafeHtmlBuilder();
+            builder.appendEscaped(lastAppLabel + " added.");
+            SuccessAnnouncementConfig config = new SuccessAnnouncementConfig(builder.toSafeHtml(), true);
+            IplantAnnouncer.getInstance().schedule(config);
+        }
     }
 }
