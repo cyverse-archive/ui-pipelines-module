@@ -23,3 +23,6 @@ nbactions.xml
 catalog.xml
 src/main/webapp/META-INF/context.xml
 
+
+# ignore gradle build directory
+build/
