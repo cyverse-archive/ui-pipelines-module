@@ -1,6 +1,6 @@
 package org.iplantc.de.pipelines.client.views;
 
-import org.iplantc.core.pipelineBuilder.client.json.autobeans.Pipeline;
+import org.iplantc.de.pipelineBuilder.client.json.autobeans.Pipeline;
 import org.iplantc.core.uicommons.client.validators.DiskResourceNameValidator;
 import org.iplantc.core.uicommons.client.widgets.PreventEntryAfterLimitHandler;
 

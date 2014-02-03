@@ -5,11 +5,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import org.iplantc.core.pipelineBuilder.client.json.autobeans.Pipeline;
-import org.iplantc.core.pipelineBuilder.client.json.autobeans.PipelineApp;
-import org.iplantc.core.pipelineBuilder.client.json.autobeans.PipelineAppData;
-import org.iplantc.core.pipelineBuilder.client.json.autobeans.PipelineAppMapping;
-import org.iplantc.core.pipelineBuilder.client.json.autobeans.PipelineAutoBeanFactory;
+import org.iplantc.de.pipelineBuilder.client.json.autobeans.Pipeline;
+import org.iplantc.de.pipelineBuilder.client.json.autobeans.PipelineApp;
+import org.iplantc.de.pipelineBuilder.client.json.autobeans.PipelineAppData;
+import org.iplantc.de.pipelineBuilder.client.json.autobeans.PipelineAppMapping;
+import org.iplantc.de.pipelineBuilder.client.json.autobeans.PipelineAutoBeanFactory;
 import org.iplantc.de.pipelines.client.models.ImplementorDetailTest;
 import org.iplantc.de.pipelines.client.models.ImplementorDetails;
 import org.iplantc.de.pipelines.client.models.ServicePipeline;

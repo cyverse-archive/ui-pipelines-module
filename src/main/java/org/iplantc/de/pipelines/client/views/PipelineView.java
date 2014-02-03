@@ -10,9 +10,9 @@ import com.sencha.gxt.widget.core.client.container.BorderLayoutContainer;
 import com.sencha.gxt.widget.core.client.container.CardLayoutContainer;
 import com.sencha.gxt.widget.core.client.container.HtmlLayoutContainer;
 import com.sencha.gxt.widget.core.client.container.SimpleContainer;
-import org.iplantc.core.pipelineBuilder.client.builder.PipelineCreator;
-import org.iplantc.core.pipelineBuilder.client.json.autobeans.Pipeline;
-import org.iplantc.core.pipelineBuilder.client.json.autobeans.PipelineApp;
+import org.iplantc.de.pipelineBuilder.client.builder.PipelineCreator;
+import org.iplantc.de.pipelineBuilder.client.json.autobeans.Pipeline;
+import org.iplantc.de.pipelineBuilder.client.json.autobeans.PipelineApp;
 
 import java.util.List;
 

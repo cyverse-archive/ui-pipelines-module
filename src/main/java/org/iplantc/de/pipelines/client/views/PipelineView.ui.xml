@@ -6,7 +6,7 @@
     xmlns:container="urn:import:com.sencha.gxt.widget.core.client.container"
     xmlns:button="urn:import:com.sencha.gxt.widget.core.client.button"
     xmlns:views="urn:import:org.iplantc.de.pipelines.client.views"
-    xmlns:builder="urn:import:org.iplantc.core.pipelineBuilder.client.builder">
+    xmlns:builder="urn:import:org.iplantc.de.pipelineBuilder.client.builder">
 
     <ui:with
         field="strings"

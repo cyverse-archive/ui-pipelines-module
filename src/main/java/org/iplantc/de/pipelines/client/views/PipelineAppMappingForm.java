@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.iplantc.core.pipelineBuilder.client.json.autobeans.PipelineApp;
-import org.iplantc.core.pipelineBuilder.client.json.autobeans.PipelineAppData;
-import org.iplantc.core.pipelineBuilder.client.json.autobeans.PipelineAppMapping;
+import org.iplantc.de.pipelineBuilder.client.json.autobeans.PipelineApp;
+import org.iplantc.de.pipelineBuilder.client.json.autobeans.PipelineAppData;
+import org.iplantc.de.pipelineBuilder.client.json.autobeans.PipelineAppMapping;
 import org.iplantc.de.resources.client.messages.I18N;
 
 import com.google.gwt.editor.client.EditorDelegate;

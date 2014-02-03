@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.iplantc.core.pipelineBuilder.client.json.autobeans.Pipeline;
-import org.iplantc.core.pipelineBuilder.client.json.autobeans.PipelineApp;
-import org.iplantc.core.pipelineBuilder.client.json.autobeans.PipelineAppMapping;
+import org.iplantc.de.pipelineBuilder.client.json.autobeans.Pipeline;
+import org.iplantc.de.pipelineBuilder.client.json.autobeans.PipelineApp;
+import org.iplantc.de.pipelineBuilder.client.json.autobeans.PipelineAppMapping;
 import org.iplantc.de.pipelines.client.dnd.AppsGridDragHandler;
 import org.iplantc.de.pipelines.client.dnd.PipelineBuilderDNDHandler;
 import org.iplantc.de.pipelines.client.dnd.PipelineBuilderDropHandler;
