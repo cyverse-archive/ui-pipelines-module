@@ -17,7 +17,7 @@ import org.iplantc.core.pipelines.client.views.PipelineAppOrderView;
 import org.iplantc.core.pipelines.client.views.PipelineView;
 import org.iplantc.core.pipelines.client.views.widgets.PipelineViewToolbar;
 import org.iplantc.core.pipelines.client.views.widgets.PipelineViewToolbarImpl;
-import org.iplantc.core.resources.client.messages.I18N;
+import org.iplantc.de.resources.client.messages.I18N;
 import org.iplantc.core.uiapps.client.Services;
 import org.iplantc.core.uiapps.client.events.AppGroupCountUpdateEvent;
 import org.iplantc.core.uiapps.client.events.AppUpdatedEvent;
