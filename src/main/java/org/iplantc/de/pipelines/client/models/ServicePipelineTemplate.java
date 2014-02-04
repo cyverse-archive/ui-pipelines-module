@@ -2,7 +2,7 @@ package org.iplantc.de.pipelines.client.models;
 
 import java.util.List;
 
-import org.iplantc.core.uiapps.client.models.autobeans.DataObject;
+import org.iplantc.de.apps.client.models.autobeans.DataObject;
 import org.iplantc.core.uicommons.client.models.HasDescription;
 import org.iplantc.core.uicommons.client.models.HasId;
 

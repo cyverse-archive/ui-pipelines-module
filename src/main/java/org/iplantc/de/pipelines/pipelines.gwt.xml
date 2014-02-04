@@ -8,7 +8,7 @@
 <module>
     <inherits name="com.google.gwt.user.User" />
     <inherits name="org.iplantc.core.JsonUtil" />
-    <inherits name="org.iplantc.core.uiapps.Apps" />
+    <inherits name="org.iplantc.de.apps.Apps" />
     <inherits name="org.iplantc.de.pipelineBuilder.PipelineBuilder" />
 
     <source path="client" />

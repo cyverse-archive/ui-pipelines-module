@@ -2,7 +2,7 @@ package org.iplantc.de.pipelines.client.dnd;
 
 import java.util.List;
 
-import org.iplantc.core.uiapps.client.models.autobeans.App;
+import org.iplantc.de.apps.client.models.autobeans.App;
 
 import com.sencha.gxt.dnd.core.client.DndDragStartEvent;
 import com.sencha.gxt.dnd.core.client.DndDragStartEvent.DndDragStartHandler;
