@@ -2,8 +2,8 @@ package org.iplantc.de.pipelines.client.models;
 
 import java.util.List;
 
-import org.iplantc.core.uicommons.client.models.HasDescription;
-import org.iplantc.core.uicommons.client.models.HasId;
+import org.iplantc.de.commons.client.models.HasDescription;
+import org.iplantc.de.commons.client.models.HasId;
 
 import com.google.web.bindery.autobean.shared.AutoBean.PropertyName;
 

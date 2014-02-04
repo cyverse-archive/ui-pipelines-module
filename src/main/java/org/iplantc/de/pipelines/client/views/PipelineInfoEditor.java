@@ -1,8 +1,8 @@
 package org.iplantc.de.pipelines.client.views;
 
 import org.iplantc.de.pipelineBuilder.client.json.autobeans.Pipeline;
-import org.iplantc.core.uicommons.client.validators.DiskResourceNameValidator;
-import org.iplantc.core.uicommons.client.widgets.PreventEntryAfterLimitHandler;
+import org.iplantc.de.commons.client.validators.DiskResourceNameValidator;
+import org.iplantc.de.commons.client.widgets.PreventEntryAfterLimitHandler;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.editor.client.Editor;

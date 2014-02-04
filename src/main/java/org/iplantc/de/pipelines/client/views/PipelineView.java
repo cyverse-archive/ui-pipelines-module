@@ -24,7 +24,7 @@ import java.util.List;
  */
 public interface PipelineView extends IsWidget, Editor<Pipeline> {
 
-    public interface Presenter extends org.iplantc.core.uicommons.client.presenter.Presenter {
+    public interface Presenter extends org.iplantc.de.commons.client.presenter.Presenter {
         public Pipeline getPipeline();
 
         public void setPipeline(Pipeline pipeline);

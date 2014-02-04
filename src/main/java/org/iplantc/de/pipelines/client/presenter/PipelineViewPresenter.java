@@ -24,11 +24,11 @@ import org.iplantc.de.apps.client.events.AppUpdatedEvent;
 import org.iplantc.de.apps.client.gin.AppsInjector;
 import org.iplantc.de.apps.client.models.autobeans.App;
 import org.iplantc.de.apps.client.views.AppsView;
-import org.iplantc.core.uicommons.client.ErrorHandler;
-import org.iplantc.core.uicommons.client.events.EventBus;
-import org.iplantc.core.uicommons.client.info.ErrorAnnouncementConfig;
-import org.iplantc.core.uicommons.client.info.IplantAnnouncer;
-import org.iplantc.core.uicommons.client.presenter.Presenter;
+import org.iplantc.de.commons.client.ErrorHandler;
+import org.iplantc.de.commons.client.events.EventBus;
+import org.iplantc.de.commons.client.info.ErrorAnnouncementConfig;
+import org.iplantc.de.commons.client.info.IplantAnnouncer;
+import org.iplantc.de.commons.client.presenter.Presenter;
 
 import com.google.common.base.Strings;
 import com.google.gwt.editor.client.EditorError;

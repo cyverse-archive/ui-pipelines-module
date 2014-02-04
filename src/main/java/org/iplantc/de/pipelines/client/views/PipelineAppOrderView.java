@@ -12,7 +12,7 @@ import com.sencha.gxt.data.shared.ListStore;
  * 
  */
 public interface PipelineAppOrderView extends IsWidget {
-    public interface Presenter extends org.iplantc.core.uicommons.client.presenter.Presenter {
+    public interface Presenter extends org.iplantc.de.commons.client.presenter.Presenter {
 
         public void onAddAppsClicked();
 

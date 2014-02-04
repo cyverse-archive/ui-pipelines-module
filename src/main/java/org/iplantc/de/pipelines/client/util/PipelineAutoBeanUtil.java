@@ -24,8 +24,8 @@ import org.iplantc.de.apps.client.Services;
 import org.iplantc.de.apps.client.models.autobeans.App;
 import org.iplantc.de.apps.client.models.autobeans.AppDataObject;
 import org.iplantc.de.apps.client.models.autobeans.DataObject;
-import org.iplantc.core.uicommons.client.ErrorHandler;
-import org.iplantc.core.uicommons.client.models.UserInfo;
+import org.iplantc.de.commons.client.ErrorHandler;
+import org.iplantc.de.commons.client.models.UserInfo;
 
 import com.google.common.base.Strings;
 import com.google.gwt.core.shared.GWT;
