@@ -1,9 +1,5 @@
 package org.iplantc.de.pipelines.client.views;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 import org.iplantc.de.pipelineBuilder.client.json.autobeans.PipelineApp;
 import org.iplantc.de.pipelineBuilder.client.json.autobeans.PipelineAppData;
 import org.iplantc.de.pipelineBuilder.client.json.autobeans.PipelineAppMapping;
@@ -14,6 +10,7 @@ import com.google.gwt.editor.client.EditorError;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.user.client.ui.Widget;
+
 import com.sencha.gxt.cell.core.client.form.ComboBoxCell.TriggerAction;
 import com.sencha.gxt.core.client.ValueProvider;
 import com.sencha.gxt.core.client.dom.ScrollSupport.ScrollMode;
@@ -29,6 +26,10 @@ import com.sencha.gxt.widget.core.client.form.FieldSet;
 import com.sencha.gxt.widget.core.client.form.ListField;
 import com.sencha.gxt.widget.core.client.form.error.DefaultEditorError;
 import com.sencha.gxt.widget.core.client.form.error.SideErrorHandler;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * A PipelineAppMappingView that displays input mappings as FieldLabels with a ComboBox for mapping an

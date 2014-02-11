@@ -1,11 +1,11 @@
 package org.iplantc.de.pipelines.client.views;
 
-import java.util.List;
-
 import org.iplantc.de.pipelineBuilder.client.json.autobeans.PipelineApp;
 
 import com.google.gwt.editor.client.ValueAwareEditor;
 import com.google.gwt.user.client.ui.IsWidget;
+
+import java.util.List;
 
 /**
  * A View for displaying and editing Pipeline Output to Input mappings.

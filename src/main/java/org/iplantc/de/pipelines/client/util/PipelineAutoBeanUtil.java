@@ -1,10 +1,11 @@
 package org.iplantc.de.pipelines.client.util;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-
+import org.iplantc.de.apps.client.Services;
+import org.iplantc.de.apps.client.models.autobeans.App;
+import org.iplantc.de.apps.client.models.autobeans.AppDataObject;
+import org.iplantc.de.apps.client.models.autobeans.DataObject;
+import org.iplantc.de.client.models.UserInfo;
+import org.iplantc.de.commons.client.ErrorHandler;
 import org.iplantc.de.pipelineBuilder.client.json.autobeans.Pipeline;
 import org.iplantc.de.pipelineBuilder.client.json.autobeans.PipelineApp;
 import org.iplantc.de.pipelineBuilder.client.json.autobeans.PipelineAppData;
@@ -20,12 +21,6 @@ import org.iplantc.de.pipelines.client.models.ServicePipelineStep;
 import org.iplantc.de.pipelines.client.models.ServicePipelineTemplate;
 import org.iplantc.de.pipelines.client.models.ServiceSaveResponse;
 import org.iplantc.de.resources.client.messages.I18N;
-import org.iplantc.de.apps.client.Services;
-import org.iplantc.de.apps.client.models.autobeans.App;
-import org.iplantc.de.apps.client.models.autobeans.AppDataObject;
-import org.iplantc.de.apps.client.models.autobeans.DataObject;
-import org.iplantc.de.commons.client.ErrorHandler;
-import org.iplantc.de.commons.client.models.UserInfo;
 
 import com.google.common.base.Strings;
 import com.google.gwt.core.shared.GWT;
@@ -35,8 +30,14 @@ import com.google.web.bindery.autobean.shared.AutoBeanCodex;
 import com.google.web.bindery.autobean.shared.AutoBeanUtils;
 import com.google.web.bindery.autobean.shared.Splittable;
 import com.google.web.bindery.autobean.shared.impl.StringQuoter;
+
 import com.sencha.gxt.core.client.util.Format;
 import com.sencha.gxt.core.shared.FastMap;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 /**
  * A Utility class for Pipeline AutoBeans and converting them to/from the service JSON.

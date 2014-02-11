@@ -1,7 +1,5 @@
 package org.iplantc.de.pipelines.client.views;
 
-import java.util.List;
-
 import org.iplantc.de.pipelineBuilder.client.json.autobeans.Pipeline;
 import org.iplantc.de.pipelineBuilder.client.json.autobeans.PipelineApp;
 import org.iplantc.de.pipelines.client.models.PipelineAppProperties;
@@ -16,6 +14,7 @@ import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.uibinder.client.UiTemplate;
 import com.google.gwt.user.client.ui.Widget;
+
 import com.sencha.gxt.core.client.Style.SelectionMode;
 import com.sencha.gxt.data.client.editor.ListStoreEditor;
 import com.sencha.gxt.data.shared.ListStore;
@@ -25,6 +24,8 @@ import com.sencha.gxt.data.shared.Store.StoreSortInfo;
 import com.sencha.gxt.widget.core.client.event.SelectEvent;
 import com.sencha.gxt.widget.core.client.grid.ColumnModel;
 import com.sencha.gxt.widget.core.client.grid.Grid;
+
+import java.util.List;
 
 /**
  * An implementation of the PipelineAppOrderView.

@@ -1,12 +1,12 @@
 package org.iplantc.de.pipelines.client.models;
 
-import java.util.List;
-
 import org.iplantc.de.apps.client.models.autobeans.DataObject;
-import org.iplantc.de.commons.client.models.HasDescription;
-import org.iplantc.de.commons.client.models.HasId;
+import org.iplantc.de.client.models.HasDescription;
+import org.iplantc.de.client.models.HasId;
 
 import com.google.gwt.user.client.ui.HasName;
+
+import java.util.List;
 
 /**
  * An AutoBean interface for a service Template provided in service Pipeline JSON.

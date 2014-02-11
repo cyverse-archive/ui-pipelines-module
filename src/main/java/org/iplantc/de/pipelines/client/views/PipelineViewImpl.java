@@ -1,8 +1,5 @@
 package org.iplantc.de.pipelines.client.views;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.iplantc.de.pipelineBuilder.client.builder.PipelineCreator;
 import org.iplantc.de.pipelineBuilder.client.json.autobeans.Pipeline;
 import org.iplantc.de.pipelineBuilder.client.json.autobeans.PipelineApp;
@@ -20,6 +17,7 @@ import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.uibinder.client.UiTemplate;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.Widget;
+
 import com.sencha.gxt.core.client.util.ToggleGroup;
 import com.sencha.gxt.data.shared.ListStore;
 import com.sencha.gxt.widget.core.client.button.ToggleButton;
@@ -30,6 +28,9 @@ import com.sencha.gxt.widget.core.client.container.HtmlLayoutContainer;
 import com.sencha.gxt.widget.core.client.container.SimpleContainer;
 import com.sencha.gxt.widget.core.client.event.SelectEvent;
 import com.sencha.gxt.widget.core.client.tips.ToolTip;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * The main PipelineView implementation.

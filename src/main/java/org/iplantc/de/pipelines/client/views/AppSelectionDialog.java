@@ -1,12 +1,13 @@
 package org.iplantc.de.pipelines.client.views;
 
-import org.iplantc.de.resources.client.messages.I18N;
 import org.iplantc.de.commons.client.info.IplantAnnouncer;
 import org.iplantc.de.commons.client.info.SuccessAnnouncementConfig;
+import org.iplantc.de.resources.client.messages.I18N;
 
 import com.google.common.base.Strings;
 import com.google.gwt.core.shared.GWT;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
+
 import com.sencha.gxt.widget.core.client.Dialog;
 import com.sencha.gxt.widget.core.client.Status;
 import com.sencha.gxt.widget.core.client.Status.BoxStatusAppearance;

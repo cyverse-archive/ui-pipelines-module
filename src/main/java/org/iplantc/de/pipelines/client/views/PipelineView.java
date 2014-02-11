@@ -1,18 +1,20 @@
 package org.iplantc.de.pipelines.client.views;
 
+import org.iplantc.de.pipelineBuilder.client.builder.PipelineCreator;
+import org.iplantc.de.pipelineBuilder.client.json.autobeans.Pipeline;
+import org.iplantc.de.pipelineBuilder.client.json.autobeans.PipelineApp;
+
 import com.google.gwt.editor.client.Editor;
 import com.google.gwt.editor.client.EditorError;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.web.bindery.autobean.shared.Splittable;
+
 import com.sencha.gxt.data.shared.ListStore;
 import com.sencha.gxt.widget.core.client.button.ToggleButton;
 import com.sencha.gxt.widget.core.client.container.BorderLayoutContainer;
 import com.sencha.gxt.widget.core.client.container.CardLayoutContainer;
 import com.sencha.gxt.widget.core.client.container.HtmlLayoutContainer;
 import com.sencha.gxt.widget.core.client.container.SimpleContainer;
-import org.iplantc.de.pipelineBuilder.client.builder.PipelineCreator;
-import org.iplantc.de.pipelineBuilder.client.json.autobeans.Pipeline;
-import org.iplantc.de.pipelineBuilder.client.json.autobeans.PipelineApp;
 
 import java.util.List;
 

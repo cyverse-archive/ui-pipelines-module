@@ -3,6 +3,7 @@ package org.iplantc.de.pipelines.client.models;
 import org.iplantc.de.pipelineBuilder.client.json.autobeans.PipelineApp;
 
 import com.google.gwt.editor.client.Editor.Path;
+
 import com.sencha.gxt.core.client.ValueProvider;
 import com.sencha.gxt.data.shared.LabelProvider;
 import com.sencha.gxt.data.shared.PropertyAccess;

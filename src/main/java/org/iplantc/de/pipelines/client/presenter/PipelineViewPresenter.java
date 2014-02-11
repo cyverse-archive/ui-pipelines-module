@@ -1,9 +1,16 @@
 package org.iplantc.de.pipelines.client.presenter;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
+import org.iplantc.de.apps.client.Services;
+import org.iplantc.de.apps.client.events.AppGroupCountUpdateEvent;
+import org.iplantc.de.apps.client.events.AppUpdatedEvent;
+import org.iplantc.de.apps.client.gin.AppsInjector;
+import org.iplantc.de.apps.client.models.autobeans.App;
+import org.iplantc.de.apps.client.views.AppsView;
+import org.iplantc.de.commons.client.ErrorHandler;
+import org.iplantc.de.commons.client.events.EventBus;
+import org.iplantc.de.commons.client.info.ErrorAnnouncementConfig;
+import org.iplantc.de.commons.client.info.IplantAnnouncer;
+import org.iplantc.de.commons.client.presenter.Presenter;
 import org.iplantc.de.pipelineBuilder.client.json.autobeans.Pipeline;
 import org.iplantc.de.pipelineBuilder.client.json.autobeans.PipelineApp;
 import org.iplantc.de.pipelineBuilder.client.json.autobeans.PipelineAppMapping;
@@ -18,17 +25,6 @@ import org.iplantc.de.pipelines.client.views.PipelineView;
 import org.iplantc.de.pipelines.client.views.widgets.PipelineViewToolbar;
 import org.iplantc.de.pipelines.client.views.widgets.PipelineViewToolbarImpl;
 import org.iplantc.de.resources.client.messages.I18N;
-import org.iplantc.de.apps.client.Services;
-import org.iplantc.de.apps.client.events.AppGroupCountUpdateEvent;
-import org.iplantc.de.apps.client.events.AppUpdatedEvent;
-import org.iplantc.de.apps.client.gin.AppsInjector;
-import org.iplantc.de.apps.client.models.autobeans.App;
-import org.iplantc.de.apps.client.views.AppsView;
-import org.iplantc.de.commons.client.ErrorHandler;
-import org.iplantc.de.commons.client.events.EventBus;
-import org.iplantc.de.commons.client.info.ErrorAnnouncementConfig;
-import org.iplantc.de.commons.client.info.IplantAnnouncer;
-import org.iplantc.de.commons.client.presenter.Presenter;
 
 import com.google.common.base.Strings;
 import com.google.gwt.editor.client.EditorError;
@@ -40,6 +36,7 @@ import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HasOneWidget;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.web.bindery.autobean.shared.Splittable;
+
 import com.sencha.gxt.data.shared.ListStore;
 import com.sencha.gxt.dnd.core.client.DND.Operation;
 import com.sencha.gxt.dnd.core.client.DropTarget;
@@ -49,6 +46,10 @@ import com.sencha.gxt.widget.core.client.container.Container;
 import com.sencha.gxt.widget.core.client.container.VerticalLayoutContainer;
 import com.sencha.gxt.widget.core.client.form.error.DefaultEditorError;
 import com.sencha.gxt.widget.core.client.grid.Grid;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * The Presenter for the Pipeline View.

@@ -1,13 +1,13 @@
 package org.iplantc.de.pipelines.client.dnd;
 
-import java.util.List;
-
-import org.iplantc.de.resources.client.messages.I18N;
 import org.iplantc.de.apps.client.models.autobeans.App;
+import org.iplantc.de.resources.client.messages.I18N;
 
 import com.sencha.gxt.dnd.core.client.DndDragCancelEvent;
 import com.sencha.gxt.dnd.core.client.DndDragCancelEvent.DndDragCancelHandler;
 import com.sencha.gxt.dnd.core.client.StatusProxy;
+
+import java.util.List;
 
 /**
  * A common Handler for drag'n'drop events from the Apps grid to the PipelineBuilder.

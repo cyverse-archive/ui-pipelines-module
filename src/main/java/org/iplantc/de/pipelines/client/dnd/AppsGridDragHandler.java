@@ -1,12 +1,12 @@
 package org.iplantc.de.pipelines.client.dnd;
 
-import java.util.List;
-
 import org.iplantc.de.apps.client.models.autobeans.App;
 
 import com.sencha.gxt.dnd.core.client.DndDragStartEvent;
 import com.sencha.gxt.dnd.core.client.DndDragStartEvent.DndDragStartHandler;
 import com.sencha.gxt.dnd.core.client.StatusProxy;
+
+import java.util.List;
 
 /**
  * A PipelineBuilderDNDHandler for dragging Apps from the Apps Grid.

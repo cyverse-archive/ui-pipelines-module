@@ -1,14 +1,14 @@
 package org.iplantc.de.pipelines.client.views;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.iplantc.de.pipelineBuilder.client.json.autobeans.PipelineApp;
 import org.iplantc.de.pipelines.client.models.PipelineAppProperties;
 import org.iplantc.de.resources.client.messages.I18N;
 
 import com.sencha.gxt.widget.core.client.grid.ColumnConfig;
 import com.sencha.gxt.widget.core.client.grid.ColumnModel;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A ColumnModel for the "Select & Order Apps" grid.

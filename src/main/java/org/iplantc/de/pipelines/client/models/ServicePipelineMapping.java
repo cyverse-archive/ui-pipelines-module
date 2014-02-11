@@ -1,8 +1,8 @@
 package org.iplantc.de.pipelines.client.models;
 
-import java.util.Map;
-
 import com.google.web.bindery.autobean.shared.AutoBean.PropertyName;
+
+import java.util.Map;
 
 /**
  * An AutoBean interface for a service Pipeline step input to output mapping.
