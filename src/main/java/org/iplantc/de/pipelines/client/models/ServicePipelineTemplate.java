@@ -1,8 +1,8 @@
 package org.iplantc.de.pipelines.client.models;
 
-import org.iplantc.de.apps.client.models.autobeans.DataObject;
 import org.iplantc.de.client.models.HasDescription;
 import org.iplantc.de.client.models.HasId;
+import org.iplantc.de.client.models.apps.DataObject;
 
 import com.google.gwt.user.client.ui.HasName;
 

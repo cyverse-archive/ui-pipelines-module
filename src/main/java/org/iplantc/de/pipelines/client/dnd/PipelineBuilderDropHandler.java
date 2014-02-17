@@ -1,6 +1,6 @@
 package org.iplantc.de.pipelines.client.dnd;
 
-import org.iplantc.de.apps.client.models.autobeans.App;
+import org.iplantc.de.client.models.apps.App;
 import org.iplantc.de.resources.client.messages.I18N;
 
 import com.sencha.gxt.dnd.core.client.DndDragEnterEvent;

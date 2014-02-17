@@ -1,10 +1,10 @@
 package org.iplantc.de.pipelines.client.util;
 
 import org.iplantc.de.apps.client.Services;
-import org.iplantc.de.apps.client.models.autobeans.App;
-import org.iplantc.de.apps.client.models.autobeans.AppDataObject;
-import org.iplantc.de.apps.client.models.autobeans.DataObject;
 import org.iplantc.de.client.models.UserInfo;
+import org.iplantc.de.client.models.apps.App;
+import org.iplantc.de.client.models.apps.AppDataObject;
+import org.iplantc.de.client.models.apps.DataObject;
 import org.iplantc.de.commons.client.ErrorHandler;
 import org.iplantc.de.pipelineBuilder.client.json.autobeans.Pipeline;
 import org.iplantc.de.pipelineBuilder.client.json.autobeans.PipelineApp;
