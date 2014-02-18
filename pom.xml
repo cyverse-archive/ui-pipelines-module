@@ -9,7 +9,7 @@
 	<url>http://project.iplantcollaborative.org</url>
 	<!-- convenience to define GWT version in one place -->
 	<properties>
-		<gwt.module>org.iplantc.core.pipelines</gwt.module>
+		<gwt.module>org.iplantc.de.pipelines.pipelines</gwt.module>
 		<!-- Target Java Version -->
 		<jdk.version>1.6</jdk.version>
 		<!-- Current GXT Version -->
