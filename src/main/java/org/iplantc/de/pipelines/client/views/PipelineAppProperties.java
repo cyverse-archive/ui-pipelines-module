@@ -1,4 +1,4 @@
-package org.iplantc.de.pipelines.client.models;
+package org.iplantc.de.pipelines.client.views;
 
 import org.iplantc.de.pipelineBuilder.client.json.autobeans.PipelineApp;
 

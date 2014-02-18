@@ -1,7 +1,6 @@
 package org.iplantc.de.pipelines.client.views;
 
 import org.iplantc.de.pipelineBuilder.client.json.autobeans.PipelineApp;
-import org.iplantc.de.pipelines.client.models.PipelineAppProperties;
 import org.iplantc.de.resources.client.messages.I18N;
 
 import com.sencha.gxt.widget.core.client.grid.ColumnConfig;
