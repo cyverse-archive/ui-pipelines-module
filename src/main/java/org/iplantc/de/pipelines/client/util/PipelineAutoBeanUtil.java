@@ -1,6 +1,6 @@
 package org.iplantc.de.pipelines.client.util;
 
-import org.iplantc.de.apps.client.Services;
+import org.iplantc.de.client.gin.ServicesInjector;
 import org.iplantc.de.client.models.UserInfo;
 import org.iplantc.de.client.models.apps.App;
 import org.iplantc.de.client.models.apps.AppDataObject;
@@ -79,7 +79,7 @@ public class PipelineAutoBeanUtil {
             return;
         }
 
-        Services.USER_APP_SERVICE.getDataObjectsForApp(app.getId(), new AsyncCallback<String>() {
+        ServicesInjector.INSTANCE.getAppUserServiceFacade().getDataObjectsForApp(app.getId(), new AsyncCallback<String>() {
 
             @Override
             public void onSuccess(String result) {

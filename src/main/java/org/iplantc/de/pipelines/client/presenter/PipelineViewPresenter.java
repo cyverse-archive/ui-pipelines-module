@@ -1,11 +1,11 @@
 package org.iplantc.de.pipelines.client.presenter;
 
-import org.iplantc.de.apps.client.Services;
 import org.iplantc.de.apps.client.events.AppGroupCountUpdateEvent;
 import org.iplantc.de.apps.client.events.AppUpdatedEvent;
 import org.iplantc.de.apps.client.gin.AppsInjector;
 import org.iplantc.de.apps.client.views.AppsView;
 import org.iplantc.de.client.events.EventBus;
+import org.iplantc.de.client.gin.ServicesInjector;
 import org.iplantc.de.client.models.apps.App;
 import org.iplantc.de.commons.client.ErrorHandler;
 import org.iplantc.de.commons.client.info.ErrorAnnouncementConfig;
@@ -249,7 +249,7 @@ public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
             return;
         }
 
-        Services.USER_APP_SERVICE.publishWorkflow(publishJson, new AsyncCallback<String>() {
+        ServicesInjector.INSTANCE.getAppUserServiceFacade().publishWorkflow(publishJson, new AsyncCallback<String>() {
 
             @Override
             public void onSuccess(String result) {
