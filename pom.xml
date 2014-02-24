@@ -1,7 +1,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>org.iplantc.core</groupId>
+	<groupId>org.iplantc.de</groupId>
 	<artifactId>ui-pipelines</artifactId>
 	<packaging>jar</packaging>
 	<version>dev-SNAPSHOT</version>
@@ -21,7 +21,7 @@
 	</properties>
 	<dependencies>
 		<dependency>
-			<groupId>org.iplantc.core</groupId>
+			<groupId>org.iplantc.de</groupId>
 			<artifactId>ui-commons</artifactId>
 			<version>${project.version}</version>
 		</dependency>
@@ -60,18 +60,13 @@
             <version>2.5.1</version>
             <scope>test</scope>
         </dependency>
-		<dependency>
-			<groupId>org.iplantc.core</groupId>
-			<artifactId>jsonutil</artifactId>
-			<version>${project.version}</version>
-		</dependency>
         <dependency>
-			<groupId>org.iplantc.core</groupId>
+			<groupId>org.iplantc.de</groupId>
 			<artifactId>ui-applications</artifactId>
 			<version>${project.version}</version>
 		</dependency>
         <dependency>
-            <groupId>org.iplantc.core</groupId>
+            <groupId>org.iplantc.de</groupId>
             <artifactId>ui-pipeline-builder</artifactId>
             <version>${project.version}</version>
         </dependency>
