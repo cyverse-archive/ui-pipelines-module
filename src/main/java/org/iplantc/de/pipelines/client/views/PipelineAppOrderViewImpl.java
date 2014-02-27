@@ -1,7 +1,7 @@
 package org.iplantc.de.pipelines.client.views;
 
-import org.iplantc.de.pipelineBuilder.client.json.autobeans.Pipeline;
-import org.iplantc.de.pipelineBuilder.client.json.autobeans.PipelineApp;
+import org.iplantc.de.client.models.pipelines.Pipeline;
+import org.iplantc.de.client.models.pipelines.PipelineApp;
 import org.iplantc.de.resources.client.messages.I18N;
 
 import com.google.gwt.core.client.GWT;

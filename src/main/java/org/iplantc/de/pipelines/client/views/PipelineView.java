@@ -1,8 +1,8 @@
 package org.iplantc.de.pipelines.client.views;
 
+import org.iplantc.de.client.models.pipelines.Pipeline;
+import org.iplantc.de.client.models.pipelines.PipelineApp;
 import org.iplantc.de.pipelineBuilder.client.builder.PipelineCreator;
-import org.iplantc.de.pipelineBuilder.client.json.autobeans.Pipeline;
-import org.iplantc.de.pipelineBuilder.client.json.autobeans.PipelineApp;
 
 import com.google.gwt.editor.client.Editor;
 import com.google.gwt.editor.client.EditorError;
