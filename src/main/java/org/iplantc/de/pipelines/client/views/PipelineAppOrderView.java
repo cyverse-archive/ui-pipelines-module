@@ -1,6 +1,6 @@
 package org.iplantc.de.pipelines.client.views;
 
-import org.iplantc.de.pipelineBuilder.client.json.autobeans.PipelineApp;
+import org.iplantc.de.client.models.pipelines.PipelineApp;
 
 import com.google.gwt.user.client.ui.IsWidget;
 
