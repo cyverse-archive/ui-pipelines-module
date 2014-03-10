@@ -53,13 +53,12 @@ import java.util.Map;
 
 /**
  * The Presenter for the Pipeline View.
- *
+ * 
  * @author psarando
- *
+ * 
  */
-public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
-        PipelineViewToolbar.Presenter, PipelineBuilderDNDHandler.Presenter,
-        PipelineAppOrderView.Presenter, PipelineAppMappingView.Presenter, AppSelectionDialog.Presenter {
+public class PipelineViewPresenter implements Presenter, PipelineView.Presenter, PipelineViewToolbar.Presenter, PipelineBuilderDNDHandler.Presenter, PipelineAppOrderView.Presenter,
+        PipelineAppMappingView.Presenter, AppSelectionDialog.Presenter {
 
     private final PipelineView view;
     private final PipelineViewToolbar toolbar;
@@ -97,15 +96,8 @@ public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
         initAppsGridDragHandler(appsPresenter.getAppsGrid());
         initPipelineBuilderDropHandler(view.getBuilderDropContainer());
 
-        appsPresenter.builder()
-                .hideToolbarButtonCopy()
-                .hideToolbarButtonCreate()
-                .hideToolbarButtonDelete()
-                .hideToolbarButtonEdit()
-                .hideToolbarButtonRequestTool()
-                .hideToolbarButtonSubmit()
-                .hideToolbarButtonEdit()
-                .go(appSelectView);
+        appsPresenter.builder().hideToolbarButtonCopy().hideToolbarButtonCreate().hideToolbarButtonDelete().hideToolbarButtonEdit().hideToolbarButtonRequestTool().hideToolbarButtonSubmit()
+                .hideToolbarButtonEdit().go(appSelectView);
     }
 
     private void initAppsGridDragHandler(Grid<App> grid) {
@@ -154,59 +146,58 @@ public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
     @Override
     public void onPublishClicked() {
         if (view.getActiveView() == view.getBuilderPanel()) {
-            if(isValidJson(getPipeline())) {
+            if (isValidJson(getPipeline())) {
                 publishPipeline();
             }
-            
+
         } else if (view.isValid()) {
             publishPipeline();
         } else {
             markErrors(true);
         }
     }
-    
+
     @Override
     public void saveOnClose() {
         onPublishClicked();
     }
-    
-    
+
     private boolean isValidJson(Pipeline pipeline) {
         List<EditorError> errorList = new ArrayList<EditorError>();
-        if(Strings.isNullOrEmpty(pipeline.getName()) || pipeline.getName().equalsIgnoreCase("Click to edit name")) {
-            errorList.add(new DefaultEditorError(null,"Name is required.",null));
+        if (Strings.isNullOrEmpty(pipeline.getName()) || pipeline.getName().equalsIgnoreCase("Click to edit name")) {
+            errorList.add(new DefaultEditorError(null, "Name is required.", null));
         }
-        
-        if(Strings.isNullOrEmpty(pipeline.getDescription()) || pipeline.getDescription().equalsIgnoreCase("Click to edit description")) {
-            errorList.add(new DefaultEditorError(null,"Description is required.",null));
+
+        if (Strings.isNullOrEmpty(pipeline.getDescription()) || pipeline.getDescription().equalsIgnoreCase("Click to edit description")) {
+            errorList.add(new DefaultEditorError(null, "Description is required.", null));
         }
-        
-        if(pipeline.getApps() == null || pipeline.getApps().size() <2) {
-            errorList.add(new DefaultEditorError(null,I18N.DISPLAY.selectOrderPnlTip(),null));
+
+        if (pipeline.getApps() == null || pipeline.getApps().size() < 2) {
+            errorList.add(new DefaultEditorError(null, I18N.DISPLAY.selectOrderPnlTip(), null));
         } else {
             List<PipelineApp> apps = pipeline.getApps();
             for (PipelineApp app : apps) {
-                if(!isMappingValid(app)) {
-                    errorList.add(new DefaultEditorError(null,I18N.DISPLAY.inputsOutputsPnlTip(),null));
+                if (!isMappingValid(app)) {
+                    errorList.add(new DefaultEditorError(null, I18N.DISPLAY.inputsOutputsPnlTip(), null));
                     break;
                 }
             }
         }
-        
+
         showErrors(errorList);
         return errorList.isEmpty();
     }
-    
+
     private void showErrors(List<EditorError> errorList) {
-        if(errorList == null || errorList.size() == 0) {
+        if (errorList == null || errorList.size() == 0) {
             return;
         }
-        
+
         Dialog d = new Dialog();
         d.setModal(true);
         d.setHeadingText(I18N.DISPLAY.error());
         VerticalLayoutContainer vlc = new VerticalLayoutContainer();
-       
+
         d.setWidget(vlc);
         HTML html = new HTML(formatErrors(errorList));
         vlc.add(html);
@@ -214,27 +205,27 @@ public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
         d.setHideOnButtonClick(true);
         d.show();
     }
-    
+
     private SafeHtml formatErrors(List<EditorError> errorList) {
         SafeHtmlBuilder builder = new SafeHtmlBuilder();
         builder.appendEscapedLines("Please fix the following errors:");
         for (EditorError err : errorList) {
-            //SS - this is ugly fix to display field names in the error message
-            if(err.getMessage().equalsIgnoreCase("This field is required")) {
-                builder.appendHtmlConstant("<p>*&nbsp;<span style='color:red;'>" + "Name / Description field is required."+ "</span> </p>");
+            // SS - this is ugly fix to display field names in the error message
+            if (err.getMessage().equalsIgnoreCase("This field is required")) {
+                builder.appendHtmlConstant("<p>*&nbsp;<span style='color:red;'>" + "Name / Description field is required." + "</span> </p>");
             } else {
-                builder.appendHtmlConstant("<p>*&nbsp;<span style='color:red;'>" +  err.getMessage() + "</span> </p>");
+                builder.appendHtmlConstant("<p>*&nbsp;<span style='color:red;'>" + err.getMessage() + "</span> </p>");
             }
         }
         return builder.toSafeHtml();
     }
-    
+
     @Override
     public String getPublishJson(Pipeline pipeline) {
         String publishJson = utils.getPublishJson(pipeline);
         return publishJson;
     }
-    
+
     private void publishPipeline() {
         toolbar.setPublishButtonEnabled(false);
         view.markInfoBtnValid();
@@ -296,12 +287,12 @@ public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
                     view.markAppOrderBtnInvalid(err.getMessage());
                 } else if (err.getUserData() == view.getMappingPanel()) {
                     view.markMappingBtnInvalid(err.getMessage());
-                } 
+                }
             }
-            if(showErrDialog) {
+            if (showErrDialog) {
                 showErrors(errors);
             }
-        } 
+        }
     }
 
     @Override
@@ -342,12 +333,8 @@ public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
             return view.getPipelineCreator().getPipeline();
         }
 
-        
-        
         return view.getPipeline();
     }
-    
-    
 
     private void loadPipeline(Pipeline pipeline) {
         if (pipeline != null) {
@@ -380,7 +367,7 @@ public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
         view.getHelpContainer().setHTML(I18N.DISPLAY.inputsOutputsPnlTip());
         updateErrors();
     }
-    
+
     private void updateErrors() {
         view.isValid();
         markErrors(false);
@@ -463,30 +450,34 @@ public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
     @Override
     public void onAddAppClick() {
         App selectedApp = appsPresenter.getSelectedApp();
-        utils.appToPipelineApp(selectedApp, new AsyncCallback<PipelineApp>() {
+        if (!selectedApp.isDisabled()) {
+            utils.appToPipelineApp(selectedApp, new AsyncCallback<PipelineApp>() {
 
-            @Override
-            public void onSuccess(PipelineApp result) {
-                if (result != null) {
-                    ListStore<PipelineApp> store = view.getPipelineAppStore();
+                @Override
+                public void onSuccess(PipelineApp result) {
+                    if (result != null) {
+                        ListStore<PipelineApp> store = view.getPipelineAppStore();
 
-                    result.setStep(store.size() + 1);
-                    store.add(result);
+                        result.setStep(store.size() + 1);
+                        store.add(result);
 
-                    appSelectView.updateStatusBar(store.size(), result.getName());
+                        appSelectView.updateStatusBar(store.size(), result.getName());
 
-                    view.getMappingPanel().setValue(store.getAll());
+                        view.getMappingPanel().setValue(store.getAll());
+                    }
                 }
-            }
 
-            @Override
-            public void onFailure(Throwable caught) {
-                SafeHtmlBuilder builder = new SafeHtmlBuilder();
-                builder.appendEscaped("Error adding app to workflow:" + caught.getMessage());
-                ErrorAnnouncementConfig config = new ErrorAnnouncementConfig(builder.toSafeHtml(), true);
-                IplantAnnouncer.getInstance().schedule(config);
-            }
-        });
+                @Override
+                public void onFailure(Throwable caught) {
+                    SafeHtmlBuilder builder = new SafeHtmlBuilder();
+                    builder.appendEscaped("Error adding app to workflow:" + caught.getMessage());
+                    ErrorAnnouncementConfig config = new ErrorAnnouncementConfig(builder.toSafeHtml(), true);
+                    IplantAnnouncer.getInstance().schedule(config);
+                }
+            });
+        } else {
+            IplantAnnouncer.getInstance().schedule(new ErrorAnnouncementConfig("Cannot add disabled App to workflow!"));
+        }
 
     }
 
@@ -531,8 +522,7 @@ public class PipelineViewPresenter implements Presenter, PipelineView.Presenter,
      * {@inheritDoc}
      */
     @Override
-    public void setInputOutputMapping(PipelineApp targetStep, String targetInputId,
-            PipelineApp sourceStep, String sourceOutputId) {
+    public void setInputOutputMapping(PipelineApp targetStep, String targetInputId, PipelineApp sourceStep, String sourceOutputId) {
         utils.setInputOutputMapping(targetStep, targetInputId, sourceStep, sourceOutputId);
     }
 
